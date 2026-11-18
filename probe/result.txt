@@ -3,7 +3,7 @@ code=200 type=text/html;charset=UTF-8 size=42739
                     	<!DOCTYPE html> 	<html lang="zh-Hant"> 		<head> 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 			<title>財團法人保險事業發展中心</title> 			<!-- ======== META TAGS ======== --> 			<meta http-equiv="X-UA-Compatible" content="IE=edge"> 			<meta
 
 ### https://www.tii.org.tw/
-code=200 type=text/html;charset=UTF-8 size=52848
+code=200 type=text/html;charset=UTF-8 size=52847
                 <!DOCTYPE html> <html lang="zh-Hant"> <head> 		<title>財團法人保險事業發展中心</title> 		<!-- ======== META TAGS ======== --> 		<meta http-equiv="X-UA-Compatible" content="IE=edge"> 		<meta charset="utf-8"> 		<meta name="description" content="財團法人保險事業發�
 
 ### https://www.sitca.org.tw/ROC/Industry/IN4001.aspx?pid=IN2211_04
@@ -25,4 +25,4 @@ code=200 type=text/html; charset=UTF-8 size=115951
 <!DOCTYPE html> <html lang="zh-TW"> <head>      <meta charset="UTF-8"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>首頁 ｜ 壽險公會</title>  <!-- favicon -->  <link rel="icon" href="https://www.liaroc.org.
 server: nginx/1.29.3
 
-Wed Nov 18 09:17:31 UTC 2026
+Wed Nov 18 09:18:06 UTC 2026
