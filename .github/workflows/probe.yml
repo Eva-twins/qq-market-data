@@ -1,0 +1,41 @@
+name: probe
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/probe.yml']
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe sources
+        run: |
+          mkdir -p probe
+          out=probe/result.txt
+          : > $out
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+          check() {
+            echo "### $1" >> $out
+            curl -sS -L -m 40 -A "$UA" -o probe/body.tmp -D probe/hdr.tmp -w "code=%{http_code} type=%{content_type} size=%{size_download}\n" "$1" >> $out 2>&1 || echo "curl_failed" >> $out
+            head -c 300 probe/body.tmp | tr -d '\r' | tr '\n' ' ' >> $out; echo >> $out
+            grep -i -E "^(access-control-allow-origin|server|cf-ray)" probe/hdr.tmp >> $out || true
+            echo >> $out
+          }
+          check "https://www.tii.org.tw/tii/actuarial/actuarial3/pivot/index.html"
+          check "https://www.tii.org.tw/"
+          check "https://www.sitca.org.tw/ROC/Industry/IN4001.aspx?pid=IN2211_04"
+          check "https://www.lia-roc.org.tw/storage/uploads/6789adb4aae88.pdf"
+          check "https://www.lia-roc.org.tw/"
+          check "https://www.liaroc.org.tw/"
+          date -u >> $out
+      - name: Commit result
+        run: |
+          rm -f probe/body.tmp probe/hdr.tmp
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add probe/result.txt
+          git commit -m "probe result" || true
+          git pull --rebase -q || true
+          git push
