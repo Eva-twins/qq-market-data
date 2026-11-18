@@ -1,0 +1,28 @@
+### https://www.tii.org.tw/tii/actuarial/actuarial3/pivot/index.html
+code=200 type=text/html;charset=UTF-8 size=42739
+                    	<!DOCTYPE html> 	<html lang="zh-Hant"> 		<head> 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 			<title>財團法人保險事業發展中心</title> 			<!-- ======== META TAGS ======== --> 			<meta http-equiv="X-UA-Compatible" content="IE=edge"> 			<meta
+
+### https://www.tii.org.tw/
+code=200 type=text/html;charset=UTF-8 size=52848
+                <!DOCTYPE html> <html lang="zh-Hant"> <head> 		<title>財團法人保險事業發展中心</title> 		<!-- ======== META TAGS ======== --> 		<meta http-equiv="X-UA-Compatible" content="IE=edge"> 		<meta charset="utf-8"> 		<meta name="description" content="財團法人保險事業發�
+
+### https://www.sitca.org.tw/ROC/Industry/IN4001.aspx?pid=IN2211_04
+code=200 type=text/html; charset=utf-8 size=117892
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> <head>     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />     <meta http-equiv="Cont
+
+### https://www.lia-roc.org.tw/storage/uploads/6789adb4aae88.pdf
+code=200 type=application/pdf size=205129
+%PDF-1.7 %���� 1 0 obj <</Type/Catalog/Pages 2 0 R/Lang(zh) /StructTreeRoot 31 0 R/MarkInfo<</Marked true>>/Metadata 1465 0 R/ViewerPreferences 1466 0 R>> endobj 2 0 obj <</Type/Pages/Count 6/Kids[ 3 0 R 16 0 R 20 0 R 22 0 R 24 0 R 28 0 R] >> endobj 3 0 obj <</Type/Page/Parent 2 0 R/Resourc
+server: nginx/1.29.3
+
+### https://www.lia-roc.org.tw/
+code=200 type=text/html; charset=UTF-8 size=116068
+<!DOCTYPE html> <html lang="zh-TW"> <head>      <meta charset="UTF-8"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>首頁 ｜ 壽險公會</title>  <!-- favicon -->  <link rel="icon" href="https://www.lia-roc.org
+server: nginx/1.29.3
+
+### https://www.liaroc.org.tw/
+code=200 type=text/html; charset=UTF-8 size=115951
+<!DOCTYPE html> <html lang="zh-TW"> <head>      <meta charset="UTF-8"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>首頁 ｜ 壽險公會</title>  <!-- favicon -->  <link rel="icon" href="https://www.liaroc.org.
+server: nginx/1.29.3
+
+Wed Nov 18 09:17:31 UTC 2026
