@@ -3,4 +3,4 @@ sitca: page default 202610 latest option 202610 todo 3
 sitca: snaps 131 latest 2026-10 fails []
 flow: life 45 2023-01 2026-09 inv 33 2024-01 2026-09
 lia: periods 18 new 0 bad [] latest 2026-10
-fx: months 133 latest 2026-11 {'USD': 32.87, 'AUD': 22.2694, 'CNY': 4.9273}
+fx: months 133 latest 2026-11 {'USD': 32.87, 'AUD': 22.2694, 'CNY': 4.9273, 'EUR': 36.2688}
