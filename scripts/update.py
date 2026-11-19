@@ -128,6 +128,42 @@ def update_mk(start="201512", refresh_last=3):
     save("mk.json", {"updated": NOW, "snaps": snaps})
     print("sitca: snaps", len(snaps), "latest", max(snaps), "fails", fails)
 
+
+# ---------- 保費收入 vs 給付（資金流）----------
+def parse_pair(rows, c_cur, c_prev, div):
+    """本年/上年欄位表：上年欄補到 y-1 年（本年資料優先）。"""
+    cur, prev, yr = {}, {}, None
+    for r in rows:
+        a = str(r[0]).strip() if r[0] != "" else ""
+        if re.fullmatch(r"\d{4}(\.0)?", a):
+            yr = a[:4]
+        m = str(r[1]).strip() if r[1] != "" else ""
+        if m.endswith(".0"): m = m[:-2]
+        if not yr or not re.fullmatch(r"\d{1,2}", m):
+            continue
+        try:
+            cur[f"{yr}-{m.zfill(2)}"] = [round(float(r[j]) / div, 1) for j in c_cur]
+            prev[f"{int(yr)-1}-{m.zfill(2)}"] = [round(float(r[j]) / div, 1) for j in c_prev]
+        except (ValueError, IndexError):
+            continue
+    for k, v in prev.items():
+        cur.setdefault(k, v)
+    return cur
+
+def update_flow():
+    # 人壽保險（個人險）：初年度、續年度保費 + 給付（千元→億）
+    prm = parse_pair(fetch_xls("xPivoMonPrm1"), [2, 3], [4, 5], 1e5)
+    clm = parse_pair(fetch_xls("xPivoMonClm1"), [3], [5], 1e5)
+    life = {k: [prm[k][0], prm[k][1], clm[k][0]] for k in prm if k in clm}
+    # 投資型（個人投資型人壽＋變額年金，含非保險合約）：總保費收入、給付(合計、人壽、年金)
+    ip = parse_pivot(fetch_xls("xPivoMonInvPrm1"), [16, 10, 13], 1e5)     # 總保費 合計/人壽/年金
+    ic = parse_pivot(fetch_xls("xPivoMonInvClm1"), [11, 7, 9], 1e5)       # 給付 合計/人壽/年金
+    inv = {k: [ip[k][0], ic[k][0], ip[k][1], ic[k][1], ip[k][2], ic[k][2]] for k in ip if k in ic}
+    if len(life) < 24 or len(inv) < 24:
+        raise SystemExit(f"資金流解析異常：life={len(life)} inv={len(inv)}")
+    save("flow.json", {"updated": NOW, "life": life, "inv": inv})
+    print("flow: life", len(life), min(life), max(life), "inv", len(inv), min(inv), max(inv))
+
 # ---------- 壽險公會業績統計 ----------
 def update_lia():
     import tempfile
@@ -167,7 +203,7 @@ def update_lia():
 
 if __name__ == "__main__":
     errs = []
-    for fn in (update_ins, update_mk, update_lia):
+    for fn in (update_ins, update_mk, update_flow, update_lia):
         try: fn()
         except BaseException as e:
             errs.append(f"{fn.__name__}: {e}"); print("ERROR", fn.__name__, e, file=sys.stderr)
