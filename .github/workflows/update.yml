@@ -1,0 +1,28 @@
+name: update-data
+on:
+  schedule:
+    - cron: '17 1 * * *'   # 每天 09:17 台北時間
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: update-data
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install requests beautifulsoup4 xlrd
+      - name: Fetch data
+        run: python scripts/update.py 2>&1 | tee run.log
+      - name: Commit if changed
+        if: always()
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          mkdir -p logs && cp run.log logs/last_run.log || true
+          git add data logs
+          git commit -m "data update $(date -u +%F)" || echo "nothing to commit"
+          git pull --rebase -q || true
+          git push
