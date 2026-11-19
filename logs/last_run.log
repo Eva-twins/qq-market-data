@@ -1,4 +1,5 @@
 ins: prm 33 bif 33 latest 2026-09 2026-09 (no change)
 sitca: page default 202610 latest option 202610 todo 3
 sitca: snaps 131 latest 2026-10 fails []
-lia: periods 18 new 18 bad [] latest 2026-10
+flow: life 45 2023-01 2026-09 inv 33 2024-01 2026-09
+lia: periods 18 new 0 bad [] latest 2026-10
