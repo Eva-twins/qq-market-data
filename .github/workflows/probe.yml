@@ -10,28 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Crawl lia-roc links
+      - name: Fetch latest report
+        continue-on-error: true
         run: |
           mkdir -p probe
-          pip install -q requests beautifulsoup4
-          python - <<'PY' 2> probe/err.txt
-          import requests,re,json
-          from bs4 import BeautifulSoup
-          UA={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36"}
-          out={}
-          def links(u):
-              r=requests.get(u,headers=UA,timeout=60);s=BeautifulSoup(r.text,"html.parser")
-              return [(a.get_text(" ",strip=True)[:60],a.get("href")) for a in s.find_all("a",href=True)]
-          for u in ["https://www.lia-roc.org.tw?catg_id=10&temp_menu_title=%E5%A3%BD%E9%9A%AA%E7%B5%B1%E8%A8%88%E8%B3%87%E6%96%99",
-                    "https://www.lia-roc.org.tw/list_article?article_content=10&menu_title=%E5%A3%BD%E9%9A%AA%E7%B5%B1%E8%A8%88%E8%B3%87%E6%96%99"]:
-              try: out[u]=[x for x in links(u) if x[1] and ("uploads" in x[1] or "article" in x[1] or "page" in x[1].lower() or "業績" in (x[0] or ""))]
-              except Exception as e: out[u]=str(e)
-          json.dump(out,open("probe/lia_links.json","w"),ensure_ascii=False,indent=1)
-          PY
-        continue-on-error: true
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36"
+          curl -sS -L -A "$UA" -o probe/latest.pdf "https://www.lia-roc.org.tw/storage/uploads/6afbcaceabc86.pdf" 2> probe/err.txt
+          which pdftotext >> probe/err.txt 2>&1 || true
+          pdftotext -layout probe/latest.pdf probe/latest.txt 2>> probe/err.txt || true
+          rm -f probe/latest.pdf
       - name: Commit
         if: always()
         run: |
           git config user.name "github-actions"; git config user.email "actions@users.noreply.github.com"
-          git add -A probe; git commit -m "probe lia" || true; git pull --rebase -q || true; git push
-# run7
+          git add -A probe; git commit -m "probe latest report" || true; git pull --rebase -q || true; git push
+# run8
