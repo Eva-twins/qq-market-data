@@ -1,1 +1,0 @@
-/home/runner/work/_temp/7a783e85-e25a-4f6d-bf74-7cefd16146d5.sh: line 5: pdftotext: command not found
