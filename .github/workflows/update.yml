@@ -3,6 +3,8 @@ on:
   schedule:
     - cron: '17 1 * * *'   # 每天 09:17 台北時間
   workflow_dispatch:
+  push:
+    paths: ['scripts/**', '.github/workflows/update.yml']
 permissions:
   contents: write
 concurrency: update-data
