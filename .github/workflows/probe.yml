@@ -1,0 +1,45 @@
+name: probe
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/probe.yml']
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe old SITCA months
+        continue-on-error: true
+        run: |
+          mkdir -p probe
+          pip install -q requests beautifulsoup4
+          python - <<'PY' > probe/old.txt 2>&1
+          import sys,re
+          sys.path.insert(0,"scripts")
+          import update as u
+          import requests
+          from bs4 import BeautifulSoup
+          s=requests.Session();s.headers.update(u.UA)
+          r=s.get(u.URL,timeout=90);soup=BeautifulSoup(r.text,"html.parser")
+          for m in ["201511","201412","201312","201212","201112","201012","200912","200812","200612","200312"]:
+              form=u.hidden(soup);form["__EVENTTARGET"]=u.SEL;form["__EVENTARGUMENT"]="";form[u.SEL]=m
+              r=s.post(u.URL,data=form,timeout=90);soup=BeautifulSoup(r.text,"html.parser")
+              tabs=[(t.get("id"),len(t.find_all("tr"))) for t in soup.find_all("table") if t.get("id")]
+              print("==",m,tabs)
+              t=soup.find(id=re.compile(r"TableMEMA1$"))
+              if t is not None:
+                  rows=t.find_all("tr")
+                  for tr in rows[:3]+rows[-2:]:
+                      print("   ",[td.get_text(strip=True)[:12] for td in tr.find_all(["td","th"])])
+              else:
+                  txt=re.sub(r"\s+"," ",soup.get_text(" "))
+                  i=txt.find("全權委託");print("   no TableMEMA1;",txt[i:i+200] if i>=0 else txt[:200])
+          PY
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions"; git config user.email "actions@users.noreply.github.com"
+          git add -A probe; git commit -m "probe old months" || true; git pull --rebase -q || true; git push
+# run12
