@@ -15,6 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
+      - run: sudo apt-get install -y -qq poppler-utils
       - run: pip install requests beautifulsoup4 xlrd
       - name: Fetch data
         run: python scripts/update.py 2>&1 | tee run.log

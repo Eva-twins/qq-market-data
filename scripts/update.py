@@ -128,9 +128,46 @@ def update_mk(start="201512", refresh_last=3):
     save("mk.json", {"updated": NOW, "snaps": snaps})
     print("sitca: snaps", len(snaps), "latest", max(snaps), "fails", fails)
 
+# ---------- 壽險公會業績統計 ----------
+def update_lia():
+    import tempfile
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import lia
+    src = json.load(open(os.path.join(ROOT, "scripts", "lia_sources.json"), encoding="utf-8"))
+    old = load("lia.json", {"periods": {}, "sources": []})
+    periods, done = old.get("periods", {}), set(old.get("sources", []))
+    ids = list(src["backfill"])
+    try:
+        u = lia.find_latest_url()
+        if u:
+            ids.append(re.search(r"([0-9a-f]{13})\.pdf", u).group(1))
+        else:
+            print("lia: 找不到最新報告連結（頁面可能改版）", file=sys.stderr)
+    except Exception as e:
+        print("lia: 取得最新連結失敗", e, file=sys.stderr)
+    tmp = os.path.join(tempfile.gettempdir(), "lia.pdf")
+    new, bad = 0, []
+    for i in dict.fromkeys(ids):
+        if i in done:
+            continue
+        try:
+            r = lia.parse_report(lia.download_text(f"https://www.lia-roc.org.tw/storage/uploads/{i}.pdf", tmp))
+        except Exception as e:
+            r = None; print("lia: 下載/解析失敗", i, e, file=sys.stderr)
+        if not r:
+            bad.append(i); continue
+        k = f"{r['year']}-{r['month']:02d}"
+        periods[k] = {"cur": r["cur"], "prev": r["prev"], "ch": r["ch"], "src": i}
+        done.add(i); new += 1
+    seed = json.load(open(os.path.join(DATA, "lia_seed.json"), encoding="utf-8"))
+    save("lia.json", {"updated": NOW, "periods": periods, "sources": sorted(done), "seed": seed})
+    print("lia: periods", len(periods), "new", new, "bad", bad, "latest", max(periods) if periods else None)
+    if not periods:
+        raise SystemExit("壽險公會報告解析全部失敗")
+
 if __name__ == "__main__":
     errs = []
-    for fn in (update_ins, update_mk):
+    for fn in (update_ins, update_mk, update_lia):
         try: fn()
         except BaseException as e:
             errs.append(f"{fn.__name__}: {e}"); print("ERROR", fn.__name__, e, file=sys.stderr)
