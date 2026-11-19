@@ -14,7 +14,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p probe
-          pip install -q requests beautifulsoup4
+          pip install -q requests beautifulsoup4 xlrd
           python - <<'PY' > probe/old.txt 2>&1
           import sys,re
           sys.path.insert(0,"scripts")
@@ -42,4 +42,4 @@ jobs:
         run: |
           git config user.name "github-actions"; git config user.email "actions@users.noreply.github.com"
           git add -A probe; git commit -m "probe old months" || true; git pull --rebase -q || true; git push
-# run12
+# run13
