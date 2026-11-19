@@ -221,14 +221,16 @@ def update_fx():
     twd = month_end(fred("DEXTAUS"))      # TWD per USD
     aud = month_end(fred("DEXUSAL"))      # USD per AUD
     cny = month_end(fred("DEXCHUS"))      # CNY per USD
+    eur = month_end(fred("DEXUSEU"))      # USD per EUR
     fx = {}
     for k, u in twd.items():
         row = {"USD": round(u, 4)}
         if k in aud: row["AUD"] = round(u * aud[k], 4)
         if k in cny and cny[k]: row["CNY"] = round(u / cny[k], 4)
+        if k in eur: row["EUR"] = round(u * eur[k], 4)
         fx[k] = row
     if len(fx) < 100: raise SystemExit(f"fx: 月數異常 {len(fx)}")
-    save("fx.json", {"updated": NOW, "src": "FRED DEXTAUS/DEXUSAL/DEXCHUS (月底最後一個交易日)", "months": fx})
+    save("fx.json", {"updated": NOW, "src": "FRED DEXTAUS/DEXUSAL/DEXCHUS/DEXUSEU (月底最後一個交易日)", "months": fx})
     print("fx: months", len(fx), "latest", max(fx), fx[max(fx)])
 
 if __name__ == "__main__":
