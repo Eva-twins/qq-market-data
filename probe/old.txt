@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+  File "/home/runner/work/qq-market-data/qq-market-data/scripts/update.py", line 7, in <module>
+    import xlrd
+ModuleNotFoundError: No module named 'xlrd'
