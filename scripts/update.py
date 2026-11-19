@@ -88,7 +88,7 @@ def months_between(a, b):
         m += 1
         if m > 12: y, m = y + 1, 1
 
-def update_mk(start="201512", refresh_last=3):
+def update_mk(start="200301", refresh_last=3):
     s = requests.Session(); s.headers.update(UA)
     r = s.get(URL, timeout=90); r.raise_for_status()
     soup = BeautifulSoup(r.text, "html.parser")
