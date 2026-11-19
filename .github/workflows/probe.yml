@@ -10,19 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch latest report
+      - name: Fetch reports
         continue-on-error: true
         run: |
-          mkdir -p probe
+          mkdir -p probe/pdf
           sudo apt-get install -y -qq poppler-utils > /dev/null 2>&1
           UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36"
-          curl -sS -L -A "$UA" -o probe/latest.pdf "https://www.lia-roc.org.tw/storage/uploads/6afbcaceabc86.pdf" 2> probe/err.txt
-          which pdftotext >> probe/err.txt 2>&1 || true
-          pdftotext -layout probe/latest.pdf probe/latest.txt 2>> probe/err.txt || true
-          rm -f probe/latest.pdf
+          for id in 6969f36bda5f0 6940f62bd26c7 65aa16aca51fc 65b07b6352823 65b0a0b09588a 65b0a11839e93 65b0a18e1e1c7 65b0a1c040b0f 67af050aefb9f 67d8cb790f3c2 67ff08e14212f 6826ba0811b56 684fc30e7fe5e 6877430b4ad62 68a534049fd73 68a283c59572d 6ad1e35bc4e8a; do
+            curl -sS -L -m 60 -A "$UA" -o probe/pdf/$id.pdf "https://www.lia-roc.org.tw/storage/uploads/$id.pdf" 2>> probe/err.txt
+            pdftotext -layout probe/pdf/$id.pdf probe/pdf/$id.txt 2>> probe/err.txt
+            echo "$id $(head -c 400 probe/pdf/$id.txt | tr -s ' \n' ' ' | head -c 60)" >> probe/index.txt
+            rm -f probe/pdf/$id.pdf
+          done
       - name: Commit
         if: always()
         run: |
           git config user.name "github-actions"; git config user.email "actions@users.noreply.github.com"
-          git add -A probe; git commit -m "probe latest report" || true; git pull --rebase -q || true; git push
-# run9
+          git add -A probe; git commit -m "probe reports" || true; git pull --rebase -q || true; git push
+# run10
