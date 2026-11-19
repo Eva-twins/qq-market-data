@@ -1,0 +1,37 @@
+name: probe
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/probe.yml']
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Crawl lia-roc links
+        run: |
+          pip install -q requests beautifulsoup4
+          python - <<'PY'
+          import requests,re,json
+          from bs4 import BeautifulSoup
+          UA={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36"}
+          out={}
+          def links(u):
+              r=requests.get(u,headers=UA,timeout=60);s=BeautifulSoup(r.text,"html.parser")
+              return [(a.get_text(" ",strip=True)[:60],a.get("href")) for a in s.find_all("a",href=True)]
+          home=links("https://www.lia-roc.org.tw/")
+          out["home"]=[x for x in home if x[1] and not x[1].startswith("#")]
+          for t,h in home:
+              if re.search(r"統計|業績|資料",t or ""):
+                  u=requests.compat.urljoin("https://www.lia-roc.org.tw/",h)
+                  try: out[u]=links(u)[:200]
+                  except Exception as e: out[u]=str(e)
+          json.dump(out,open("probe/lia_links.json","w"),ensure_ascii=False,indent=1)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions"; git config user.email "actions@users.noreply.github.com"
+          git add probe; git commit -m "probe lia" || true; git pull --rebase -q || true; git push
+# run4
