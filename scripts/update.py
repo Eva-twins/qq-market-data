@@ -201,9 +201,39 @@ def update_lia():
     if not periods:
         raise SystemExit("壽險公會報告解析全部失敗")
 
+def fred(sid):
+    r = requests.get("https://fred.stlouisfed.org/graph/fredgraph.csv", params={"id": sid, "cosd": "2015-11-01"}, timeout=60)
+    r.raise_for_status()
+    out = {}
+    for ln in r.text.strip().splitlines()[1:]:
+        d, _, v = ln.partition(",")
+        try: out[d] = float(v)
+        except ValueError: pass          # FRED 以 "." 表示無資料(假日)
+    return out
+
+def month_end(daily):
+    m = {}
+    for d in sorted(daily): m[d[:7]] = daily[d]   # 同月最後一個有值的日期
+    return m
+
+def update_fx():
+    """月底匯率(台幣/單位外幣):資料源 FRED(Fed H.10 中午買入價),非台灣銀行收盤價,僅供規模換算。"""
+    twd = month_end(fred("DEXTAUS"))      # TWD per USD
+    aud = month_end(fred("DEXUSAL"))      # USD per AUD
+    cny = month_end(fred("DEXCHUS"))      # CNY per USD
+    fx = {}
+    for k, u in twd.items():
+        row = {"USD": round(u, 4)}
+        if k in aud: row["AUD"] = round(u * aud[k], 4)
+        if k in cny and cny[k]: row["CNY"] = round(u / cny[k], 4)
+        fx[k] = row
+    if len(fx) < 100: raise SystemExit(f"fx: 月數異常 {len(fx)}")
+    save("fx.json", {"updated": NOW, "src": "FRED DEXTAUS/DEXUSAL/DEXCHUS (月底最後一個交易日)", "months": fx})
+    print("fx: months", len(fx), "latest", max(fx), fx[max(fx)])
+
 if __name__ == "__main__":
     errs = []
-    for fn in (update_ins, update_mk, update_flow, update_lia):
+    for fn in (update_ins, update_mk, update_flow, update_lia, update_fx):
         try: fn()
         except BaseException as e:
             errs.append(f"{fn.__name__}: {e}"); print("ERROR", fn.__name__, e, file=sys.stderr)
