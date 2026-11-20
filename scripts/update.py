@@ -52,6 +52,9 @@ def update_ins():
     if len(prm) < 24 or len(bif) < 24:
         raise SystemExit(f"保發中心解析異常：prm={len(prm)} bif={len(bif)}")
     old = load("ins.json", {})
+    # 與舊檔合併：來源若日後只保留近幾年，已存下的舊月份不會消失；同月份以最新抓到的為準
+    prm = {**old.get("prm", {}), **prm}
+    bif = {**old.get("bif", {}), **bif}
     save("ins.json", {"updated": NOW, "prm": prm, "bif": bif})
     print("ins: prm", len(prm), "bif", len(bif), "latest", max(prm), max(bif),
           "(changed)" if (old.get("prm"), old.get("bif")) != (prm, bif) else "(no change)")
@@ -161,6 +164,9 @@ def update_flow():
     inv = {k: [ip[k][0], ic[k][0], ip[k][1], ic[k][1], ip[k][2], ic[k][2]] for k in ip if k in ic}
     if len(life) < 24 or len(inv) < 24:
         raise SystemExit(f"資金流解析異常：life={len(life)} inv={len(inv)}")
+    old = load("flow.json", {})
+    life = {**old.get("life", {}), **life}
+    inv = {**old.get("inv", {}), **inv}
     save("flow.json", {"updated": NOW, "life": life, "inv": inv})
     print("flow: life", len(life), min(life), max(life), "inv", len(inv), min(inv), max(inv))
 
