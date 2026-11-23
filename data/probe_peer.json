@@ -1,0 +1,647 @@
+{
+ "at": "2026-11-23T02:54:32.681121Z",
+ "months": [
+  "2026-10",
+  "2026-09"
+ ],
+ "results": [
+  {
+   "id": "U1",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_ACU006?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 695619,
+   "lastmod": "Wed, 18 Nov 2026 09:02:52 GMT",
+   "is_pdf": true,
+   "text_len": 7420,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 投 資 月 報 2026.10.30 "
+  },
+  {
+   "id": "U5",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_ACU007?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 716110,
+   "lastmod": "Wed, 18 Nov 2026 09:02:52 GMT",
+   "is_pdf": true,
+   "text_len": 7671,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 投資月報 2026.10.30 委託國泰投資"
+  },
+  {
+   "id": "U7",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_ACU008?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 601329,
+   "lastmod": "Wed, 18 Nov 2026 09:02:51 GMT",
+   "is_pdf": true,
+   "text_len": 6789,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 投資月報 2026.10.30 委託國泰投資帳戶－智能靈"
+  },
+  {
+   "id": "U16",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_AIU001?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 568106,
+   "lastmod": "Wed, 18 Nov 2026 09:02:45 GMT",
+   "is_pdf": true,
+   "text_len": 9361,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 2026.10 現金撥回 AIU001 "
+  },
+  {
+   "id": "U2",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_ABU038?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 1116582,
+   "lastmod": "Wed, 18 Nov 2026 09:03:01 GMT",
+   "is_pdf": true,
+   "text_len": 13641,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10"
+    ],
+    "2026-09": []
+   },
+   "head": " 2026.10.30 "
+  },
+  {
+   "id": "U15",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_ABU036?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 1075600,
+   "lastmod": "Wed, 18 Nov 2026 09:03:03 GMT",
+   "is_pdf": true,
+   "text_len": 13377,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10"
+    ],
+    "2026-09": []
+   },
+   "head": " 2026.10.30 "
+  },
+  {
+   "id": "U6",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_ABU046?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 1061817,
+   "lastmod": "Wed, 18 Nov 2026 09:03:00 GMT",
+   "is_pdf": true,
+   "text_len": 12505,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10"
+    ],
+    "2026-09": []
+   },
+   "head": " 2026.10.30 "
+  },
+  {
+   "id": "U14",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_ABU051?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 1062933,
+   "lastmod": "Wed, 18 Nov 2026 09:03:00 GMT",
+   "is_pdf": true,
+   "text_len": 12990,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10"
+    ],
+    "2026-09": []
+   },
+   "head": " 2026.10.30 "
+  },
+  {
+   "id": "U13",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_AWU021?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 536139,
+   "lastmod": "Wed, 18 Nov 2026 09:02:38 GMT",
+   "is_pdf": true,
+   "text_len": 6373,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026年10月",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026/09",
+     "2026年9月"
+    ]
+   },
+   "head": " 下單代碼 投資經理人報告／2026年10月30日 AWU021(現金撥回) AWU0"
+  },
+  {
+   "id": "U11",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_AMU051?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 360135,
+   "lastmod": "Wed, 18 Nov 2026 09:02:42 GMT",
+   "is_pdf": true,
+   "text_len": 11918,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026-10",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026年09月"
+    ]
+   },
+   "head": "2026年10月份投資月報(資料截至2026/10/30止) � 國泰人壽委託摩根投信投資帳戶 "
+  },
+  {
+   "id": "U12",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_AMU054?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 357867,
+   "lastmod": "Wed, 18 Nov 2026 09:02:42 GMT",
+   "is_pdf": true,
+   "text_len": 11606,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026-10",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026年09月"
+    ]
+   },
+   "head": "2026年10月份投資月報(資料截至2026/10/30止) � 國泰人壽委託摩根投信投資帳戶-全球前瞻組合 (全權"
+  },
+  {
+   "id": "U4",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_AMU057?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 344231,
+   "lastmod": "Wed, 18 Nov 2026 09:02:41 GMT",
+   "is_pdf": true,
+   "text_len": 9811,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026-10",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026年09月"
+    ]
+   },
+   "head": "2026年10月份投資月報(資料截至2026/10/30止) � 國泰人壽委託摩根投信投資帳戶-核心策略收"
+  },
+  {
+   "id": "U9",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_BSU029?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 669966,
+   "lastmod": "Wed, 18 Nov 2026 09:02:34 GMT",
+   "is_pdf": true,
+   "text_len": 10860,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026年10月",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 國泰人壽委託施羅德投信投資帳戶-股債收益平衡 (全權委託帳戶之資產撥回機制來源可能為本金) (撥回率或撥回金額非固定) 投資月報 "
+  },
+  {
+   "id": "U8",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_BSU039?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 689592,
+   "lastmod": "Wed, 18 Nov 2026 09:02:33 GMT",
+   "is_pdf": true,
+   "text_len": 11290,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026年10月",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 國泰人壽委託施羅德投信投資帳戶-多元資產成長增值* (全權委託帳戶之資產撥回機制來源可能為本金) (撥回率或撥回金額非固定) 投資月報 "
+  },
+  {
+   "id": "T5",
+   "url": "https://www.cathaylife.com.tw/cathaylife/-/media/life-insurance/Files/Fund/Report/report_ACT041?sc_lang=zh-TW",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 597904,
+   "lastmod": "Wed, 18 Nov 2026 09:02:55 GMT",
+   "is_pdf": true,
+   "text_len": 7818,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 投資月報 2026.10.30 國泰人壽委託國泰投信投資帳戶-"
+  },
+  {
+   "id": "U19",
+   "url": "https://cardif.moneydj.com/SaveFile/McpDoc/DMA072-2.pdf",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 533565,
+   "lastmod": "Mon, 23 Nov 2026 02:18:18 GMT",
+   "is_pdf": true,
+   "text_len": 23702,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026年10月",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " "
+  },
+  {
+   "id": "T8",
+   "url": "https://www.twfhclife.com.tw/wp-content/uploads/%E6%9C%88%E5%A0%B1-%E8%87%BA%E9%8A%80%E4%BA%BA%E5%A3%BD%E6%96%B0%E8%87%BA%E5%B9%A3%E7%B2%BE%E9%81%B8%E5%B9%B3%E8%A1%A1%E5%9E%8B%E6%8A%95%E8%B3%87%E5%B8%B3%E6%88%B6-%E9%87%8E%E6%9D%91-11510.pdf",
+   "month": "2026-10",
+   "status": 404,
+   "final": null,
+   "ctype": "text/html; charset=UTF-8",
+   "size": 258126,
+   "lastmod": null,
+   "is_pdf": false,
+   "head": "<!DOCTYPE html> <!--[if IE 9 ]> <html lang=\"zh-TW\" class=\"ie9 loading-site no-js\"> <![endif]--> <!--[if IE 8 ]> <html lang=\"zh-TW\" class=\"ie8 loading-site no-js\"> <![endif]--> <!--[if (gte IE 9)|!(",
+   "pdf_links": [
+    "https://www.twfhclife.com.tw/wp-content/uploads/%E5%A4%96%E5%B9%A3%E4%BF%9D%E5%96%AE%E7%B9%B3%E8%B2%BB%E5%8C%AF%E6%AC%BE%E6%8C%87%E5%AE%9A%E9%8A%80%E8%A1%8C.pdf",
+    "https://www.twfhclife.com.tw/wp-content/uploads/臺銀人壽保險股份有限公司營運持續管理要點.pdf",
+    "https://www.twfhclife.com.tw/wp-content/uploads/臺銀人壽保險股份有限公司營運持續管理要點.pdf",
+    "https://www.twfhclife.com.tw/wp-content/uploads/%E5%A4%96%E5%B9%A3%E4%BF%9D%E5%96%AE%E7%B9%B3%E8%B2%BB%E5%8C%AF%E6%AC%BE%E6%8C%87%E5%AE%9A%E9%8A%80%E8%A1%8C.pdf"
+   ]
+  },
+  {
+   "id": "T8",
+   "url": "https://www.twfhclife.com.tw/wp-content/uploads/%E6%9C%88%E5%A0%B1-%E8%87%BA%E9%8A%80%E4%BA%BA%E5%A3%BD%E6%96%B0%E8%87%BA%E5%B9%A3%E7%B2%BE%E9%81%B8%E5%B9%B3%E8%A1%A1%E5%9E%8B%E6%8A%95%E8%B3%87%E5%B8%B3%E6%88%B6-%E9%87%8E%E6%9D%91-11509.pdf",
+   "month": "2026-09",
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 580555,
+   "lastmod": "Wed, 21 Oct 2026 02:30:34 GMT",
+   "is_pdf": true,
+   "text_len": 4376,
+   "month_hits": {
+    "2026-10": [],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 2026 臺銀人壽委託野村投信投資帳戶－新臺幣大聯盟平衡型 10 資料截至 2026/9/30 (投資帳戶之資產撥回機制來源可能為本金) (本全"
+  },
+  {
+   "id": "T4",
+   "url": "https://pcaliferwd.moneydj.com/SaveFile/monthly/tfkg_202610.pdf",
+   "month": "2026-10",
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 464885,
+   "lastmod": "Wed, 11 Nov 2026 07:35:45 GMT",
+   "is_pdf": true,
+   "text_len": 9509,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026年10月",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026/09",
+     "2026年9月"
+    ]
+   },
+   "head": " 保誠人壽全權委託富蘭克林華美投信投資帳戶-新臺幣股債平衡收益帳戶 (全權委託投資帳戶之資產撥回機制來源可能為本金且撥回金額非固定) "
+  },
+  {
+   "id": "T4",
+   "url": "https://pcaliferwd.moneydj.com/SaveFile/monthly/tfkg_202609.pdf",
+   "month": "2026-09",
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 476152,
+   "lastmod": "Tue, 13 Oct 2026 03:09:21 GMT",
+   "is_pdf": true,
+   "text_len": 9696,
+   "month_hits": {
+    "2026-10": [],
+    "2026-09": [
+     "2026/09",
+     "2026年09月"
+    ]
+   },
+   "head": " 保誠人壽全權委託富蘭克林華美投信投資帳戶-新臺幣股債平衡收益帳戶 (全權委託投資帳戶之資產撥回機制來源可能為本金且撥回金額非固定) "
+  },
+  {
+   "id": "T9",
+   "url": "https://invest.fubonlife.com.tw/api/publish/assetDiaFile/ffe3df5f-bca6-4c29-8958-b8196580718f.pdf",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 589207,
+   "lastmod": "Wed, 21 Oct 2026 07:16:20 GMT",
+   "is_pdf": true,
+   "text_len": 5736,
+   "month_hits": {
+    "2026-10": [],
+    "2026-09": [
+     "2026/09",
+     "2026年9月"
+    ]
+   },
+   "head": "投資經理人報告／2026年9月30日 富邦人壽委託安聯投信–優享退月提解全權委託投資帳戶-N級別 (全權委託帳戶之資產撥回機制來源可能為本金) 下單代碼 (撥回率或撥回金額非固定) 現金撥回 DSD3 "
+  },
+  {
+   "id": "T10",
+   "url": "https://invest.fubonlife.com.tw/api/publish/assetDiaFile/9d8c5970-21e7-41f3-bbe8-9f746c2891be.pdf",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 417786,
+   "lastmod": "Tue, 20 Oct 2026 09:33:43 GMT",
+   "is_pdf": true,
+   "text_len": 3647,
+   "month_hits": {
+    "2026-10": [],
+    "2026-09": [
+     "2026/09",
+     "115.09"
+    ]
+   },
+   "head": "富邦人壽月月興利月提解全權委託投資帳戶 (全權委託帳戶之資產撥回機制來源可能為本金) 全球組合型全權委託帳戶 (撥回率或撥回金額非固定) "
+  },
+  {
+   "id": "T7",
+   "url": "https://invest.fubonlife.com.tw/api/publish/assetDiaFile/767b931c-d51c-410c-a8a4-96f0d28a9616.pdf",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 600720,
+   "lastmod": "Wed, 21 Oct 2026 01:20:53 GMT",
+   "is_pdf": true,
+   "text_len": 2444,
+   "month_hits": {
+    "2026-10": [],
+    "2026-09": [
+     "2026/09",
+     "115.09"
+    ]
+   },
+   "head": "富邦人壽委託富邦投信-富多利月提解全權委託投資帳戶 (全權委託帳戶之資產撥回機制來源可能為本金)(撥回率 全球組合型全權委託帳戶 或撥回金額非固定) "
+  },
+  {
+   "id": "T2",
+   "url": "https://invest.fubonlife.com.tw/api/publish/assetDiaFile/2e3c4f9b-687f-491f-a9c9-f0215c7e0164.pdf",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 1237061,
+   "lastmod": "Wed, 21 Oct 2026 07:25:25 GMT",
+   "is_pdf": true,
+   "text_len": 10553,
+   "month_hits": {
+    "2026-10": [
+     "2026/10"
+    ],
+    "2026-09": []
+   },
+   "head": " 2026.9.30 "
+  },
+  {
+   "id": "U20",
+   "url": "https://178.taiwanlife.com/SaveFile/tempfile/ctbclife/TA101/M014/M014.pdf",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 696636,
+   "lastmod": "Mon, 16 Nov 2026 07:37:38 GMT",
+   "is_pdf": true,
+   "text_len": 8880,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026.10"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 投資月報 2026.10 "
+  },
+  {
+   "id": "U10",
+   "url": "https://kgilife.moneydj.com/SaveFile/TFSO_Monthly.pdf",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 502760,
+   "lastmod": "Wed, 11 Nov 2026 08:48:24 GMT",
+   "is_pdf": true,
+   "text_len": 7944,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026年10月",
+     "2026年10月"
+    ],
+    "2026-09": [
+     "2026/09"
+    ]
+   },
+   "head": " 瀚亞新收益全權委託管理帳戶(美元) 凱基人壽委託瀚亞投信代為運用與管理專設帳簿 資產之投資型保單(全權委託帳戶之資產撥回機制 "
+  },
+  {
+   "id": "U18",
+   "url": "https://sklife.moneydj.com/SaveFile/MonthReport/K025/202610-%E5%8F%B0%E6%96%B0%E6%8A%95%E4%BF%A1%E9%91%AB%E5%8B%95%E8%83%BD%E6%8A%95%E8%B3%87%E7%AE%A1%E7%90%86%E5%B8%B3%E6%88%B6%E6%9C%88%E5%A0%B1-%E5%90%AB%E8%B3%87%E7%94%A2%E6%92%A5%E5%9B%9E%E7%B5%84%E6%88%90%E8%A1%A8.pdf",
+   "month": "2026-10",
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 514794,
+   "lastmod": "Tue, 10 Nov 2026 09:47:01 GMT",
+   "is_pdf": true,
+   "text_len": 6925,
+   "month_hits": {
+    "2026-10": [
+     "2026/10",
+     "2026-10"
+    ],
+    "2026-09": [
+     "2026-09"
+    ]
+   },
+   "head": " #UNKNOWN! 台新投信鑫動能投資管理帳戶 (全權委託帳戶之資產撥回機制來源可能為本金且撥回率或撥回金額非固"
+  },
+  {
+   "id": "U18",
+   "url": "https://sklife.moneydj.com/SaveFile/MonthReport/K025/202609-%E5%8F%B0%E6%96%B0%E6%8A%95%E4%BF%A1%E9%91%AB%E5%8B%95%E8%83%BD%E6%8A%95%E8%B3%87%E7%AE%A1%E7%90%86%E5%B8%B3%E6%88%B6%E6%9C%88%E5%A0%B1-%E5%90%AB%E8%B3%87%E7%94%A2%E6%92%A5%E5%9B%9E%E7%B5%84%E6%88%90%E8%A1%A8.pdf",
+   "month": "2026-09",
+   "status": 200,
+   "final": null,
+   "ctype": "application/pdf",
+   "size": 492917,
+   "lastmod": "Thu, 15 Oct 2026 01:34:51 GMT",
+   "is_pdf": true,
+   "text_len": 6669,
+   "month_hits": {
+    "2026-10": [],
+    "2026-09": [
+     "2026-09"
+    ]
+   },
+   "head": " #UNKNOWN! 台新投信鑫動能投資管理帳戶(全權委託帳戶之資產撥回機制來源可能為本金且 撥回率或撥回金額非固"
+  },
+  {
+   "id": "U3",
+   "url": "https://mlivul.moneydj.com/main.html?sUrl=%2FW%2FWFV%2FWFV01.DJHTM%3FA%3DMFD00010",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "text/html",
+   "size": 4350,
+   "lastmod": "Mon, 21 Sep 2026 01:51:35 GMT",
+   "is_pdf": false,
+   "head": "<!DOCTYPE html> <html lang=\"zh-tw\"><!--<![endif]--> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"> <meta n",
+   "pdf_links": []
+  },
+  {
+   "id": "U17",
+   "url": "https://mlivul.moneydj.com/main.html?sUrl=%2FW%2FWFV%2FWFV01.DJHTM%3FA%3DMFD00020",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "text/html",
+   "size": 4350,
+   "lastmod": "Mon, 21 Sep 2026 01:51:35 GMT",
+   "is_pdf": false,
+   "head": "<!DOCTYPE html> <html lang=\"zh-tw\"><!--<![endif]--> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"> <meta n",
+   "pdf_links": []
+  },
+  {
+   "id": "T1",
+   "url": "https://mlivul.moneydj.com/main.html?sUrl=%2FW%2FWFV%2FWFV01.DJHTM%3FA%3DMDI00010",
+   "month": null,
+   "status": 200,
+   "final": null,
+   "ctype": "text/html",
+   "size": 4350,
+   "lastmod": "Mon, 21 Sep 2026 01:51:35 GMT",
+   "is_pdf": false,
+   "head": "<!DOCTYPE html> <html lang=\"zh-tw\"><!--<![endif]--> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"> <meta n",
+   "pdf_links": []
+  }
+ ]
+}

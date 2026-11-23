@@ -1,0 +1,33 @@
+/home/runner/work/qq-market-data/qq-market-data/scripts/probe_peer.py:41: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  json.dump({'at':datetime.datetime.utcnow().isoformat()+'Z','months':MS,'results':res},open('data/probe_peer.json','w',encoding='utf8'),ensure_ascii=False,indent=1)
+U1 - 200 True 695619 Wed, 18 Nov 2026 09:02:52 GMT hits {'2026-10': True, '2026-09': True} 
+U5 - 200 True 716110 Wed, 18 Nov 2026 09:02:52 GMT hits {'2026-10': True, '2026-09': True} 
+U7 - 200 True 601329 Wed, 18 Nov 2026 09:02:51 GMT hits {'2026-10': True, '2026-09': True} 
+U16 - 200 True 568106 Wed, 18 Nov 2026 09:02:45 GMT hits {'2026-10': True, '2026-09': True} 
+U2 - 200 True 1116582 Wed, 18 Nov 2026 09:03:01 GMT hits {'2026-10': True, '2026-09': False} 
+U15 - 200 True 1075600 Wed, 18 Nov 2026 09:03:03 GMT hits {'2026-10': True, '2026-09': False} 
+U6 - 200 True 1061817 Wed, 18 Nov 2026 09:03:00 GMT hits {'2026-10': True, '2026-09': False} 
+U14 - 200 True 1062933 Wed, 18 Nov 2026 09:03:00 GMT hits {'2026-10': True, '2026-09': False} 
+U13 - 200 True 536139 Wed, 18 Nov 2026 09:02:38 GMT hits {'2026-10': True, '2026-09': True} 
+U11 - 200 True 360135 Wed, 18 Nov 2026 09:02:42 GMT hits {'2026-10': True, '2026-09': True} 
+U12 - 200 True 357867 Wed, 18 Nov 2026 09:02:42 GMT hits {'2026-10': True, '2026-09': True} 
+U4 - 200 True 344231 Wed, 18 Nov 2026 09:02:41 GMT hits {'2026-10': True, '2026-09': True} 
+U9 - 200 True 669966 Wed, 18 Nov 2026 09:02:34 GMT hits {'2026-10': True, '2026-09': True} 
+U8 - 200 True 689592 Wed, 18 Nov 2026 09:02:33 GMT hits {'2026-10': True, '2026-09': True} 
+T5 - 200 True 597904 Wed, 18 Nov 2026 09:02:55 GMT hits {'2026-10': True, '2026-09': True} 
+U19 - 200 True 533565 Mon, 23 Nov 2026 02:18:18 GMT hits {'2026-10': True, '2026-09': True} 
+T8 2026-10 404 False 258126 None hits {} 
+T8 2026-09 200 True 580555 Wed, 21 Oct 2026 02:30:34 GMT hits {'2026-10': False, '2026-09': True} 
+T4 2026-10 200 True 464885 Wed, 11 Nov 2026 07:35:45 GMT hits {'2026-10': True, '2026-09': True} 
+T4 2026-09 200 True 476152 Tue, 13 Oct 2026 03:09:21 GMT hits {'2026-10': False, '2026-09': True} 
+T9 - 200 True 589207 Wed, 21 Oct 2026 07:16:20 GMT hits {'2026-10': False, '2026-09': True} 
+T10 - 200 True 417786 Tue, 20 Oct 2026 09:33:43 GMT hits {'2026-10': False, '2026-09': True} 
+T7 - 200 True 600720 Wed, 21 Oct 2026 01:20:53 GMT hits {'2026-10': False, '2026-09': True} 
+T2 - 200 True 1237061 Wed, 21 Oct 2026 07:25:25 GMT hits {'2026-10': True, '2026-09': False} 
+U20 - 200 True 696636 Mon, 16 Nov 2026 07:37:38 GMT hits {'2026-10': True, '2026-09': True} 
+U10 - 200 True 502760 Wed, 11 Nov 2026 08:48:24 GMT hits {'2026-10': True, '2026-09': True} 
+U18 2026-10 200 True 514794 Tue, 10 Nov 2026 09:47:01 GMT hits {'2026-10': True, '2026-09': True} 
+U18 2026-09 200 True 492917 Thu, 15 Oct 2026 01:34:51 GMT hits {'2026-10': False, '2026-09': True} 
+U3 - 200 False 4350 Mon, 21 Sep 2026 01:51:35 GMT hits {} 
+U17 - 200 False 4350 Mon, 21 Sep 2026 01:51:35 GMT hits {} 
+T1 - 200 False 4350 Mon, 21 Sep 2026 01:51:35 GMT hits {} 
