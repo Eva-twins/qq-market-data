@@ -1,0 +1,163 @@
+{
+ "at": "2026-11-23T03:23+00:00",
+ "log": [
+  "U1 OK 2026-10 679KB",
+  "U5 OK 2026-10 699KB",
+  "U7 OK 2026-10 587KB",
+  "U16 OK 2026-10 554KB",
+  "U2 OK 2026-10 1090KB",
+  "U15 OK 2026-10 1050KB",
+  "U6 OK 2026-10 1036KB",
+  "U14 OK 2026-10 1038KB",
+  "U13 OK 2026-10 523KB",
+  "U11 OK 2026-10 351KB",
+  "U12 OK 2026-10 349KB",
+  "U4 OK 2026-10 336KB",
+  "U9 OK 2026-10 654KB",
+  "U8 OK 2026-10 673KB",
+  "T5 OK 2026-10 583KB",
+  "U19 OK 2026-10 521KB",
+  "T8 非PDF或404 https://www.twfhclife.com.tw/wp-content/uploads/%E6%9C%88%E5%A0%B1-%E8%87%BA%E9%8A%80%E4%B",
+  "T8 OK 2026-09 566KB",
+  "T4 OK 2026-10 453KB",
+  "T9 OK 2026-09 575KB",
+  "T10 OK 2026-09 407KB",
+  "T7 OK 2026-09 586KB",
+  "T2 OK 2026-10 1208KB",
+  "U20 OK 2026-10 680KB",
+  "U10 OK 2026-10 490KB",
+  "U18 OK 2026-10 502KB",
+  "U3 OK 2026-10 519KB",
+  "U17 OK 2026-10 500KB",
+  "T1 OK 2026-10 588KB",
+  "U1 解析 2026-10 合計 100.0",
+  "U5 解析 2026-10 合計 100.0",
+  "U7 解析 2026-10 合計 100.0",
+  "U16 解析 2026-10 合計 95.9",
+  "U2 解析 2026-10 合計 100.0",
+  "U15 解析 2026-10 合計 100.0",
+  "U6 解析 2026-10 合計 79.6",
+  "U14 解析 2026-10 合計 100.0",
+  "U13 解析 2026-10 合計 100.0",
+  "U11 解析 2026-10 合計 100.0",
+  "U12 解析 2026-10 合計 100.0",
+  "U4 解析 2026-10 合計 100.0",
+  "U9 解析 2026-10 合計 100.0",
+  "U8 解析 2026-10 合計 100.0",
+  "T5 解析 2026-10 合計 94.2",
+  "U19 解析 2026-10 合計 100.0",
+  "T8 解析 2026-09 合計 100.0",
+  "T4 解析 2026-10 合計 100.0",
+  "T9 解析 2026-09 合計 100.0",
+  "T10 解析 2026-09 合計 100.0",
+  "T7 解析 2026-09 合計 100.0",
+  "T2 解析 2026-10 合計 100.0",
+  "U20 解析 2026-10 合計 100.0",
+  "U10 解析 2026-10 合計 99.0",
+  "U18 解析 2026-10 合計 100.0",
+  "U3 解析 2026-10 合計 100.0",
+  "U17 解析 2026-10 合計 100.0",
+  "T1 解析 2026-10 合計 100.0"
+ ],
+ "mdj": {
+  "U3": [
+   {
+    "page": "https://mlivul.moneydj.com/w/wfv/wfv01.djhtm?a=MFD00010",
+    "status": 200,
+    "len": 14585,
+    "links": [
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112231/月報-MFD10-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20260713_035151/子標的費用-MFD10-11507.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112237/收益分配組成-MFD10-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20240701_023659/帳戶特色-MFD00010-11307.pdf"
+    ],
+    "iframes": []
+   },
+   {
+    "page": "https://mlivul.moneydj.com/W/WFV/WFV01.DJHTM?A=MFD00010",
+    "status": 200,
+    "len": 14585,
+    "links": [
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112231/月報-MFD10-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20260713_035151/子標的費用-MFD10-11507.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112237/收益分配組成-MFD10-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20240701_023659/帳戶特色-MFD00010-11307.pdf"
+    ],
+    "iframes": []
+   },
+   {
+    "page": "https://mlivul.moneydj.com/main.html?sUrl=%2FW%2FWFV%2FWFV01.DJHTM%3FA%3DMFD00010",
+    "status": 200,
+    "len": 4350,
+    "links": [],
+    "iframes": []
+   }
+  ],
+  "U17": [
+   {
+    "page": "https://mlivul.moneydj.com/w/wfv/wfv01.djhtm?a=MFD00020",
+    "status": 200,
+    "len": 15736,
+    "links": [
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112322/月報-MFD20-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20260713_035749/子標的費用-MFD20-11507.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112351/收益分配組成-MFD20-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20240701_023836/帳戶特色-MFD00020-11307.pdf"
+    ],
+    "iframes": []
+   },
+   {
+    "page": "https://mlivul.moneydj.com/W/WFV/WFV01.DJHTM?A=MFD00020",
+    "status": 200,
+    "len": 15736,
+    "links": [
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112322/月報-MFD20-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20260713_035749/子標的費用-MFD20-11507.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112351/收益分配組成-MFD20-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20240701_023836/帳戶特色-MFD00020-11307.pdf"
+    ],
+    "iframes": []
+   },
+   {
+    "page": "https://mlivul.moneydj.com/main.html?sUrl=%2FW%2FWFV%2FWFV01.DJHTM%3FA%3DMFD00020",
+    "status": 200,
+    "len": 4350,
+    "links": [],
+    "iframes": []
+   }
+  ],
+  "T1": [
+   {
+    "page": "https://mlivul.moneydj.com/w/wfv/wfv01.djhtm?a=MDI00010",
+    "status": 200,
+    "len": 14351,
+    "links": [
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112120/月報-MDI10-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20260713_034503/子標的費用-MDI10-11507.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112125/收益分配組成-MDI10-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20240701_023502/帳戶特色-MDI00010-11307.pdf"
+    ],
+    "iframes": []
+   },
+   {
+    "page": "https://mlivul.moneydj.com/W/WFV/WFV01.DJHTM?A=MDI00010",
+    "status": 200,
+    "len": 14351,
+    "links": [
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112120/月報-MDI10-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20260713_034503/子標的費用-MDI10-11507.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20261112_112125/收益分配組成-MDI10-11510.pdf",
+     "https://mlivul.moneydj.com/savefile/discretionary/20240701_023502/帳戶特色-MDI00010-11307.pdf"
+    ],
+    "iframes": []
+   },
+   {
+    "page": "https://mlivul.moneydj.com/main.html?sUrl=%2FW%2FWFV%2FWFV01.DJHTM%3FA%3DMDI00010",
+    "status": 200,
+    "len": 4350,
+    "links": [],
+    "iframes": []
+   }
+  ]
+ }
+}
