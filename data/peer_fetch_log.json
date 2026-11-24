@@ -1,5 +1,5 @@
 {
- "at": "2026-11-24T07:20+00:00",
+ "at": "2026-11-24T07:24+00:00",
  "log": [
   "U1 OK 2026-10 679KB",
   "U5 OK 2026-10 699KB",
@@ -184,6 +184,8 @@
    ],
    "reqs": []
   },
+  "scale_T10": [],
+  "scale_T7": [],
   "U3": [
    {
     "page": "https://mlivul.moneydj.com/w/wfv/wfv01.djhtm?a=MFD00010",
