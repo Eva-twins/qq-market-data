@@ -44,6 +44,59 @@ def text_of(b):
     with tempfile.NamedTemporaryFile(suffix='.pdf',delete=False) as f:f.write(b);p=f.name
     try:return subprocess.run(['pdftotext','-layout','-l','3',p,'-'],capture_output=True,text=True,timeout=60).stdout
     finally:os.unlink(p)
+# 富邦人壽（T2、T7、T9、T10）：月報檔的網址會隨月份換新，固定網址只會拿到舊檔。
+# 每次先開基金頁，從頁面（連結或背景 API）找出「月報_…_民國年月」對應的檔案網址，找不到才退回固定網址。
+FBPAGE={'T2':'https://invest.fubonlife.com.tw/funds/overview/DIA/47/ACD5','T7':'https://invest.fubonlife.com.tw/funds/overview/DIA/45/FBD12','T10':'https://invest.fubonlife.com.tw/funds/overview/DIA/45/FBD6'}
+UUID=re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',re.I)
+def roc(m):y,x=m.split('-');return str((int(y)-1911)*100+int(x))
+def walk(o,out):
+    if isinstance(o,dict):
+        vs=[v for v in o.values() if isinstance(v,str)]
+        nm=[v for v in vs if re.search(r'月報',v) and re.search(r'11\d{3}',v)]
+        if nm:
+            ref=[v for v in vs if v not in nm and (UUID.search(v) or 'assetDiaFile' in v)]
+            out.append((nm[0],ref[0] if ref else None,list(o.items())[:8]))
+        for v in o.values():walk(v,out)
+    elif isinstance(o,list):
+        for v in o:walk(v,out)
+def discover_fb():
+    found={}
+    try:
+        with sync_playwright() as p:
+            br=p.chromium.launch();ctx=br.new_context(user_agent=UA['User-Agent'],locale='zh-TW')
+            for aid,url in FBPAGE.items():
+                dbg={'url':url,'anchors':[],'api':[],'reqs':[]};DEBUG['fb_'+aid]=dbg
+                pg=ctx.new_page();apis=[];reqs=[]
+                def on_resp(r,apis=apis):
+                    try:
+                        if 'json' in (r.headers.get('content-type') or ''):apis.append((r.url,r.text()))
+                    except Exception:pass
+                pg.on('response',on_resp);pg.on('request',lambda r,reqs=reqs:reqs.append(r.url) if 'assetDiaFile' in r.url else None)
+                try:
+                    pg.goto(url,wait_until='networkidle',timeout=60000);pg.wait_for_timeout(2500)
+                    anchors=pg.evaluate("""()=>[...document.querySelectorAll('a,button,[role=link],li,div')].filter(e=>/月報_/.test(e.innerText||'')&&(e.innerText||'').length<80).map(e=>{const a=e.closest('a')||e.querySelector('a');return {t:(e.innerText||'').trim(),h:a?a.href:(e.href||null)}})""")
+                    dbg['anchors']=anchors[:12];dbg['reqs']=reqs[:5]
+                    cands=[]
+                    for t,h in [(x['t'],x['h']) for x in anchors]:
+                        m=re.search(r'月報_.*?(11\d{3})',t)
+                        if m and h and UUID.search(h):cands.append((m.group(1),h))
+                    for u,txt in apis:
+                        try:j=json.loads(txt)
+                        except Exception:continue
+                        out=[];walk(j,out)
+                        for nm,ref,items in out:
+                            dbg['api'].append({'u':u[:100],'nm':nm,'ref':ref,'items':str(items)[:300]})
+                            m=re.search(r'(11\d{3})',nm)
+                            if ref:cands.append((m.group(1),ref if ref.startswith('http') else FB+UUID.search(ref).group(0)+'.pdf'))
+                    for code,h in cands:
+                        if code in [roc(x) for x in MS]:found.setdefault(aid,[]).append((code,h))
+                    found[aid]=[h for c,h in sorted(found.get(aid,[]),key=lambda z:-int(z[0]))]
+                except Exception as e:dbg['error']=type(e).__name__+': '+str(e)[:120]
+                pg.close()
+            br.close()
+    except Exception as e:DEBUG['fb_error']=str(e)[:150]
+    return found
+FBFOUND=discover_fb() if not os.environ.get('PEER_TEST_DIR') else {}
 tmp=tempfile.mkdtemp();jobs=[];log=[]
 TESTDIR=os.environ.get('PEER_TEST_DIR')
 if TESTDIR:
@@ -57,6 +110,8 @@ for aid,fn in ([] if TESTDIR else list(SRC.items())+[(a,None) for a in MDJ]):
     cands=[]
     if fn:
         for m in (MS if aid in MONTHLY else [MS[0]]):cands+=fn(m)
+        cands=FBFOUND.get(aid,[])+cands
+        if aid in FBFOUND:log.append(f'{aid} 頁面找到 {len(FBFOUND[aid])} 個月報網址')
     else:cands=mdj_links(aid,MDJ[aid])
     done=False
     for u in dict.fromkeys(cands):
