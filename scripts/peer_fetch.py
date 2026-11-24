@@ -46,7 +46,7 @@ def text_of(b):
     finally:os.unlink(p)
 # 富邦人壽（T2、T7、T9、T10）：月報檔的網址會隨月份換新，固定網址只會拿到舊檔。
 # 每次先開基金頁，從頁面（連結或背景 API）找出「月報_…_民國年月」對應的檔案網址，找不到才退回固定網址。
-FBPAGE={'T2':'https://invest.fubonlife.com.tw/funds/overview/DIA/47/ACD5','T7':'https://invest.fubonlife.com.tw/funds/overview/DIA/45/FBD12','T10':'https://invest.fubonlife.com.tw/funds/overview/DIA/45/FBD6'}
+FBPAGE={'T2':'https://invest.fubonlife.com.tw/funds/overview/DIA/47/ACD5','T7':'https://invest.fubonlife.com.tw/funds/overview/DIA/45/FBD12','T10':'https://invest.fubonlife.com.tw/funds/overview/DIA/45/FBD6','T9':'https://invest.fubonlife.com.tw/funds/overview/DIA/43/DSD3'}
 UUID=re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',re.I)
 def roc(m):y,x=m.split('-');return str((int(y)-1911)*100+int(x))
 def walk(o,out):
