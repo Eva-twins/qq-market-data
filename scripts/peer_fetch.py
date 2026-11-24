@@ -120,6 +120,7 @@ for aid,fn in ([] if TESTDIR else list(SRC.items())+[(a,None) for a in MDJ]):
         if not b:log.append(f'{aid} 非PDF或404 {u[:90]}');continue
         m=month_of(text_of(b))
         if not m:log.append(f'{aid} 月份不符（不是 {MS[0]}／{MS[1]}）{u[:70]}');continue
+        if aid in ('T7','T10'):DEBUG['scale_'+aid]=[l.strip()[:160] for l in text_of(b).splitlines() if '規模' in l][:6]
         path=os.path.join(tmp,f'{aid}__{m}.pdf');open(path,'wb').write(b);jobs.append((aid,m,path,u));log.append(f'{aid} OK {m} {len(b)//1024}KB');done=True;break
     if not done:log.append(f'{aid} 沒有取得新月報')
 old={'months':{}}
