@@ -41,6 +41,7 @@ nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--a
 section.pane{display:grid;gap:16px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
 .panel h2{font-size:15px;margin:0 0 8px}
+.panel.fd>h2{cursor:pointer;user-select:none}.panel.fd>h2::before{content:'▼ ';font-size:11px;color:var(--accent)}.panel.fd.folded>h2::before{content:'▶ '}.panel.fd.folded>h2{margin-bottom:0}.panel.fd.folded>:not(h2){display:none!important}.foldbar{margin-left:auto;display:flex;gap:6px;align-items:center}.foldbar button{font-size:12px;padding:2px 8px}
 .note{color:var(--muted);font-size:13px;margin:0}
 .drop{border:2px dashed var(--line);border-radius:6px;padding:26px 16px;text-align:center;color:var(--muted);cursor:pointer}
 .drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
@@ -56,7 +57,7 @@ tr.ns td{color:var(--nanshan);font-weight:700}
 .pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600}
 .p-pdf{background:var(--good-soft);color:var(--good)}.p-manual{background:var(--accent-soft);color:var(--accent)}
 .p-excel{background:var(--line-soft);color:var(--muted)}.p-carry{background:var(--warn-soft);color:var(--warn)}
-.p-none{background:var(--bad-soft);color:var(--bad)}.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-none{background:var(--bad-soft);color:var(--bad)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-flag{background:#fde8e6;color:#b23b2e;border:1px solid #f1b8b1}tr.flag td{background:#fff8f6}
 .cols2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
 .kv dt{color:var(--muted)}.kv dd{margin:0}
@@ -70,7 +71,7 @@ svg text{fill:var(--muted);font-size:11px;font-family:var(--font)}
 a{color:var(--accent)}
 button.danger{background:#b3261e;border-color:#b3261e;color:#fff}
 nav.mods{margin-bottom:8px}nav.mods button{font-size:15px;font-weight:600;padding:9px 18px}
-.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}.kpi div{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--surface)}.kpi b{display:block;font-size:20px}.kpi span{font-size:12px;color:var(--muted)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}.kpi div{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--surface)}.kpi b{display:block;font-size:20px}.kpi span{font-size:12px;color:var(--muted)}table.sortable th{cursor:pointer;user-select:none}table.sortable th:hover{color:var(--fg,#222)}table.sortable th .sa{font-size:10px;margin-left:3px}.kpi b span{font-size:inherit;color:inherit}
 tr.me td{background:var(--accent-soft);font-weight:600}
 @media (max-width:560px){h1{font-size:17px}th,td{padding:5px 6px}}
 </style>
@@ -546,9 +547,17 @@ const SUBS=()=>[].concat(
   BOND_FUNDS.map(f=>({key:f.key,kind:'債券子基金（自 IG 扣出重分配）',o:f})),
   Object.keys(AB_FUNDS).map(k=>({key:k,kind:'聯博子基金（T2）',o:AB_FUNDS[k]})),
   Object.keys(AB_SUB).map(k=>({key:k,kind:'聯博子基金（U2／U6／U14／U15 類別拆分）',o:AB_SUB[k]})));
-const SUB_DEF={}; SUBS().forEach(x=>SUB_DEF[x.key]=JSON.parse(JSON.stringify(x.o.m)));
-function subfundList(){ return SUBS().map(x=>({key:x.key,kind:x.kind,re:x.o.re.source,m:Object.assign({},x.o.m),def:SUB_DEF[x.key]})) }
-function setOverrides(ov){ ov=ov||{}; SUBS().forEach(x=>{ const m=ov.sub&&ov.sub[x.key]; x.o.m=m?Object.assign({},m):JSON.parse(JSON.stringify(SUB_DEF[x.key])) });
+const SUB_DEF={},SUB_RE={}; SUBS().forEach(x=>{SUB_DEF[x.key]=JSON.parse(JSON.stringify(x.o.m));SUB_RE[x.key]=x.o.re});
+const NEVER=/(?!)/;
+function subfundList(){ return SUBS().map(x=>({key:x.key,kind:x.kind,re:x.o.re.source,reDef:SUB_RE[x.key].source,m:Object.assign({},x.o.m),def:SUB_DEF[x.key]})) }
+const DICT_DEF={sec:['科技','半導體','semiconductor','technology','TECH','金融','financ','AI新創','資訊科技','醫療','生技','healthcare','基礎建設','水電瓦斯'],em:['新興市場','新興亞洲','emerging'],emx:['債','公債','bond']};
+const KWRE=a=>a.map(k=>{const e=k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return /^[A-Za-z]{1,4}$/.test(k)?'\\b'+e+'\\b':e}).join('|');
+function setDict(d){ d=d||{}; const sec=(d.sec||DICT_DEF.sec).filter(Boolean),em=(d.em||DICT_DEF.em).filter(Boolean),emx=(d.emx||DICT_DEF.emx).filter(Boolean);
+  SEC_RE=sec.length?new RegExp(KWRE(sec),'i'):/(?!)/; EM_FUND_RE=em.length?new RegExp('('+KWRE(em)+')'+(emx.length?'(?!.*('+KWRE(emx)+'))':''),'i'):/(?!)/ }
+function setOverrides(ov){ ov=ov||{}; setDict(ov.dict); SUBS().forEach(x=>{ const m=ov.sub&&ov.sub[x.key]; x.o.m=m?Object.assign({},m):JSON.parse(JSON.stringify(SUB_DEF[x.key]));
+    const s=ov.subx&&ov.subx[x.key]; let re=SUB_RE[x.key];
+    if(s&&s.del)re=NEVER; else if(s&&s.re){ try{ re=new RegExp(s.re,SUB_RE[x.key].flags) }catch(e){ re=SUB_RE[x.key] } }
+    x.o.re=re });
   Object.assign(PARAMS,PARAMS_DEF,ov.params||{}) }
 // ───────── 持股辨識：是否命中任何規則 ─────────
 let UKW=[];
@@ -568,6 +577,7 @@ let CSUBS=[],GRID=[];
 function setCustom(subs,grid){ CSUBS=subs||[]; GRID=grid||[] }
 const nz=s=>String(s).replace(/\s+/g,'');
 const inAcct=(x,id)=>!x.accts||!x.accts.length||x.accts.includes(id);
+const SEC_IDS=['U1','U3','U5','U8','U9','U17','U18','T5','U13','T4','T1','T9']; // 已有自己的 SEC 處理（關鍵字邏輯或月報直接提供產業股票）
 function postAdjust(o,hold,id){ if(!hold||!hold.length)return o; const K=['DM','EM','SEC','TW','IG','HY','EMD','CASH']; let touched=false;
   const builtin=RECOG_SUBS();
   // 1) 子基金拆分（匯入＋自訂）
@@ -575,6 +585,9 @@ function postAdjust(o,hold,id){ if(!hold||!hold.length)return o; const K=['DM','
     const a=hold.filter(h=>nz(h.name).includes(nz(x.match))&&!builtin.some(re=>re.test(h.name))).reduce((s,h)=>s+h.pct,0); if(!a)return;
     const f=x.from||'DM'; if(f==='BAL'){o.DM-=a/2;o.IG-=a/2}else o[f]-=a; K.forEach(k=>{ if(x.m[k])o[k]+=a*x.m[k]/sm }); touched=true;
     o.notes.push('子基金拆分：'+x.key+' '+a+'%（來源 '+(f==='BAL'?'平衡型 50/50':f)+'）') });
+  // 1b) 產業股票關鍵字：內建邏輯只涵蓋 SEC_IDS；其餘帳戶在此套用同一規則（台灣科技基金屬 TW，不算 SEC；已被子基金規則處理的不重複）
+  if(!SEC_IDS.includes(id)){ let a=hold.filter(h=>SEC_RE.test(h.name)&&!/台灣|台股/.test(h.name)&&!builtin.some(re=>re.test(h.name))&&!CSUBS.some(c=>!c.draft&&c.match&&nz(h.name).includes(nz(c.match)))).reduce((s,h)=>s+h.pct,0);
+    a=Math.min(a,Math.max(o.DM,0)); if(a>0){ o.DM-=a; o.SEC+=a; touched=true; o.notes.push('產業股票關鍵字：'+a+'% 由 DM 改歸 SEC') } }
   // 2) 你的歸類記憶（Excel 既有分類僅供辨識與參考，不自動搬移：月報大類別多半已含該基金，直接搬會重複計算）
   UKW.forEach(x=>{ if(!x.k||!MOVE_FROM[x.b]||!inAcct(x,id))return;
     const a=hold.filter(h=>nz(h.name).includes(nz(x.k))&&!SEC_RE.test(h.name)&&!EM_FUND_RE.test(h.name)&&!builtin.some(re=>re.test(h.name))&&!CSUBS.some(c=>!c.draft&&c.match&&nz(h.name).includes(nz(c.match)))).reduce((s,h)=>s+h.pct,0); if(!a)return;
@@ -584,7 +597,7 @@ function postAdjust(o,hold,id){ if(!hold||!hold.length)return o; const K=['DM','
   o.STK=Math.round((o.DM+o.EM+o.SEC+o.TW)*1e4)/1e4; o.TOTAL=Math.round((o.STK+o.IG+o.HY+o.EMD+o.CASH)*1e3)/1e3; return o }
 const RECOG_SUBS=()=>SUBS().map(x=>x.o.re);
 SPECS.forEach(sp=>{ if(!sp.calc)return; const c=sp.calc; sp.calc=(p,prev)=>postAdjust(c(p,prev),p.hold,sp.id) });
-const api={setCustom,setUserRules,subfundList,setOverrides,PARAMS,PARAMS_DEF,recognized,candidates,setUserKw:k=>{UKW=k||[]},SPECS,KEYS,OPTS,MIX,rawClassify,TYPE8,finish,SEC_RE,EM_FUND_RE,BOND_FUNDS};
+const api={DICT_DEF,BUCKET_OF,setCustom,setUserRules,subfundList,setOverrides,PARAMS,PARAMS_DEF,recognized,candidates,setUserKw:k=>{UKW=k||[]},SPECS,KEYS,OPTS,MIX,rawClassify,TYPE8,finish,SEC_RE,EM_FUND_RE,BOND_FUNDS};
 if(typeof module!=='undefined')module.exports=api; else root.SPECS_API=api;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
@@ -620,9 +633,10 @@ const nn=s=>String(s).replace(/\s+/g,'');
 const seenSet=()=>new Set((DATA.seen||[]).concat(UC.seen||[]));
 const LIA_SEED={"periods":{"2017-12":{"ch":{"agent":{"ah":3514.0,"ann":1768.0,"inv":13669.0,"life":58547.0,"total":80258.0},"bank":{"ah":436.0,"ann":23710.0,"inv":211152.0,"life":420350.0,"total":655806.0},"lia":{"ah":27964.0,"ann":58915.0,"inv":174750.0,"life":250898.0,"total":524660.0},"sum":{"ah":31914.0,"ann":84393.0,"inv":399571.0,"life":729795.0,"total":1260724.0}},"cur":{"acc":12261.0,"ann_inv":218757.0,"ann_sub":303559.0,"ann_trad":84802.0,"health":31376.0,"life_inv":180814.0,"life_sub":913529.0,"life_trad":732715.0,"tot":1260724.0,"tot_inv":399571.0,"tot_trad":861153.0},"prev":{"acc":11719.0,"ann_inv":87934.0,"ann_sub":188910.0,"ann_trad":100976.0,"health":33597.0,"life_inv":108658.0,"life_sub":1036255.0,"life_trad":927597.0,"tot":1270480.0,"tot_inv":196592.0,"tot_trad":1073888.0},"src":"65b0a0b09588a"},"2018-12":{"ch":{"agent":{"ah":3967.0,"ann":940.0,"inv":22173.0,"life":57485.0,"total":88136.0},"bank":{"ah":364.0,"ann":22797.0,"inv":270372.0,"life":466957.0,"total":760792.0},"lia":{"ah":28036.0,"ann":34507.0,"inv":210861.0,"life":244635.0,"total":531007.0},"sum":{"ah":32367.0,"ann":58244.0,"inv":503406.0,"life":769078.0,"total":1379936.0}},"cur":{"acc":11904.0,"ann_inv":272922.0,"ann_sub":331488.0,"ann_trad":58566.0,"health":33618.0,"life_inv":230484.0,"life_sub":1002925.0,"life_trad":772441.0,"tot":1379936.0,"tot_inv":503406.0,"tot_trad":876530.0},"prev":{"acc":12261.0,"ann_inv":218757.0,"ann_sub":303559.0,"ann_trad":84802.0,"health":31376.0,"life_inv":180814.0,"life_sub":913529.0,"life_trad":732715.0,"tot":1260724.0,"tot_inv":399571.0,"tot_trad":861153.0},"src":"65b0a11839e93"},"2019-12":{"ch":{"agent":{"ah":6327.0,"ann":3121.0,"inv":23725.0,"life":56915.0,"total":93576.0},"bank":{"ah":768.0,"ann":30309.0,"inv":232825.0,"life":418318.0,"total":682825.0},"lia":{"ah":31112.0,"ann":21084.0,"inv":158639.0,"life":273751.0,"total":498332.0},"sum":{"ah":38207.0,"ann":54513.0,"inv":415190.0,"life":748984.0,"total":1274733.0}},"cur":{"acc":12230.0,"ann_inv":244862.0,"ann_sub":299943.0,"ann_trad":55081.0,"health":39832.0,"life_inv":170328.0,"life_sub":922728.0,"life_trad":752400.0,"tot":1274733.0,"tot_inv":415190.0,"tot_trad":859543.0},"prev":{"acc":11904.0,"ann_inv":272922.0,"ann_sub":331488.0,"ann_trad":58566.0,"health":33618.0,"life_inv":230484.0,"life_sub":1002925.0,"life_trad":772441.0,"tot":1379936.0,"tot_inv":503406.0,"tot_trad":876530.0},"src":"65b0a18e1e1c7"},"2020-12":{"ch":{"agent":{"ah":6634.0,"ann":3281.0,"inv":26177.0,"life":43092.0,"total":82963.0},"bank":{"ah":502.0,"ann":19151.0,"inv":207311.0,"life":251785.0,"total":479144.0},"lia":{"ah":33369.0,"ann":22255.0,"inv":106712.0,"life":179150.0,"total":354683.0},"sum":{"ah":40504.0,"ann":44687.0,"inv":340201.0,"life":474027.0,"total":916790.0}},"cur":{"acc":11117.0,"ann_inv":241404.0,"ann_sub":286369.0,"ann_trad":44965.0,"health":42880.0,"life_inv":98797.0,"life_sub":576425.0,"life_trad":477628.0,"tot":916790.0,"tot_inv":340201.0,"tot_trad":576590.0},"prev":{"acc":12230.0,"ann_inv":244862.0,"ann_sub":299943.0,"ann_trad":55081.0,"health":39832.0,"life_inv":170328.0,"life_sub":922728.0,"life_trad":752400.0,"tot":1274733.0,"tot_inv":415190.0,"tot_trad":859543.0},"src":"65b0a1c040b0f"},"2021-12":{"ch":{"agent":{"ah":6296.0,"ann":1633.0,"inv":48195.0,"life":31026.0,"total":91331.0},"bank":{"ah":324.0,"ann":35442.0,"inv":356293.0,"life":209832.0,"total":602312.0},"lia":{"ah":29112.0,"ann":17294.0,"inv":172966.0,"life":122989.0,"total":354397.0},"sum":{"ah":35732.0,"ann":54369.0,"inv":577454.0,"life":363846.0,"total":1048040.0}},"cur":{"acc":10513.0,"ann_inv":450296.0,"ann_sub":504902.0,"ann_trad":54606.0,"health":37944.0,"life_inv":127158.0,"life_sub":494681.0,"life_trad":367522.0,"tot":1048040.0,"tot_inv":577454.0,"tot_trad":470586.0},"prev":{"acc":11117.0,"ann_inv":241404.0,"ann_sub":286369.0,"ann_trad":44965.0,"health":42880.0,"life_inv":98797.0,"life_sub":576425.0,"life_trad":477628.0,"tot":916790.0,"tot_inv":340201.0,"tot_trad":576590.0},"src":"65b07b6352823"},"2023-12":{"ch":{"agent":{"ah":6539.0,"ann":210.0,"inv":57234.0,"life":33979.0,"total":103654.0},"bank":{"ah":315.0,"ann":1140.0,"inv":49325.0,"life":196643.0,"total":247675.0},"lia":{"ah":32528.0,"ann":6127.0,"inv":149983.0,"life":118545.0,"total":320039.0},"sum":{"ah":39382.0,"ann":7478.0,"inv":256543.0,"life":349168.0,"total":671368.0}},"cur":{"acc":13665.0,"ann_inv":167101.0,"ann_sub":174708.0,"ann_trad":7607.0,"health":40235.0,"life_inv":89442.0,"life_sub":442760.0,"life_trad":353318.0,"tot":671368.0,"tot_inv":256543.0,"tot_trad":414825.0},"prev":{"acc":11448.0,"ann_inv":246922.0,"ann_sub":264848.0,"ann_trad":17926.0,"health":36572.0,"life_inv":99503.0,"life_sub":460127.0,"life_trad":360624.0,"tot":772995.0,"tot_inv":346425.0,"tot_trad":426570.0},"src":"65aa16aca51fc"},"2024-12":{"ch":{"agent":{"ah":5814.0,"ann":135.0,"inv":100221.0,"life":39563.0,"total":151850.0},"bank":{"ah":354.0,"ann":474.0,"inv":84706.0,"life":223513.0,"total":309287.0},"lia":{"ah":37443.0,"ann":4266.0,"inv":155345.0,"life":170137.0,"total":380677.0},"sum":{"ah":43611.0,"ann":4875.0,"inv":340272.0,"life":433214.0,"total":841814.0}},"cur":{"acc":14865.0,"ann_inv":215017.0,"ann_sub":220009.0,"ann_trad":4992.0,"health":44551.0,"life_inv":125254.0,"life_sub":562390.0,"life_trad":437136.0,"tot":841814.0,"tot_inv":340272.0,"tot_trad":501543.0},"prev":{"acc":13665.0,"ann_inv":167101.0,"ann_sub":174708.0,"ann_trad":7607.0,"health":40235.0,"life_inv":89442.0,"life_sub":442760.0,"life_trad":353318.0,"tot":671368.0,"tot_inv":256543.0,"tot_trad":414825.0},"src":"6789adb4aae88"},"2025-01":{"ch":{"agent":{"ah":299.0,"ann":20.0,"inv":9482.0,"life":3628.0,"total":13943.0},"bank":{"ah":15.0,"ann":10.0,"inv":8865.0,"life":27254.0,"total":36148.0},"lia":{"ah":2413.0,"ann":551.0,"inv":19544.0,"life":16167.0,"total":39862.0},"sum":{"ah":2728.0,"ann":580.0,"inv":37890.0,"life":47049.0,"total":89952.0}},"cur":{"acc":1105.0,"ann_inv":25050.0,"ann_sub":25638.0,"ann_trad":588.0,"health":2920.0,"life_inv":12840.0,"life_sub":60289.0,"life_trad":47449.0,"tot":89952.0,"tot_inv":37890.0,"tot_trad":52062.0},"prev":{"acc":1172.0,"ann_inv":9891.0,"ann_sub":10570.0,"ann_trad":679.0,"health":4447.0,"life_inv":7428.0,"life_sub":50445.0,"life_trad":43017.0,"tot":66634.0,"tot_inv":17319.0,"tot_trad":49315.0},"src":"67af050aefb9f"},"2025-02":{"ch":{"agent":{"ah":638.0,"ann":19.0,"inv":20607.0,"life":6835.0,"total":29316.0},"bank":{"ah":33.0,"ann":25.0,"inv":15639.0,"life":51176.0,"total":66884.0},"lia":{"ah":5288.0,"ann":1260.0,"inv":37777.0,"life":30055.0,"total":76744.0},"sum":{"ah":5959.0,"ann":1303.0,"inv":74024.0,"life":88066.0,"total":172944.0}},"cur":{"acc":2455.0,"ann_inv":47502.0,"ann_sub":48848.0,"ann_trad":1346.0,"health":6294.0,"life_inv":26522.0,"life_sub":115347.0,"life_trad":88826.0,"tot":172944.0,"tot_inv":74024.0,"tot_trad":98920.0},"prev":{"acc":2123.0,"ann_inv":15925.0,"ann_sub":16909.0,"ann_trad":984.0,"health":7512.0,"life_inv":12530.0,"life_sub":85029.0,"life_trad":72499.0,"tot":111573.0,"tot_inv":28454.0,"tot_trad":83119.0},"src":"67d8cb790f3c2"},"2025-03":{"ch":{"agent":{"ah":1013.0,"ann":37.0,"inv":33762.0,"life":10062.0,"total":46883.0},"bank":{"ah":51.0,"ann":74.0,"inv":27345.0,"life":77466.0,"total":104952.0},"lia":{"ah":8843.0,"ann":1699.0,"inv":60573.0,"life":43874.0,"total":118739.0},"sum":{"ah":9906.0,"ann":1809.0,"inv":121680.0,"life":131402.0,"total":270574.0}},"cur":{"acc":3921.0,"ann_inv":76627.0,"ann_sub":78487.0,"ann_trad":1860.0,"health":10521.0,"life_inv":45053.0,"life_sub":177645.0,"life_trad":132592.0,"tot":270574.0,"tot_inv":121680.0,"tot_trad":148894.0},"prev":{"acc":3304.0,"ann_inv":33677.0,"ann_sub":35113.0,"ann_trad":1435.0,"health":11409.0,"life_inv":20836.0,"life_sub":129018.0,"life_trad":108183.0,"tot":178844.0,"tot_inv":54513.0,"tot_trad":124331.0},"src":"67ff08e14212f"},"2025-04":{"ch":{"agent":{"ah":1441.0,"ann":38.0,"inv":43976.0,"life":13278.0,"total":61726.0},"bank":{"ah":68.0,"ann":92.0,"inv":32491.0,"life":100871.0,"total":133547.0},"lia":{"ah":11531.0,"ann":2349.0,"inv":76266.0,"life":54275.0,"total":149542.0},"sum":{"ah":13040.0,"ann":2479.0,"inv":152732.0,"life":168424.0,"total":344816.0}},"cur":{"acc":5330.0,"ann_inv":94672.0,"ann_sub":97209.0,"ann_trad":2537.0,"health":14087.0,"life_inv":58060.0,"life_sub":228189.0,"life_trad":170129.0,"tot":344816.0,"tot_inv":152732.0,"tot_trad":192083.0},"prev":{"acc":4422.0,"ann_inv":51091.0,"ann_sub":52804.0,"ann_trad":1713.0,"health":14850.0,"life_inv":29330.0,"life_sub":167092.0,"life_trad":137762.0,"tot":239168.0,"tot_inv":80421.0,"tot_trad":158747.0},"src":"6826ba0811b56"},"2025-05":{"ch":{"agent":{"ah":1895.0,"ann":62.0,"inv":53050.0,"life":16439.0,"total":75181.0},"bank":{"ah":87.0,"ann":107.0,"inv":35877.0,"life":125062.0,"total":161173.0},"lia":{"ah":14328.0,"ann":2752.0,"inv":88992.0,"life":66680.0,"total":179500.0},"sum":{"ah":16310.0,"ann":2920.0,"inv":177919.0,"life":208181.0,"total":415855.0}},"cur":{"acc":6889.0,"ann_inv":108741.0,"ann_sub":111726.0,"ann_trad":2985.0,"health":17720.0,"life_inv":69179.0,"life_sub":279520.0,"life_trad":210341.0,"tot":415855.0,"tot_inv":177919.0,"tot_trad":237935.0},"prev":{"acc":5688.0,"ann_inv":68384.0,"ann_sub":70443.0,"ann_trad":2059.0,"health":18744.0,"life_inv":39398.0,"life_sub":211452.0,"life_trad":172055.0,"tot":306327.0,"tot_inv":107781.0,"tot_trad":198546.0},"src":"684fc30e7fe5e"},"2025-06":{"ch":{"agent":{"ah":2269.0,"ann":111.0,"inv":61483.0,"life":20121.0,"total":88628.0},"bank":{"ah":115.0,"ann":125.0,"inv":41145.0,"life":151293.0,"total":192728.0},"lia":{"ah":17404.0,"ann":3095.0,"inv":100035.0,"life":96166.0,"total":224827.0},"sum":{"ah":19788.0,"ann":3331.0,"inv":202663.0,"life":267579.0,"total":506183.0}},"cur":{"acc":8294.0,"ann_inv":123170.0,"ann_sub":126578.0,"ann_trad":3407.0,"health":21565.0,"life_inv":79492.0,"life_sub":349746.0,"life_trad":270254.0,"tot":506183.0,"tot_inv":202663.0,"tot_trad":303520.0},"prev":{"acc":7187.0,"ann_inv":81846.0,"ann_sub":84198.0,"ann_trad":2351.0,"health":23272.0,"life_inv":49045.0,"life_sub":260121.0,"life_trad":211076.0,"tot":374778.0,"tot_inv":130892.0,"tot_trad":243886.0},"src":"6877430b4ad62"},"2025-07":{"ch":{"agent":{"ah":2622.0,"ann":114.0,"inv":70258.0,"life":24654.0,"total":103262.0},"bank":{"ah":159.0,"ann":151.0,"inv":49574.0,"life":177885.0,"total":227830.0},"lia":{"ah":20283.0,"ann":3519.0,"inv":110559.0,"life":108760.0,"total":252515.0},"sum":{"ah":23064.0,"ann":3784.0,"inv":230390.0,"life":311299.0,"total":583606.0}},"cur":{"acc":9630.0,"ann_inv":140361.0,"ann_sub":144228.0,"ann_trad":3868.0,"health":25282.0,"life_inv":90030.0,"life_sub":404466.0,"life_trad":314436.0,"tot":583606.0,"tot_inv":230390.0,"tot_trad":353216.0},"prev":{"acc":8536.0,"ann_inv":102210.0,"ann_sub":104862.0,"ann_trad":2652.0,"health":28780.0,"life_inv":60446.0,"life_sub":302636.0,"life_trad":242190.0,"tot":444813.0,"tot_inv":162656.0,"tot_trad":282157.0},"src":"68a534049fd73"},"2025-11":{"ch":{"agent":{"ah":3922.0,"ann":195.0,"inv":109903.0,"life":39950.0,"total":162478.0},"bank":{"ah":296.0,"ann":187.0,"inv":89415.0,"life":276603.0,"total":366667.0},"lia":{"ah":32076.0,"ann":4684.0,"inv":173746.0,"life":151624.0,"total":376151.0},"sum":{"ah":36293.0,"ann":5065.0,"inv":373064.0,"life":468177.0,"total":905296.0}},"cur":{"acc":14484.0,"ann_inv":226321.0,"ann_sub":231484.0,"ann_trad":5163.0,"health":39819.0,"life_inv":146744.0,"life_sub":619509.0,"life_trad":472765.0,"tot":905296.0,"tot_inv":373064.0,"tot_trad":532232.0},"prev":{"acc":13678.0,"ann_inv":181373.0,"ann_sub":185912.0,"ann_trad":4539.0,"health":41060.0,"life_inv":110150.0,"life_sub":498812.0,"life_trad":388662.0,"tot":739463.0,"tot_inv":291524.0,"tot_trad":447939.0},"src":"6940f62bd26c7"},"2025-12":{"ch":{"agent":{"ah":4260.0,"ann":198.0,"inv":123087.0,"life":45055.0,"total":181791.0},"bank":{"ah":318.0,"ann":190.0,"inv":100076.0,"life":304481.0,"total":405261.0},"lia":{"ah":35148.0,"ann":5081.0,"inv":200230.0,"life":164664.0,"total":420389.0},"sum":{"ah":39726.0,"ann":5469.0,"inv":423393.0,"life":514200.0,"total":1007442.0}},"cur":{"acc":15666.0,"ann_inv":256243.0,"ann_sub":261813.0,"ann_trad":5569.0,"health":43595.0,"life_inv":167149.0,"life_sub":686368.0,"life_trad":519219.0,"tot":1007442.0,"tot_inv":423393.0,"tot_trad":584049.0},"prev":{"acc":14865.0,"ann_inv":215017.0,"ann_sub":220009.0,"ann_trad":4992.0,"health":44551.0,"life_inv":125254.0,"life_sub":562390.0,"life_trad":437136.0,"tot":841814.0,"tot_inv":340272.0,"tot_trad":501543.0},"src":"6969f36bda5f0"},"2026-09":{"ch":{"agent":{"ah":2901.0,"ann":91.0,"inv":152362.0,"life":31664.0,"total":195079.0},"bank":{"ah":207.0,"ann":64.0,"inv":146120.0,"life":286879.0,"total":433425.0},"lia":{"ah":27379.0,"ann":1801.0,"inv":377906.0,"life":124455.0,"total":543854.0},"sum":{"ah":30486.0,"ann":1955.0,"inv":676388.0,"life":442997.0,"total":1172358.0}},"cur":{"acc":11761.0,"ann_inv":414766.0,"ann_sub":416846.0,"ann_trad":2080.0,"health":34932.0,"life_inv":261622.0,"life_sub":708819.0,"life_trad":447198.0,"tot":1172358.0,"tot_inv":676388.0,"tot_trad":495970.0},"prev":{"acc":12094.0,"ann_inv":181068.0,"ann_sub":185537.0,"ann_trad":4469.0,"health":32992.0,"life_inv":114732.0,"life_sub":508738.0,"life_trad":394006.0,"tot":739360.0,"tot_inv":295800.0,"tot_trad":443560.0},"src":"6ad1e35bc4e8a"},"2026-10":{"ch":{"agent":{"ah":3202.0,"ann":139.0,"inv":169703.0,"life":34277.0,"total":216194.0},"bank":{"ah":220.0,"ann":67.0,"inv":158208.0,"life":312456.0,"total":471117.0},"lia":{"ah":30016.0,"ann":1900.0,"inv":419567.0,"life":136513.0,"total":601598.0},"sum":{"ah":33438.0,"ann":2106.0,"inv":747479.0,"life":483245.0,"total":1288909.0}},"cur":{"acc":13003.0,"ann_inv":455192.0,"ann_sub":457426.0,"ann_trad":2235.0,"health":38340.0,"life_inv":292287.0,"life_sub":780140.0,"life_trad":487853.0,"tot":1288909.0,"tot_inv":747479.0,"tot_trad":541430.0},"prev":{"acc":13379.0,"ann_inv":203603.0,"ann_sub":208450.0,"ann_trad":4847.0,"health":36771.0,"life_inv":129720.0,"life_sub":562568.0,"life_trad":432849.0,"tot":821168.0,"tot_inv":333323.0,"tot_trad":487845.0},"src":"6afbcaceabc86"}},"seed":{"ch_2022":{"agent":{"ah":4834,"ann":688,"inv":50214,"life":29846,"total":90386},"bank":{"ah":346,"ann":6880,"inv":156101,"life":215340,"total":378984},"lia":{"ah":29477,"ann":10155,"inv":140110,"life":111514,"total":303625},"sum":{"ah":34657,"ann":17723,"inv":346425,"life":356700,"total":772995}},"ch_hist":{"2005":[316333,203081,21509,33],"2006":[315484,187343,21605,133],"2007":[464903,258684,28279,0],"2008":[420613,409182,25506,0],"2009":[313156,584224,27690,0],"2010":[372800,758194,30731,0],"2011":[392407,567894,34700,0],"2012":[474865,665856,49660,0],"2013":[429588,629062,47631,0],"2014":[501450,611752,56496,0],"2015":[488976,635733,61535,0],"2016":[533776,653816,82929,0]},"note":"通路年報(百萬元,保費收入+負債口徑)：2005-2016 取自使用者提供之壽險公會整理檔；2022 取自同檔總表。其餘年度由壽險公會PDF解析。"},"sources":["65aa16aca51fc","65b07b6352823","65b0a0b09588a","65b0a11839e93","65b0a18e1e1c7","65b0a1c040b0f","6789adb4aae88","67af050aefb9f","67d8cb790f3c2","67ff08e14212f","6826ba0811b56","684fc30e7fe5e","6877430b4ad62","68a534049fd73","6940f62bd26c7","6969f36bda5f0","6ad1e35bc4e8a","6afbcaceabc86"],"updated":"2026-11-20 10:22"};
 const FLOW_SEED={"inv":{"2024-01":[270.6,292.5,144.8,134.3,125.8,158.2],"2024-02":[193.0,309.6,115.7,123.9,77.3,185.6],"2024-03":[353.9,545.9,150.3,249.7,203.6,296.2],"2024-04":[357.5,363.4,154.9,157.5,202.6,205.9],"2024-05":[354.0,408.8,169.4,198.2,184.5,210.5],"2024-06":[307.0,400.8,157.7,151.6,149.3,249.2],"2024-07":[418.4,457.5,187.6,228.1,230.8,229.4],"2024-08":[415.5,412.8,198.6,169.6,216.9,243.1],"2024-09":[363.6,445.4,180.4,193.1,183.2,252.3],"2024-10":[404.5,396.5,186.6,158.0,217.8,238.5],"2024-11":[425.5,371.2,201.4,148.6,224.1,222.6],"2024-12":[584.1,423.5,224.9,171.6,359.2,251.9],"2025-01":[441.9,352.1,180.0,165.8,261.9,186.4],"2025-02":[455.1,378.5,215.2,141.0,239.9,237.5],"2025-03":[568.8,492.8,260.1,181.5,308.7,311.3],"2025-04":[394.1,328.2,198.8,146.5,195.2,181.7],"2025-05":[330.6,377.7,176.5,156.0,154.1,221.7],"2025-06":[329.9,294.2,173.8,122.4,156.1,171.8],"2025-07":[358.4,315.6,174.0,132.2,184.4,183.3],"2025-08":[364.2,362.6,177.0,145.6,187.1,217.1],"2025-09":[451.3,441.8,205.5,171.5,245.9,270.3],"2025-10":[456.6,446.9,218.1,163.3,238.6,283.6],"2025-11":[472.1,407.2,232.7,169.3,239.4,237.9],"2025-12":[596.8,495.4,281.9,197.1,314.9,298.2],"2026-01":[838.2,596.0,326.1,227.4,512.1,368.6],"2026-02":[519.6,445.8,246.7,157.0,272.9,288.8],"2026-03":[778.2,572.0,361.7,226.4,416.5,345.6],"2026-04":[808.2,499.5,323.6,213.3,484.6,286.2],"2026-05":[867.9,674.4,355.6,277.1,512.3,397.3],"2026-06":[965.0,807.3,405.4,304.7,559.6,502.5],"2026-07":[1179.1,619.7,452.7,257.3,726.4,362.4],"2026-08":[829.6,503.4,399.6,213.2,430.0,290.2],"2026-09":[743.7,427.4,373.1,185.8,370.6,241.6]},"life":{"2023-01":[326.4,1029.3,1240.4],"2023-02":[345.5,612.2,1256.2],"2023-03":[438.2,1035.8,1801.2],"2023-04":[316.6,661.7,1450.0],"2023-05":[396.8,906.6,1600.8],"2023-06":[425.0,1041.3,1543.6],"2023-07":[372.1,839.3,1556.2],"2023-08":[345.6,771.3,1762.1],"2023-09":[318.7,652.3,1533.2],"2023-10":[328.1,833.8,1696.1],"2023-11":[399.6,887.3,1741.9],"2023-12":[375.4,1188.7,1813.5],"2024-01":[500.8,1062.3,1590.7],"2024-02":[343.2,731.3,1147.2],"2024-03":[437.0,837.8,1875.6],"2024-04":[377.2,831.3,1891.1],"2024-05":[440.0,866.1,1965.3],"2024-06":[483.6,895.4,1729.6],"2024-07":[421.8,1067.1,1913.2],"2024-08":[456.0,789.9,1870.1],"2024-09":[425.2,817.7,1583.0],"2024-10":[445.4,742.7,1487.3],"2024-11":[623.5,942.7,1740.4],"2024-12":[632.1,1359.2,1906.8],"2025-01":[599.0,869.7,1465.4],"2025-02":[547.0,994.5,1362.1],"2025-03":[618.6,943.3,1752.7],"2025-04":[500.4,806.2,2018.6],"2025-05":[508.7,829.8,1820.7],"2025-06":[697.2,1160.5,1484.2],"2025-07":[542.7,855.8,1341.3],"2025-08":[509.0,763.4,1254.6],"2025-09":[526.7,848.3,1309.9],"2025-10":[534.7,791.3,1402.7],"2025-11":[566.2,862.3,1481.3],"2025-12":[664.4,1287.4,2010.6],"2026-01":[1011.6,1132.8,1919.7],"2026-02":[567.7,762.8,1153.8],"2026-03":[782.0,1138.4,2039.9],"2026-04":[689.8,895.6,1778.0],"2026-05":[715.5,938.8,1984.9],"2026-06":[880.4,1160.4,2202.9],"2026-07":[854.3,938.2,2108.6],"2026-08":[774.5,943.9,1630.5],"2026-09":[771.7,889.7,1551.4]},"updated":"2026-11-20 10:22"};
-function applyUC(){try{if(!UC.lia||(UC.lia.updated||'')<LIA_SEED.updated)UC.lia=JSON.parse(JSON.stringify(LIA_SEED));if(!UC.flow||(UC.flow.updated||'')<FLOW_SEED.updated)UC.flow=JSON.parse(JSON.stringify(FLOW_SEED));if(!UC.ins)UC.ins=JSON.parse(JSON.stringify(INS_SEED));else{['prm','bif'].forEach(q=>{for(const k in INS_SEED[q])if(!UC.ins[q][k])UC.ins[q][k]=INS_SEED[q][k]});if(!UC.ins.hist)UC.ins.hist=INS_SEED.hist;UC.ins.prmY=Object.assign({},INS_SEED.prmY,UC.ins.prmY||{});if(!UC.ins.insurers)UC.ins.insurers=INS_SEED.insurers}
-  if(!UC.mk)UC.mk=JSON.parse(JSON.stringify(MK_SEED));else Object.keys(MK_SEED.snaps).forEach(k=>{const o=UC.mk.snaps[k];if(!o||Object.keys(o.rows).length<Object.keys(MK_SEED.snaps[k].rows).length)UC.mk.snaps[k]=JSON.parse(JSON.stringify(MK_SEED.snaps[k]))});if(!UC.mk.notesV){UC.mk.notes=[];UC.mk.notesV=2}if((UC.mk.polAsOf||'')<MK_SEED.polAsOf){UC.mk.policies=JSON.parse(JSON.stringify(MK_SEED.policies));UC.mk.polSrc=MK_SEED.polSrc;UC.mk.polAsOf=MK_SEED.polAsOf;}if(!UC.na)UC.na=JSON.parse(JSON.stringify(NA_SEED));UC.na.forEach(x=>{if(x.status==='soon'||x.status==='approved'||x.status==='filed')x.status=x.date?'live':'plan'});NA_SEED.forEach(s=>{if(!UC.na.some(x=>x.name===s.name&&x.insurer===s.insurer))UC.na.push(JSON.parse(JSON.stringify(s)))});if(!UC.csubs)UC.csubs=JSON.parse(JSON.stringify((DATA.subs&&DATA.subs.subs)||[]));SA().setOverrides({sub:UC.sub,params:UC.params});SA().setUserRules(UC.kw);SA().setCustom(UC.csubs,(DATA.subs&&DATA.subs.grid)||[])}catch(e){}}
-function save(){try{const o={entries:{},ns:{USD:{},TWD:{}},cats:UC};for(const m in store)for(const id in store[m]){const e=store[m][id];if(e.src!=='excel'){(o.entries[m]=o.entries[m]||{})[id]={b:e.b,src:e.src,file:e.file,notes:e.notes,raw:e.raw}}}
+function applyUC(){applyUC0();try{(UC.csubs||[]).forEach(x=>{if(x.accts&&x.accts.length){x.seen=[...new Set([...(x.seen||[]),...x.accts])];x.accts=[]}})}catch(e){}}
+function applyUC0(){try{if(!UC.lia||(UC.lia.updated||'')<LIA_SEED.updated)UC.lia=JSON.parse(JSON.stringify(LIA_SEED));if(!UC.flow||(UC.flow.updated||'')<FLOW_SEED.updated)UC.flow=JSON.parse(JSON.stringify(FLOW_SEED));if(!UC.ins)UC.ins=JSON.parse(JSON.stringify(INS_SEED));else{['prm','bif'].forEach(q=>{for(const k in INS_SEED[q])if(!UC.ins[q][k])UC.ins[q][k]=INS_SEED[q][k]});if(!UC.ins.hist)UC.ins.hist=INS_SEED.hist;UC.ins.prmY=Object.assign({},INS_SEED.prmY,UC.ins.prmY||{});if(!UC.ins.insurers)UC.ins.insurers=INS_SEED.insurers}
+  if(!UC.mk)UC.mk=JSON.parse(JSON.stringify(MK_SEED));else Object.keys(MK_SEED.snaps).forEach(k=>{const o=UC.mk.snaps[k];if(!o||Object.keys(o.rows).length<Object.keys(MK_SEED.snaps[k].rows).length)UC.mk.snaps[k]=JSON.parse(JSON.stringify(MK_SEED.snaps[k]))});if(!UC.mk.notesV){UC.mk.notes=[];UC.mk.notesV=2}if((UC.mk.polAsOf||'')<MK_SEED.polAsOf){UC.mk.policies=JSON.parse(JSON.stringify(MK_SEED.policies));UC.mk.polSrc=MK_SEED.polSrc;UC.mk.polAsOf=MK_SEED.polAsOf;}if(!UC.na)UC.na=JSON.parse(JSON.stringify(NA_SEED));UC.na.forEach(x=>{if(x.status==='soon'||x.status==='approved'||x.status==='filed')x.status=x.date?'live':'plan'});NA_SEED.forEach(s=>{if(!UC.na.some(x=>x.name===s.name&&x.insurer===s.insurer))UC.na.push(JSON.parse(JSON.stringify(s)))});if(!UC.csubs)UC.csubs=JSON.parse(JSON.stringify((DATA.subs&&DATA.subs.subs)||[]));if(!UC.subx)UC.subx={};if(!UC.rawDel)UC.rawDel=[];if(!UC.dict)UC.dict={};SA().setOverrides({sub:UC.sub,subx:UC.subx,params:UC.params,dict:UC.dict});SA().setUserRules(UC.kw);if(!UC.gridDel)UC.gridDel=[];SA().setCustom(UC.csubs,((DATA.subs&&DATA.subs.grid)||[]).filter(g=>!UC.gridDel.includes(g.k)))}catch(e){}}
+function save(){try{const o={entries:{},ns:{USD:{},TWD:{}},cats:UC};for(const m in store)for(const id in store[m]){const e=store[m][id];if(e.src!=='excel'){(o.entries[m]=o.entries[m]||{})[id]={b:e.b,src:e.src,file:e.file,notes:e.notes,raw:e.raw,fetched:e.fetched,url:e.url,ok:e.ok}}}
   for(const c in ns)for(const m in ns[c])if(ns[c][m]._u)o.ns[c][m]=ns[c][m];localStorage.setItem(LS,JSON.stringify(o))}catch(e){}}
 function load(o){for(const m in o.entries)for(const id in o.entries[m])(store[m]=store[m]||{})[id]=o.entries[m][id];for(const c in o.ns)for(const m in o.ns[c])ns[c][m]=o.ns[c][m];if(o.cats){UC=Object.assign({raw:{},kw:[],sub:{},params:{},seen:[],note:{},rev:{}},o.cats);applyUC()}}
 try{const r=localStorage.getItem(LS);if(r)load(JSON.parse(r))}catch(e){}
@@ -637,10 +651,20 @@ function setEntry(id,e){(store[st.month]=store[st.month]||{})[id]=e;save()}
 // ── 自動偵測疑似組合型／多重資產基金，加入拆分表待填 ──
 const MIXED_RE=/組合|多重資產|多元|平衡|收益|配置|income|multi|allocation|balanced|total return|混合/i;
 function autoDrafts(id,hold){let n=0;(hold||[]).forEach(h=>{const nm=h.name;if(!nm||!MIXED_RE.test(nm)||SA().recognized(nm)||seenSet().has(nn(nm)))return;
-  UC.csubs.unshift({key:nm.replace(/\s+/g,' ').slice(0,40),match:nn(nm),accts:[id],m:{},from:'BAL',rev:st.month,draft:true,auto:true});n++});
+  UC.csubs.unshift({key:nm.replace(/\s+/g,' ').slice(0,40),match:nn(nm),accts:[],seen:[id],m:{},from:'BAL',rev:'',draft:true,auto:true});n++});
   if(n){applyUC();save()}return n}
 // ── 匯入 PDF ──
 function monthSeen(txt,m){const[y,x]=m.split('-');const mm=String(+x);return new RegExp(y+'[^0-9]{0,2}0?'+mm+'(?![0-9])').test(txt)}
+// 月報首兩頁的「帳戶規模」→ 換算成億（帳戶幣別）。回傳 {v:億, raw:原文} 或 null
+function scaleOf(doc){
+  const T=doc.slice(0,2).map(p=>p.map(r=>r.segs.map(g=>g.s).join(' ')).join('\n')).join('\n').normalize('NFKC');
+  const re=/(帳戶月底規模|月底規模|帳戶規模|資產規模|計價幣別\/規模\(百萬\)|(?<![\u4e00-\u9fff])規模)(?:[\s:：^＊*]|\(註\d?\)|\(各子級別帳戶加總\)|\(百萬\))*(?:TWD|USD|NT\$|US\$|\$|新台幣|新臺幣|美元)?\s*([\d,]+(?:\.\d+)?)\s*(百萬|億|萬)?/g;
+  let m;while((m=re.exec(T))){const n=parseFloat(m[2].replace(/,/g,''));if(!(n>0))continue;
+    const mult=m[3]==='億'?1e8:m[3]==='百萬'?1e6:m[3]==='萬'?1e4:(/\(百萬\)/.test(m[1])?1e6:1);const v=n*mult/1e8;
+    if(v<0.01||v>100000)continue;if(!m[3]&&mult===1&&n<1e6)continue; return{v:Math.round(v*1000)/1000,raw:m[0].replace(/\s+/g,' ').slice(0,40)} }
+  const fb=[/([\d,]+(?:\.\d+)?)\s*(百萬|億)\s*(?:美元|台幣|新台幣|元)\s*\n\s*(?:帳戶規模|資產規模)/,/(?:帳戶規模|資產規模)\*?[^\n]{0,60}\n\s*([\d,]+(?:\.\d+)?)\s*(百萬|億)\s*(?:美元|台幣|新台幣|元)/];
+  for(const r of fb){const m=r.exec(T);if(m){const v=parseFloat(m[1].replace(/,/g,''))*(m[2]==='億'?1:.01);if(v>=.01&&v<=100000)return{v:Math.round(v*1000)/1000,raw:'帳戶規模 '+m[1]+m[2]}}}
+  return null}
 async function handleFiles(files){
   for(const f of files){
     try{
@@ -652,8 +676,8 @@ async function handleFiles(files){
       if(acc.ccy!==st.ccy){st.ccy=acc.ccy;$('#ccy').value=st.ccy}
       const b={};['DM','EM','SEC','TW','IG','HY','EMD','CASH'].forEach(k=>b[k]=out[k]||0);
       const notes=out.notes.slice(); if(!monthSeen(txt.slice(0,3000),st.month))notes.push('⚠ 月報內容未見 '+st.month+'，請確認月份');
-      setEntry(sp.id,{b,src:sp.approx?'approx':'pdf',file:f.name,notes,raw:{raw:p.raw,hold:p.hold.map(h=>h.name+' '+h.pct),cand}});
-      const nd=autoDrafts(sp.id,p.hold); if(nd)st.log.push('　→ 發現 '+nd+' 檔疑似組合型基金，已自動加入「規則」頁的子基金拆分表（待填比例）');
+      const sc=scaleOf(doc);setEntry(sp.id,Object.assign({b,src:sp.approx?'approx':'pdf',file:f.name,notes,raw:{raw:p.raw,hold:p.hold.map(h=>h.name+' '+h.pct),cand}},sc?{scale:sc.v,scaleRaw:sc.raw}:{}));
+      const nd=autoDrafts(sp.id,p.hold); if(nd)st.log.push('　→ 發現 '+nd+' 檔疑似組合型基金，已自動加入「⑤ 子基金分析」的子基金拆分比例（待填比例）');
       st.log.push('✓ '+f.name+' → '+sp.id+' '+acc.name.replace(/\(.*$/,'')+(notes.length?'  ['+notes.join('；').slice(0,90)+']':''));
     }catch(e){st.log.push('✗ '+f.name+'：讀取失敗（'+e.message+'）')}
   }
@@ -684,26 +708,30 @@ async function handleXlsx(file,mode){
       if(m){ const c=m[1]==='美元'?'USD':'TWD'; const b=rd(r); if(need.some(k=>b[k]==null))return; const mm=m[2]+'-'+m[3]; b._u=1; ns[c][mm]=b; nNs++ } });
     save(); st.month=month; $('#month').value=month;
     st.log.push('✓ '+file.name+' → '+month+'：同業 '+nPeer+' 檔'+(skip?'（略過已有 PDF/手動資料的 '+skip+' 檔）':'')+'、南山 '+nNs+' 列');
-  }catch(e){st.log.push('✗ '+file.name+'：Excel 讀取失敗（'+e.message+'）')}
+  }catch(e){st.log.push('✗ '+file.name+'：Excel 讀取失敗（'+e.message+'）');st.flash={k:'err',t:'✗ Excel 讀取失敗：'+file.name+'（'+e.message+'）'};statusBox('err','Excel 讀取失敗',file.name+'\n'+e.message)}
   render();
 }
 
 // RAW DATA：每個工作表一個帳戶（T3、T6、南山美元、南山台幣），欄位 AssetName／InvestRate（ProductName、NAV 可有可無；已依 AssetName 彙總的格式也可）
 function addPend(o,sn){o.unmappedList.forEach(x=>{const p=st.pend[x.asset]||(st.pend[x.asset]={asset:x.asset,names:[],pct:0,sheets:[]});p.pct+=x.pct;if(p.names.length<3&&!p.names.includes(x.name))p.names.push(x.name);if(!p.sheets.includes(sn))p.sheets.push(sn)})}
 function handleRaw(wb,file){st.pend={};st.rawCtx={wb,file};
-  const fm=file.name.match(/(20\d{2})[-_.](\d{2})/); const month=fm?fm[1]+'-'+fm[2]:st.month; let done=0;
+  const fm=file.name.match(/(20\d{2})[-_.](\d{2})/); const month=fm?fm[1]+'-'+fm[2]:st.month; let done=0; if(!fm)st.log.push('⚠ 檔名沒有年月，月份沿用畫面上選的 '+month+'；若不對，請改檔名（例如 RAW_2026-10.xlsx）後重新匯入');
   wb.SheetNames.forEach(sn=>{
     const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:null}); if(!rows.length||!('AssetName' in rows[0])||!('InvestRate' in rows[0])){st.log.push('－ 略過工作表「'+sn+'」（不是 RAW DATA 格式）');return}
+    const navN=rows.map(r=>+r.NAV).find(x=>x>0)||0,navV=navN/1e8,scaleKV=navV>0?Math.round(navV*1000)/1000:null;
     const list=rows.filter(r=>r.AssetName!=null&&String(r.AssetName).trim()!=='').map(r=>({name:String(r.ProductName||r.AssetName).trim(),asset:String(r.AssetName||'').trim(),pct:+r.InvestRate||0}));
     const tm=sn.match(/T\s?(\d+)/i), isNs=/南山/.test(sn);
     if(isNs){ const c=/美元|USD/i.test(sn)?'USD':/台幣|TWD|新台/i.test(sn)?'TWD':null; if(!c){st.log.push('－ 略過「'+sn+'」（無法判斷美元或台幣）');return}
-      const o=window.SPECS_API.rawClassify(list,'peer',UC.raw); addPend(o,sn); const b={}; ['DM','EM','SEC','TW','IG','HY','EMD','CASH'].forEach(k=>b[k]=o.b[k]); b._u=1; ns[c][month]=b;
+      const o=window.SPECS_API.rawClassify(list,'peer',rawExtra()); addPend(o,sn); const b={}; ['DM','EM','SEC','TW','IG','HY','EMD','CASH'].forEach(k=>b[k]=o.b[k]); b._u=1; if(scaleKV!=null)b._scale=scaleKV; ns[c][month]=b;
       st.log.push('✓ '+sn+' → '+month+' 南山'+(c==='USD'?'美元':'台幣')+'帳戶（'+list.length+' 檔持股）'+(o.unmapped.length?' ⚠ 未分類：'+o.unmapped.join('；'):'')); done++; return }
     const id=tm?'T'+tm[1]:sn.trim(); const a=ACC.find(x=>x.id===id); if(!a){st.log.push('－ 略過工作表「'+sn+'」（對不上帳戶編號）');return}
-    const o=window.SPECS_API.rawClassify(list,'peer',UC.raw); addPend(o,sn); const b={}; ['DM','EM','SEC','TW','IG','HY','EMD','CASH'].forEach(k=>b[k]=o.b[k]);
-    (store[month]=store[month]||{})[id]={b,src:'manual',file:file.name,notes:o.b.notes.concat(o.unmapped.length?['⚠ 未分類：'+o.unmapped.join('；')]:[])};
+    const o=window.SPECS_API.rawClassify(list,'peer',rawExtra()); addPend(o,sn); const b={}; ['DM','EM','SEC','TW','IG','HY','EMD','CASH'].forEach(k=>b[k]=o.b[k]);
+    (store[month]=store[month]||{})[id]=Object.assign({b,src:'manual',file:file.name,notes:o.b.notes.concat(o.unmapped.length?['⚠ 未分類：'+o.unmapped.join('；')]:[])},scaleKV!=null?{scale:scaleKV,scaleRaw:'NAV '+Math.round(navN).toLocaleString('en-US')}:{});
     st.log.push('✓ '+sn+' → '+month+' '+id+' '+a.name.replace(/\(.*$/,'')+'（'+list.length+' 檔持股）'+(o.unmapped.length?' ⚠ 未分類：'+o.unmapped.join('；'):'')); done++ });
-  save(); if(done){st.month=month;$('#month').value=month} render();
+  save(); if(done){st.month=month;$('#month').value=month}
+  st.flash=done?{k:'ok',t:'✓ Excel 匯入完成：'+file.name+' → '+month+'，共 '+done+' 個帳戶（'+wb.SheetNames.filter(sn=>st.log.some(l=>l.startsWith('✓ '+sn+' →'))).join('、')+'）。請到「① 配置表」查看；細節見下方匯入紀錄。'}:{k:'err',t:'✗ 沒有匯入任何資料：'+file.name+'。工作表需含 AssetName、InvestRate 欄位，且名稱含 T3／T6／南山美元／南山台幣。原因請看下方匯入紀錄。'};
+  if(st.flash)statusBox(st.flash.k,st.flash.k==='ok'?'Excel 匯入完成':'沒有匯入任何資料',st.flash.t.replace(/^[✓✗]\s*/,''));
+  render();
 }
 // ── 統計 ──
 function peerRows(ccy,m){return ACC.filter(a=>a.ccy===ccy).map(a=>({a,e:ent(m,a.id)})).filter(x=>x.e)}
@@ -711,21 +739,34 @@ function stats(ccy,m){const rows=peerRows(ccy,m);const cols=COLS(ccy).concat(['S
   cols.forEach(k=>{const v=rows.map(r=>k==='STK'?stk(r.e.b):(r.e.b[k]||0)).sort((x,y)=>x-y);if(!v.length){mean[k]=med[k]=null;return}
     mean[k]=v.reduce((x,y)=>x+y,0)/v.length;const h=v.length>>1;med[k]=v.length%2?v[h]:(v[h-1]+v[h])/2});return{mean,med,n:rows.length}}
 // ── 畫面 ──
-const TABSETS={peer:[['import','① 匯入月報'],['check','② 檢查與調整'],['report','③ 報告表'],['trend','④ 歷史趨勢'],['rules','說明與驗證']],
+const TABSETS={peer:[['report','① 配置表'],['trend','② 歷史趨勢'],['import','③ 匯入月報'],['check','④ 檢查與調整'],['subs','⑤ 子基金分析'],['dict','⑥ 分類字典'],['rules','說明與驗證']],
  market:[['mk_sum','① 市況摘要'],['mk_over','② 市況總覽'],['mk_rank','③ 投信排名與市占'],['mk_ins','④ 壽險角度'],['mk_life','⑤ 壽險規模與銷售推估'],['newacc','⑥ 新帳戶動態'],['mk_data','⑦ 資料更新']]};
+// 清除本月全部資料（含自動取得、手動、PDF、Excel 匯入的同業與南山；Excel 既有歷史資料不在此列）
+function clearCount(m){let n=Object.values(store[m]||{}).filter(e=>e&&e.src!=='excel').length;['USD','TWD'].forEach(c=>{if(ns[c][m]&&ns[c][m]._u)n++});return n}
+function clearMonth(m){const s=store[m]||{};Object.keys(s).forEach(id=>{if(s[id]&&s[id].src!=='excel')delete s[id]});['USD','TWD'].forEach(c=>{if(ns[c][m]&&ns[c][m]._u)delete ns[c][m]});save()}
+function confirmBox(title,msg,okText,onOk){
+  const o=document.createElement('div');o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  o.innerHTML='<div style="background:var(--bg,#fff);color:var(--fg,#222);max-width:440px;width:100%;border-radius:10px;padding:20px 22px;box-shadow:0 8px 30px rgba(0,0,0,.35);border:1px solid var(--line,#ccc)"><h3 style="margin:0 0 10px;font-size:16px"></h3><p style="margin:0 0 16px;line-height:1.6;font-size:14px"></p><div style="display:flex;gap:8px;justify-content:flex-end"><button data-x="no">取消</button><button data-x="ok" class="danger"></button></div></div>';
+  o.querySelector('h3').textContent=title;o.querySelector('p').textContent=msg;o.querySelector('[data-x=ok]').textContent=okText;
+  const close=()=>{o.remove();document.removeEventListener('keydown',kd,true)};
+  const kd=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',kd,true);
+  o.addEventListener('click',e=>{e.stopPropagation();const x=e.target.closest('[data-x]');if(x&&x.dataset.x==='ok'){close();onOk()}else if(x||e.target===o)close()});
+  document.body.appendChild(o);o.querySelector('[data-x=no]').focus()}
 function render(){
   st.mod=st.mod||'market'; if(!TABSETS[st.mod].some(x=>x[0]===st.tab))st.tab=TABSETS[st.mod][0][0];
   $('#tabs').innerHTML=TABSETS[st.mod].map(([k,l])=>`<button role="tab" data-t="${k}">${l}</button>`).join('');
   document.querySelectorAll('#mods button').forEach(b=>b.setAttribute('aria-selected',b.dataset.mod===st.mod));
   const pc=$('#peerctl');if(pc)pc.style.display=st.mod==='peer'?'':'none';
-  const h1=$('#h1');if(h1)h1.innerHTML=st.mod==='peer'?'類全委同業觀測平台<small>PDF 月報解析在你的瀏覽器內完成，檔案不會上傳</small>':'類全委同業觀測平台<small>資料來源：投信投顧公會、保發中心（按上方「從網路更新」自動取得）及各壽險公司公告；資料存在這台電腦的瀏覽器內</small>';
+  const h1=$('#h1');if(h1)h1.innerHTML=st.mod==='peer'?'類全委同業觀測平台<small>PDF 月報解析在你的瀏覽器內完成，檔案不會上傳　｜　版本 1124-1458</small>':'類全委同業觀測平台<small>資料來源：投信投顧公會、保發中心（按上方「從網路更新」自動取得）及各壽險公司公告；資料存在這台電腦的瀏覽器內　｜　版本 1124-1458</small>';
   document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===st.tab));
-  $('#pane').innerHTML=(st.mod==='market'?syncBar():'')+{import:vImport,check:vCheck,report:vReport,trend:vTrend,newacc:vNewAcc,rules:vRules,mk_over:vMkOver,mk_sum:vMkSum,mk_ins:vMkIns,mk_rank:vMkRank,mk_acct:vMkAcct,mk_prod:vMkProd,mk_data:vMkData,mk_life:vMkLife}[st.tab]();
+  $('#pane').innerHTML=flashBar()+(st.mod==='market'||(st.mod==='peer'&&['report','trend','check'].includes(st.tab))?syncBar():'')+{import:vImport,check:vCheck,report:vReport,trend:vTrend,newacc:vNewAcc,rules:vRules,subs:vSubTab,dict:vDict,mk_over:vMkOver,mk_sum:vMkSum,mk_ins:vMkIns,mk_rank:vMkRank,mk_acct:vMkAcct,mk_prod:vMkProd,mk_data:vMkData,mk_life:vMkLife}[st.tab]();
+  applySorts();foldPanels();
   if(st.tab==='trend')drawTrend();
 }
 function statusOf(a){const e=ent(st.month,a.id);const hasRule=SPECS.some(s=>s.id===a.id);
   if(!e)return['p-none','未取得'+(hasRule?'':'（無規則，需手動）')];
-  return{pdf:['p-pdf','已解析'],approx:['p-warn','部分估算，請核對'],manual:['p-manual','手動輸入'],carry:['p-warn','沿用上月'],excel:['p-excel','Excel 既有']}[e.src]}
+  return{pdf:['p-pdf','已解析'],approx:['p-warn','部分估算，請核對'],manual:['p-manual','手動輸入'],carry:['p-warn','沿用上月'],excel:['p-excel','Excel 既有'],auto:['p-warn','自動取得，待核對']}[e.src]}
 const CATHAY={U1:'ACU006',U5:'ACU007',U7:'ACU008',U16:'AIU001',U2:'ABU038',U15:'ABU036',U6:'ABU046',U14:'ABU051',U13:'AWU021',U11:'AMU051',U12:'AMU054',U4:'AMU057',U9:'BSU029',U8:'BSU039',T5:'ACT041'};
 const DIRECT={U19:()=>'https://cardif.moneydj.com/SaveFile/McpDoc/DMA072-2.pdf',
  T8:m=>{const[y,x]=m.split('-');return 'https://www.twfhclife.com.tw/wp-content/uploads/'+encodeURIComponent('月報-臺銀人壽新臺幣精選平衡型投資帳戶-野村-'+(+y-1911)+x)+'.pdf'},
@@ -750,64 +791,95 @@ function vPend(){const ps=Object.values(st.pend||{});if(!ps.length)return '';
   return `<div class="panel"><h2>待歸類資產　<span class="note">${ps.length} 項</span></h2><p class="note" style="margin-bottom:8px">這些 AssetName 不在對照表內，目前沒有計入任何類別（會讓現金被高估）。選好類別後按「套用並記住」，之後所有帳戶、所有月份遇到同名資產都會自動歸入該類，並立即重算本次匯入的檔案。</p>
    <div class="tw"><table><thead><tr><th class="l">AssetName</th><th class="l">持股範例</th><th>合計 %</th><th class="l">歸入</th></tr></thead><tbody>${ps.map(p=>`<tr><td class="l name">${esc(p.asset)}</td><td class="l name note">${esc(p.names.join('、'))}</td><td>${p.pct.toFixed(2)}</td><td class="l">${bktSel('data-pa="'+esc(p.asset)+'"',true)}</td></tr>`).join('')}</tbody></table></div>
    <div class="ctl" style="margin-top:8px"><button id="pendOk">套用並記住</button></div></div>`}
+function reviewFlags(a,e){if(!e||e.src==='excel')return[];const o=[],T=tot(e.b);
+  if(e.src==='carry')return['沿用上月，沒有本月月報'];
+  if(e.ok)return[];
+  if(e.src!=='manual'&&!e.ok){const sp=SPECS.find(s=>s.id===a.id);if(sp&&sp.approx)o.push('配置圖是圖片，內部比例需對照月報圖表');
+    if(e.raw&&e.raw.cand&&e.raw.cand.length)o.push('有未讀取的類別列');
+    (e.notes||[]).forEach(n=>{if(/請人工|請對照|請確認/.test(n)&&!/疑似有未讀取/.test(n))o.push(n.replace(/^⚠\s*/,'').slice(0,36))});
+    const pe=ent(prevM(st.month),a.id);if(pe){const d=stk(e.b)-stk(pe.b);if(Math.abs(d)>8)o.push(`股票曝險較上月 ${d>0?'+':''}${fx(d)}`)}}
+  if(Math.abs(T-100)>0.6)o.push(`合計 ${fx(T)}`);return[...new Set(o)]}
 function vImport(){
-  const rows=accs().map(a=>{const[c,t]=statusOf(a);const e=ent(st.month,a.id);
-    return `<tr><td class="l">${a.id}</td><td class="l name">${esc(a.name)}</td><td class="l">${repLink(a)}</td><td class="l"><span class="pill ${c}">${t}</span></td><td class="l note">${e&&e.file?esc(e.file):''}</td></tr>`}).join('');
-  const got=accs().filter(a=>{const e=ent(st.month,a.id);return e&&e.src!=='excel'}).length;
-  return `<div class="panel"><h2>步驟 1　取得月報</h2>
-   <p class="note" style="margin-bottom:10px">依下表連結逐一開啟各家月報並下載 PDF，再一次拖進下方區塊。系統依 PDF 內文辨識是哪個帳戶，檔名不必統一。</p>
-   <label class="drop" id="drop" for="file"><strong>把本月 PDF 拖到這裡，或點此選取（可多選）</strong>目前月份：${st.month}　${st.ccy==='USD'?'美元':'台幣'}帳戶</label>
-   <input type="file" id="file" accept="application/pdf" multiple hidden>
-   <div class="ctl" style="margin:8px 0"><label class="btn">匯入 Excel（T3、T6、南山）<input type="file" id="xl" accept=".xlsx" hidden></label><span class="note">可匯入兩種：①RAW DATA（每個工作表一個帳戶：T3、T6、南山美元、南山台幣，欄位 AssetName／InvestRate（ProductName、NAV 可有可無；已依 AssetName 彙總的格式也可）），月份取自檔名中的 2026-09；②同業 Excel 的「操作特型與配置_最新資料」工作表。</span></div>
+  const A=accs(),isAuto=e=>e&&e.src==='auto',fdt=e=>e&&e.fetched?String(e.fetched).slice(5,16).replace('T',' '):'';
+  const rows=A.map(a=>{const[c,t]=statusOf(a);const e=ent(st.month,a.id);
+    const fl=reviewFlags(a,e);
+    return `<tr${fl.length?' class="flag"':''}><td class="l">${a.id}</td><td class="l name">${esc(a.name)}</td><td class="l"><span class="pill ${c}">${t}</span></td><td class="l">${fl.length?`<span class="pill p-flag">⚑ 需人工檢查</span> <span class="note">${esc(fl.join('；'))}</span>${e&&e.src!=='carry'?` <button data-ok="${a.id}">已檢查</button>`:''}`:'<span class="note">–</span>'}</td><td class="l note">${e&&e.src==='auto'?'抓取 '+fdt(e):e&&e.file?esc(e.file):''}</td><td class="l">${repLink(a)}</td></tr>`}).join('');
+  const nFlag=A.filter(a=>reviewFlags(a,ent(st.month,a.id)).length).length;
+  const got=A.filter(a=>{const e=ent(st.month,a.id);return e&&e.src!=='excel'}).length,nAuto=A.filter(a=>isAuto(ent(st.month,a.id))).length,nAll=A.filter(a=>{const e=ent(st.month,a.id);return isAuto(e)&&!reviewFlags(a,e).length}).length;
+  const miss=A.filter(a=>!ent(st.month,a.id)),y=UC.sync||{},nAuto0=Object.values(store[st.month]||{}).filter(isAuto).length;const nAllClr=clearCount(st.month);
+  const NS=['USD','TWD'].map(c=>[c==='USD'?'南山（美元）':'南山（台幣）',!!ns[c][st.month]]);
+  const exl=[['T3 合庫復華',!!ent(st.month,'T3')],['T6 臺銀復華',!!ent(st.month,'T6')]].concat(NS);
+  return `${syncBar()}<div class="panel"><h2>步驟 1　取得月報　<span class="note">${st.month}</span></h2>
+   <p class="note" style="margin-bottom:8px">各家月報由 GitHub 每天自動下載並解析，按上方「從網路更新資料」就會帶進來（${y.peer?'同業月報最後抓取 '+String(y.peer).slice(0,16).replace('T',' ')+' UTC':'尚未取得過自動資料'}）。自動取得的帳戶標示「自動取得，待核對」，核對後按下方按鈕確認。</p>
+   <div class="kpi"><div><b>${nAuto + A.filter(a=>{const e=ent(st.month,a.id);return e&&(e.src==='pdf'||e.src==='approx'||e.src==='manual')}).length} / ${A.length}</b><span>${st.ccy==='USD'?'美元':'台幣'}帳戶本月已有資料</span></div><div><b>${nAuto}</b><span>其中待核對（自動取得）</span></div><div><b>${miss.length}</b><span>尚未取得</span></div><div><b style="color:#b23b2e">${nFlag}</b><span>⚑ 需人工檢查（見下表）</span></div></div>
+   <div class="ctl" style="margin:10px 0"><button id="confirmAuto"${nAll?'':' disabled'}>全部核對無誤（${nAll} 檔）</button><button id="clearAuto" class="${st.armAuto?'danger':''}"${nAuto0?'':' disabled'}>${st.armAuto?'再按一次確認清除':'清除本月自動取得的資料（'+nAuto0+' 檔）'}</button>${st.armAuto?'<button id="clearAutoNo">取消</button>':''}<button id="clearAll"${nAllClr?'':' disabled'}>清除本月全部資料（${nAllClr} 筆）</button><span class="note">只會確認「沒有標記」的帳戶；有 ⚑ 的請先到「④ 檢查與調整」修改，或確認無誤後在該列按「已檢查」。</span></div>
    ${st.log.length?`<div class="log" style="margin-top:10px">${esc(st.log.join('\n'))}</div>`:''}</div>
   ${vPend()}
-  <div class="panel"><h2>${st.month} 月報清單　<span class="note">已匯入 ${got} / ${accs().length}</span></h2>
-   <div class="tw"><table><thead><tr><th class="l">編號</th><th class="l">帳戶</th><th class="l">來源</th><th class="l">狀態</th><th class="l">檔案</th></tr></thead><tbody>${rows}</tbody></table></div>
-   <p class="note" style="margin-top:8px">已建立解析規則的帳戶共 ${SPECS.length} 檔（美元 20 檔、台幣 8 檔）。T7、T10 為部分估算（配置圖是圖片）；T3、T6 沒有月報，請在步驟 2 手動輸入。</p></div>`}
+  <div class="panel"><h2>${st.month} 月報清單　<span class="note">${st.ccy==='USD'?'美元':'台幣'}帳戶・已有資料 ${got} / ${A.length}</span></h2>
+   <div class="tw"><table><thead><tr><th class="l">編號</th><th class="l">帳戶</th><th class="l">狀態</th><th class="l">需人工檢查</th><th class="l">檔案／抓取時間</th><th class="l">月報來源</th></tr></thead><tbody>${rows}</tbody></table></div>
+   <p class="note" style="margin-top:8px">已建立解析規則的帳戶共 ${SPECS.length} 檔（美元 20 檔、台幣 8 檔）。T7、T10 為部分估算（配置圖是圖片）；三商美邦 U3、U17、T1 若自動取得失敗，請手動補。</p></div>
+  <details class="panel"${miss.length?' open':''}><summary><b>補充：手動拖入 PDF</b>　<span class="note">自動取得失敗或尚未發布的帳戶，把月報 PDF 拖到這裡即可；系統依內文辨識帳戶</span></summary>
+   <label class="drop" id="drop" for="file" style="margin-top:8px"><strong>把 PDF 拖到這裡，或點此選取（可多選）</strong>目前月份：${st.month}　${st.ccy==='USD'?'美元':'台幣'}帳戶</label>
+   <input type="file" id="file" accept="application/pdf" multiple hidden></details>
+  <div class="panel"><h2>Excel 匯入　<span class="note">T3、T6、南山（沒有公開月報，由你提供 RAW DATA）</span></h2>
+   <div class="ctl" style="margin:6px 0"><label class="btn">選取 Excel<input type="file" id="xl" accept=".xlsx" hidden></label><span class="note">${exl.map(([n,ok])=>`<span class="pill ${ok?'p-excel':'p-none'}">${n}：${ok?'已有':'未取得'}</span>`).join(' ')}</span></div>
+   <p class="note">可匯入兩種：①RAW DATA（每個工作表一個帳戶：T3、T6、南山美元、南山台幣，欄位 AssetName／InvestRate（ProductName、NAV 可有可無；已依 AssetName 彙總的格式也可）），<b>月份取自檔名中的年月（例如 RAW_2026-10.xlsx）</b>；檔名沒有年月時，會沿用上方選取的月份，匯入前請先確認；②同業 Excel 的「操作特型與配置_最新資料」工作表。</p></div>`}
+// 帳戶用到的子基金拆分比例，本月檢視進度（只提示，不改變核對狀態）
+function subHint(id){const e0=ent(st.month,id),H=((e0&&e0.raw&&e0.raw.hold)||[]).map(s=>nn(s));const L=(UC.csubs||[]).filter(x=>x.accts&&x.accts.length?x.accts.includes(id):(x.match&&H.some(h=>h.includes(x.match))));if(!L.length)return'';
+  const todo=L.filter(x=>!(revOf(x.key)>=st.month)),draft=L.filter(x=>x.draft);
+  const ok=!todo.length&&!draft.length,tip=[].concat(todo.length?['本月尚未檢視：'+todo.map(x=>x.key).join('、')]:[],draft.length?['比例待填：'+draft.map(x=>x.key).join('、')]:[]).join('\n');
+  return `<div style="margin-top:4px"><span class="pill ${ok?'p-pdf':'p-warn'}" title="${esc(tip||'此帳戶用到的子基金拆分比例，本月都已檢視')}">子基金拆分：已檢視 ${L.length-todo.length}／${L.length}${draft.length?`，${draft.length} 檔比例待填`:''}</span>${ok?'':`<span class="note"> ${esc(todo.map(x=>x.key).slice(0,3).join('、'))}${todo.length>3?'…':''}</span>`}</div>`}
 function vCheck(){
   const cols=COLS(st.ccy),L=LBL(st.ccy);const pm=prevM(st.month);
-  const rows=accs().map(a=>{const e=ent(st.month,a.id);const p=ent(pm,a.id);const[c,t]=statusOf(a);
+  const rows=accs().filter(a=>!st.onlyFlag||reviewFlags(a,ent(st.month,a.id)).length).map(a=>{const e=ent(st.month,a.id);const p=ent(pm,a.id);const[c,t]=statusOf(a);const rf=reviewFlags(a,e);
     const b=e?e.b:null;const T=b?tot(b):null;const dS=b&&p?stk(b)-stk(p.b):null;
     const flags=[];if(b&&Math.abs(T-100)>0.6)flags.push(`合計 ${fx(T)}`);if(dS!=null&&Math.abs(dS)>8)flags.push(`股票曝險較上月 ${dS>0?'+':''}${fx(dS)}`);
     const inputs=cols.map(k=>`<td><input type="number" step="0.01" data-id="${a.id}" data-k="${k}" value="${b?fx(b[k]||0,2):''}" placeholder="${p?fx(p.b[k]||0,1):''}" aria-label="${a.id} ${L[k]}"></td>`).join('');
     const det=e&&e.raw?`<tr><td colspan="${cols.length+5}" class="l"><details ${st.open[a.id]?'open':''} data-id="${a.id}"><summary>讀到的原始數字</summary><div class="raw">${esc(JSON.stringify(e.raw.raw))}\n${esc((e.raw.hold||[]).join('\n'))}\n${esc((e.notes||[]).join('\n'))}</div></details></td></tr>`:'';
-    return `<tr><td class="l">${a.id}</td><td class="l name">${esc(a.name)}</td>${inputs}<td>${b?fx(stk(b)):'–'}</td><td class="l"><span class="pill ${c}">${t}</span>${flags.map(f=>` <span class="pill p-warn">${f}</span>`).join('')}${b&&Math.abs(T-100)>0.6?`<div class="ctl" style="margin-top:4px"><select data-gapsel="${a.id}">${BKT.filter(x=>x[0]!=='平衡型').map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select><button data-gap="${a.id}">差額 ${fx(100-T,2)} 歸入</button></div>`:''}${e&&e.raw&&e.raw.cand&&e.raw.cand.length?`<div class="note">疑似未讀取：${esc(e.raw.cand.join('；'))}</div>`:''}</td></tr>${det}`}).join('');
+    return `<tr${rf.length?' class="flag"':''}><td class="l">${a.id}</td><td class="l name">${esc(a.name)}</td>${inputs}<td>${b?fx(stk(b)):'–'}</td><td class="l"><span class="pill ${c}">${t}</span>${e&&e.src!=='carry'&&!e.ok&&(e.src==='auto'||rf.length)?` <button data-ok="${a.id}">已檢查</button>`:''}${rf.length?` <span class="pill p-flag">⚑ 需人工檢查</span><div class="note">${esc(rf.join('；'))}</div>`:''}${subHint(a.id)}${flags.map(f=>` <span class="pill p-warn">${f}</span>`).join('')}${b&&Math.abs(T-100)>0.6?`<div class="ctl" style="margin-top:4px"><select data-gapsel="${a.id}">${BKT.filter(x=>x[0]!=='平衡型').map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select><button data-gap="${a.id}">差額 ${fx(100-T,2)} 歸入</button></div>`:''}${e&&e.raw&&e.raw.cand&&e.raw.cand.length?`<div class="note">疑似未讀取：${esc(e.raw.cand.join('；'))}</div>`:''}</td></tr>${det}`}).join('');
   return `<div class="panel"><h2>步驟 2　檢查與調整　<span class="note">${st.month}・欄位灰字為上月值</span></h2>
-   <div class="ctl" style="margin-bottom:10px"><button id="carry">把「未取得」的帳戶沿用上月值</button><span class="note">沿用的帳戶會標示，報告表也會註明檔數。直接修改任一格即改為手動輸入。</span></div>
-   <div class="tw"><table><thead><tr><th class="l">編號</th><th class="l">帳戶</th>${cols.map(k=>`<th>${L[k]}</th>`).join('')}<th>${L.STK}</th><th class="l">狀態</th></tr></thead><tbody>${rows}</tbody></table></div></div>${vNewHold()}`}
+   <div class="ctl" style="margin-bottom:10px"><button id="carry">把「未取得」的帳戶沿用上月值</button><button id="flagOnly">${st.onlyFlag?'顯示全部帳戶':'只看 ⚑ 需人工檢查'}</button><span class="note">沿用的帳戶會標示，配置表也會註明檔數。直接修改任一格即改為手動輸入。</span></div>
+   <div class="tw"><table><thead><tr><th class="l">編號</th><th class="l">帳戶</th>${cols.map(k=>`<th>${L[k]}</th>`).join('')}<th>${L.STK}</th><th class="l">狀態</th></tr></thead><tbody>${rows}</tbody></table></div></div>${checkPtr()}`}
 
 // ── 重算（已匯入的 PDF 帳戶，用當初讀到的原始數字重跑目前規則）──
 function parseHoldStr(s){const i=s.lastIndexOf(' ');return{name:s.slice(0,i),pct:parseFloat(s.slice(i+1))}}
 function recalcPdf(all){let n=0;const months=all?Object.keys(store):[st.month];
-  months.forEach(m=>Object.keys(store[m]||{}).forEach(id=>{const e=store[m][id];if(!e||!e.raw||!(e.src==='pdf'||e.src==='approx'))return;const sp=SPECS.find(s=>s.id===id);if(!sp||!sp.calc)return;
+  months.forEach(m=>Object.keys(store[m]||{}).forEach(id=>{const e=store[m][id];if(!e||!e.raw||!(e.src==='pdf'||e.src==='approx'||e.src==='auto'))return;const sp=SPECS.find(s=>s.id===id);if(!sp||!sp.calc)return;
     try{const p={raw:e.raw.raw,hold:(e.raw.hold||[]).map(parseHoldStr)};const out=sp.calc(p,lastB(id,m));const b={};['DM','EM','SEC','TW','IG','HY','EMD','CASH'].forEach(k=>b[k]=out[k]||0);e.b=b;e.notes=out.notes.slice();n++}catch(err){}}));
   save();return n}
 // ── 新出現、尚未確認分類的持股（前十大） ──
-function newHoldings(){const seen=seenSet(),map={};accs().forEach(a=>{const e=ent(st.month,a.id);if(!e||!e.raw||!e.raw.hold||!(e.src==='pdf'||e.src==='approx'))return;
+function newHoldings(){const seen=seenSet(),map={};accs().forEach(a=>{const e=ent(st.month,a.id);if(!e||!e.raw||!e.raw.hold||!(e.src==='pdf'||e.src==='approx'||e.src==='auto'))return;
   e.raw.hold.map(parseHoldStr).forEach(h=>{if(!h.name||SA().recognized(h.name)||seen.has(nn(h.name)))return;const x=map[nn(h.name)]||(map[nn(h.name)]={name:h.name,accs:[],pct:0});if(!x.accs.includes(a.id))x.accs.push(a.id);x.pct+=h.pct})});
   return Object.values(map)}
-function vNewHold(){const L=newHoldings();const dr=(UC.csubs||[]).filter(x=>x.draft).length;const drNote=dr?`<div class="panel"><p class="note">⚠ 「規則」頁的子基金拆分表有 <b>${dr}</b> 檔待填比例（新偵測到的組合型基金），在填入比例前，這些基金仍依帳戶大類別處理。</p></div>`:'';if(!L.length)return drNote+`<div class="panel"><h2>新出現的持股</h2><p class="note">本月 PDF 帳戶的前十大持股都已確認過分類，沒有新面孔。</p></div>`;
-  return drNote+`<div class="panel"><h2>新出現的持股　<span class="note">${L.length} 檔</span></h2><p class="note" style="margin-bottom:8px">這些前十大持股沒有命中任何規則，也沒被你確認過，目前依該帳戶的大類別處理（通常是 DM 或 IG）。若實際屬於別類，請在右側選擇；選「維持原分類」代表確認沒問題，之後不再提醒。選擇後按「確認並重算本月」。</p>
-   <div class="tw"><table><thead><tr><th class="l">持股</th><th class="l">帳戶</th><th>合計 %</th><th class="l">歸入</th></tr></thead><tbody>${L.map(x=>`<tr><td class="l name">${esc(x.name)}</td><td class="l">${esc(x.accs.join('、'))}</td><td>${x.pct.toFixed(2)}</td><td class="l"><select data-nh="${esc(x.name)}"><option value="">維持原分類</option>${BKT.filter(b=>['EM','SEC','TW','IG','HY','EMD','CASH'].includes(b[0])).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div>
-   <div class="ctl" style="margin-top:8px"><button id="nhOk">確認並重算本月</button></div></div>`}
+function checkPtr(){const n=newHoldings().length,d=(UC.csubs||[]).filter(x=>x.draft).length;if(!n&&!d)return '';return `<div class="panel"><p class="note">⚠ ⑤ 子基金分析有${n?' <b>'+n+'</b> 檔新出現的持股待確認':''}${n&&d?'、':''}${d?' <b>'+d+'</b> 檔子基金待填拆分比例':''}。<button data-goto="subs">前往 ⑤ 子基金分析</button></p></div>`}
+function guessBkt(n){n=String(n);
+  if(/貨幣|現金|money market|cash/i.test(n))return 'CASH 現金';
+  if(/非投資等級|高收益|高息債|high ?yield/i.test(n))return 'HY 非投資等級債';
+  if(/新興.*債|emerging.*bond|EMD/i.test(n))return 'EMD 新興市場債';
+  if(/股票|equity|stock/i.test(n)&&!/債|bond/i.test(n))return 'DM 已開發股票';
+  if(/平衡|多重資產|多元資產|多元收益|multi.?asset|balanced|allocation|入息|收益組合/i.test(n))return '平衡型：DM 50%＋IG 50%';
+  if(/債|bond|fixed income|treasury|公債/i.test(n))return 'IG 投資等級債';
+  return 'DM 已開發股票'}
+function vNewHold(){const L=newHoldings();const dr=(UC.csubs||[]).filter(x=>x.draft).length;const drNote=dr?`<div class="panel"><p class="note">⚠ 下方「子基金拆分比例」有 <b>${dr}</b> 檔待填比例（新偵測到的組合型基金），在填入比例前，這些基金仍依帳戶大類別處理。</p></div>`:'';if(!L.length)return drNote+`<div class="panel"><h2>新出現的持股</h2><p class="note">本月 PDF 帳戶的前十大持股都已確認過分類，沒有新面孔。</p></div>`;
+  return drNote+`<div class="panel"><h2>新出現的持股　<span class="note">${L.length} 檔</span></h2><p class="note" style="margin-bottom:8px">這些前十大持股沒有命中任何規則，也沒被你確認過，目前依該帳戶的大類別處理（通常是 DM 或 IG）。若實際屬於別類，請在右側選擇；「目前會算進」欄是依基金名稱推測的歸類（實際依月報該帳戶的大類別），看過沒問題就選「不調整」，之後不再提醒；選「加到子基金拆分比例」會在下方拆分表新增一列（待填比例）；選某一類則加到下方「子基金類別」。全部確認後，到最下方按「重算本月」。</p>
+   <div class="tw"><table><thead><tr><th class="l">持股</th><th class="l">帳戶</th><th>合計 %</th><th class="l" title="依基金名稱推測；實際是月報該帳戶的大類別">目前會算進（推測）</th><th class="l">歸入</th></tr></thead><tbody>${L.map(x=>`<tr><td class="l name">${esc(x.name)}</td><td class="l">${esc(x.accs.join('、'))}</td><td>${x.pct.toFixed(2)}</td><td class="l">${esc(guessBkt(x.name))}</td><td class="l"><select data-nh="${esc(x.name)}"><option value="">不調整（沿用月報原本的分類）</option><option value="__split__">▶ 加到「子基金拆分比例」</option><optgroup label="加到「子基金類別」">${BKT.filter(b=>['EM','SEC','TW','IG','HY','EMD','CASH'].includes(b[0])).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</optgroup></select></td></tr>`).join('')}</tbody></table></div>
+   <div class="ctl" style="margin-top:8px"><button id="nhOk">確認選擇</button></div></div>`}
 function nsGet(c,m){return ns[c][m]||null}
 function vReport(){
   const c=st.ccy,m=st.month,pm=prevM(m),cols=COLS(c),L=LBL(c);const S=stats(c,m);
   const cur=nsGet(c,m),prv=nsGet(c,pm);const carried=peerRows(c,m).filter(r=>r.e.src==='carry').length;
-  const nsRow=(lab,b)=>b?`<tr class="ns"><td></td><td class="l">${lab}</td><td></td><td></td>${cols.map(k=>`<td>${fx(b[k]||0,0)}</td>`).join('')}<td>${fx(stk(b),0)}</td></tr>`:'';
-  const rows=peerRows(c,m).map(({a,e})=>`<tr><td class="l">${a.id}</td><td class="l name">${esc(a.name)}</td><td class="l">${esc(a.mgr||'')}</td><td class="l">${a.rr||''}</td>${cols.map(k=>`<td>${fx(e.b[k]||0,0)}</td>`).join('')}<td>${fx(stk(e.b),0)}</td></tr>`).join('');
-  const nsIn=(mm,lab)=>{const b=nsGet(c,mm)||{};return `<tr><td class="l">${lab}（${mm}）</td>${cols.map(k=>`<td><input type="number" step="0.01" data-ns="${mm}" data-k="${k}" value="${b[k]!=null?fx(b[k],2):''}" aria-label="南山 ${mm} ${L[k]}"></td>`).join('')}</tr>`};
-  return `<div class="panel"><h2>南山帳戶配置（手動輸入）</h2><p class="note" style="margin-bottom:8px">${m} 與 ${pm} 兩列會顯示在報告表底部，單位 %。</p>
-    <div class="tw"><table><thead><tr><th class="l">帳戶</th>${cols.map(k=>`<th>${L[k]}</th>`).join('')}</tr></thead><tbody>${nsIn(m,'南山')}${nsIn(pm,'南山')}</tbody></table></div></div>
-   <div class="panel"><h2>${m} ${c==='USD'?'美元':'台幣'}帳戶 同業配置表　<span class="note">${S.n} 檔${carried?`（其中 ${carried} 檔沿用上月）`:''}</span></h2>
+  const scF=v=>v!=null&&v>0?(v>=100?Math.round(v).toLocaleString('en-US'):v.toFixed(1)):'–';
+  const nsRow=(lab,b)=>b?`<tr class="ns"><td></td><td class="l">${lab}</td><td></td><td></td><td>${scF(b._scale)}</td>${cols.map(k=>`<td>${fx(b[k]||0,0)}</td>`).join('')}<td>${fx(stk(b),0)}</td></tr>`:'';
+  const rows=peerRows(c,m).map(({a,e})=>`<tr><td class="l">${a.id}</td><td class="l name">${esc(a.name)}</td><td class="l">${esc(a.mgr||'')}</td><td class="l">${a.rr||''}</td><td title="${esc(e.scaleRaw||'')}">${scF(e.scale)}</td>${cols.map(k=>`<td>${fx(e.b[k]||0,0)}</td>`).join('')}<td>${fx(stk(e.b),0)}</td></tr>`).join('');
+  return `<div class="panel"><h2>${m} ${c==='USD'?'美元':'台幣'}帳戶 同業配置表　<span class="note">${S.n} 檔${carried?`（其中 ${carried} 檔沿用上月）`:''}</span></h2>
     <textarea class="headline" id="head" aria-label="標題文字">${esc(headline(c,S,cur))}</textarea>
     <div class="ctl" style="margin:10px 0"><button class="primary" id="copyT">複製表格（可貼到 PowerPoint／Excel）</button><button id="csv">下載 CSV</button><button id="pptx" class="primary">匯出投影片（.pptx）</button><button id="copyH">複製標題文字</button><span id="msg" class="note"></span></div>
-    <div class="tw"><table id="rtable"><thead><tr><th class="l">No.</th><th class="l">標的名稱</th><th class="l">經理人</th><th class="l">風險等級</th>${cols.map(k=>`<th>${L[k]}</th>`).join('')}<th>${L.STK}</th></tr></thead><tbody>${rows}
-    <tr class="sum"><td></td><td class="l">中位數</td><td></td><td></td>${cols.map(k=>`<td>${fx(S.med[k],0)}</td>`).join('')}<td>${fx(S.med.STK,0)}</td></tr>
-    <tr class="sum"><td></td><td class="l">平均數</td><td></td><td></td>${cols.map(k=>`<td>${fx(S.mean[k],0)}</td>`).join('')}<td>${fx(S.mean.STK,0)}</td></tr>
+    <div class="tw"><table id="rtable"><thead><tr><th class="l">No.</th><th class="l">標的名稱</th><th class="l">經理人</th><th class="l">風險等級</th><th title="帳戶規模，單位：億${c==='USD'?'美元':'新台幣'}（取自月報；復華帳戶與南山取自 RAW DATA 的 NAV）">規模(億${c==='USD'?'美元':'台幣'})</th>${cols.map(k=>`<th>${L[k]}</th>`).join('')}<th>${L.STK}</th></tr></thead><tbody>${rows}
+    <tr class="sum"><td></td><td class="l">中位數</td><td></td><td></td><td></td>${cols.map(k=>`<td>${fx(S.med[k],0)}</td>`).join('')}<td>${fx(S.med.STK,0)}</td></tr>
+    <tr class="sum"><td></td><td class="l">平均數</td><td></td><td></td><td></td>${cols.map(k=>`<td>${fx(S.mean[k],0)}</td>`).join('')}<td>${fx(S.mean.STK,0)}</td></tr>
     ${nsRow('南山'+(c==='USD'?'美元':'台幣')+'帳戶('+m+')',cur)}${nsRow('南山'+(c==='USD'?'美元':'台幣')+'帳戶('+pm+')',prv)}</tbody></table></div></div>`}
 function headline(c,S,cur){
-  if(!cur)return '請先在上方輸入南山帳戶配置，標題文字會自動產生。';
+  if(!cur)return '尚無南山帳戶配置。請到「③ 匯入月報」用 Excel 匯入南山 RAW DATA，標題文字會自動產生。';
   const R=v=>Math.round(v),d=(a,b)=>R(a)-R(b),w=(x,p,n)=>x>=0?p:n;
   const bond=b=>(b.IG||0)+(b.HY||0)+(b.EMD||0);const mb=S.mean.IG+S.mean.HY+S.mean.EMD;
   const dS=d(stk(cur),S.mean.STK),dB=d(bond(cur),mb),dD=d(cur.DM,S.mean.DM),dE=d(cur.EM,S.mean.EM),dC=d(cur.SEC||0,S.mean.SEC);
@@ -859,33 +931,75 @@ const SUBK=['DM','EM','SEC','TW','IG','HY','EMD','CASH'];
 const pc=v=>v==null||v===0?'':(Math.round(v*1e4)/100);
 function revCell(k){const r=revOf(k);if(!r)return '<span class="pill p-none">未記錄</span> <button data-revdone="'+esc(k)+'">本月已檢視</button>';const d=mDiff(st.month,r);
   return `${r.replace('-','/')} ${d>=3?`<span class="pill p-warn">已 ${d} 個月未檢視</span>`:d<0?'':'<span class="note">（'+d+' 個月前）</span>'} <button data-revdone="${esc(k)}">本月已檢視</button>${UC.rev[k]?` <button data-revundo="${esc(k)}">復原</button>`:''}`}
+// 持有某子基金的帳戶（僅供參考，不限制拆分規則的適用範圍；所有帳戶一律套用同一規則）
+function csHolders(x){const cur=new Set(),all=new Set(x.seen||[]);if(x.match)for(const m in store)for(const id in store[m]){const hs=(store[m][id].raw&&store[m][id].raw.hold)||[];if(hs.some(h=>nn(h).includes(x.match))){all.add(id);if(m===st.month)cur.add(id)}}
+  const ord=[...all].sort((a,b)=>(+a.slice(1))-(+b.slice(1))||a.localeCompare(b)).sort((a,b)=>a[0]===b[0]?0:a[0]<b[0]?1:-1);
+  return ord.length?ord.map(i=>cur.has(i)?`<b>${i}</b>`:i).join('、'):'目前沒有紀錄'}
+function biHolders(s){let re;try{re=new RegExp(s.re)}catch(e){return '–'}const all=new Set(),cur=new Set();for(const m in store)for(const id in store[m]){const hs=(store[m][id].raw&&store[m][id].raw.hold)||[];if(hs.some(h=>re.test(h))){all.add(id);if(m===st.month)cur.add(id)}}
+  const ord=[...all].sort((a,b)=>a[0]===b[0]?(+a.slice(1))-(+b.slice(1)):(a[0]<b[0]?1:-1));return ord.length?ord.map(i=>cur.has(i)?`<b>${i}</b>`:i).join('、'):'目前沒有紀錄'}
 function vSubPanel(){const subs=SA().subfundList(),P=SA().PARAMS,PD=SA().PARAMS_DEF;
-  const rows=subs.map(s=>{const sum=SUBK.reduce((x,k)=>x+(s.m[k]||0),0),chg=JSON.stringify(s.m)!==JSON.stringify(s.def),bad=Math.abs(sum-1)>0.001;
-   return `<tr><td class="l name">${esc(s.key)}<div class="note">${esc(s.kind)}｜比對：${esc(s.re)}</div></td>${SUBK.map(k=>`<td><input type="number" step="0.1" style="width:56px" data-sub="${esc(s.key)}" data-bk="${k}" value="${pc(s.m[k])}"></td>`).join('')}<td class="${bad?'neg':''}">${(sum*100).toFixed(1)}</td><td class="l">${revCell(s.key)}</td><td class="l"><input data-subnote="${esc(s.key)}" value="${esc(UC.note[s.key]||'')}" placeholder="備註（例如 比例調整原因）" style="min-width:150px"></td><td class="l">${chg?`<span class="pill p-warn">已修改</span> <button data-subreset="${esc(s.key)}">還原預設</button>`:'<span class="note">預設</span>'}</td></tr>`}).join('');
+  const sx=k=>(UC.subx&&UC.subx[k])||{};
+  const rows=subs.filter(s=>!sx(s.key).del).map(s=>{const sum=SUBK.reduce((x,k)=>x+(s.m[k]||0),0),chg=JSON.stringify(s.m)!==JSON.stringify(s.def)||s.re!==s.reDef||!!sx(s.key).name,bad=Math.abs(sum-1)>0.001;
+   return `<tr><td class="l name"><input data-bsf="${esc(s.key)}" data-f="name" value="${esc(sx(s.key).name||s.key)}" style="min-width:170px"><div class="note">比對關鍵字 <input data-bsf="${esc(s.key)}" data-f="re" value="${esc(s.re)}" style="min-width:150px" title="可用 | 表示「或」，.* 表示中間任意文字"></div><div class="note" title="粗體＝本月持股中有此標的；其餘為歷史紀錄。所有帳戶一律套用同一拆分規則。">持有此標的的帳戶（參考）：${biHolders(s)}</div></td>${SUBK.map(k=>`<td><input type="number" step="0.1" style="width:56px" data-sub="${esc(s.key)}" data-bk="${k}" value="${pc(s.m[k])}"></td>`).join('')}<td class="${bad?'neg':''}">${(sum*100).toFixed(1)}</td><td class="l"><span class="note">依該帳戶月報結構</span><div>${revCell(s.key)}</div></td><td class="l"><input data-subnote="${esc(s.key)}" value="${esc(UC.note[s.key]||'')}" placeholder="備註" style="min-width:110px"></td><td class="l">${chg?'<span class="pill p-warn">已修改</span> <button data-subreset="'+esc(s.key)+'">還原預設</button> ':'<span class="note">預設</span> '}<button data-bsdel="${esc(s.key)}">刪除</button></td></tr>`}).join('');
+  const delB=subs.filter(s=>sx(s.key).del);
   const crow=(x,i)=>{const sum=SUBK.reduce((a,k)=>a+((x.m||{})[k]||0),0),bad=x.draft||Math.abs(sum-1)>0.005;
-    return `<tr${x.draft?' style="background:var(--warnbg,rgba(240,140,0,.12))"':''}><td class="l name"><input data-csf="${i}" data-f="key" value="${esc(x.key)}" style="min-width:170px"><div class="note">比對關鍵字 <input data-csf="${i}" data-f="match" value="${esc(x.match||'')}" style="min-width:120px">　限定帳戶 <input data-csf="${i}" data-f="accts" value="${esc((x.accts||[]).join('、'))}" placeholder="空白＝全部" style="width:90px"></div><div class="note">${x.auto?'自動偵測的候選子基金，請填比例':'自訂／Excel 子基金分析匯入'}${x.norm?'｜'+esc(x.norm):''}</div></td>${SUBK.map(k=>`<td><input type="number" step="0.1" style="width:56px" data-cs="${i}" data-bk="${k}" value="${pc((x.m||{})[k])}"></td>`).join('')}<td class="${bad?'neg':''}">${(sum*100).toFixed(1)}</td><td class="l"><select data-csfrom="${i}"><option value="DM"${x.from==='DM'?' selected':''}>自 DM 拆出</option><option value="IG"${x.from==='IG'?' selected':''}>自 IG 拆出</option><option value="BAL"${x.from==='BAL'?' selected':''}>自平衡型 50/50 拆出</option></select><div>${revCell(x.key)}</div></td><td class="l"><input data-subnote="${esc(x.key)}" value="${esc(UC.note[x.key]||'')}" placeholder="備註" style="min-width:110px"></td><td class="l">${x.draft?'<span class="pill p-warn">待填比例</span> ':''}<button data-csdel="${i}">刪除</button></td></tr>`};
+    return `<tr${x.draft?' style="background:var(--warnbg,rgba(240,140,0,.12))"':''}><td class="l name"><input data-csf="${i}" data-f="key" value="${esc(x.key)}" style="min-width:170px"><div class="note">比對關鍵字 <input data-csf="${i}" data-f="match" value="${esc(x.match||'')}" style="min-width:120px"></div><div class="note" title="粗體＝本月持股中有此標的；其餘為歷史紀錄。所有帳戶一律套用同一拆分規則。">持有此標的的帳戶（參考）：${csHolders(x)}</div><div class="note">${x.draft?'<span class="pill p-warn">待填比例</span>':''}${x.norm?' '+esc(x.norm):''}</div></td>${SUBK.map(k=>`<td><input type="number" step="0.1" style="width:56px" data-cs="${i}" data-bk="${k}" value="${pc((x.m||{})[k])}"></td>`).join('')}<td class="${bad?'neg':''}">${(sum*100).toFixed(1)}</td><td class="l"><select data-csfrom="${i}"><option value="DM"${x.from==='DM'?' selected':''}>自 DM 拆出</option><option value="IG"${x.from==='IG'?' selected':''}>自 IG 拆出</option><option value="BAL"${x.from==='BAL'?' selected':''}>自平衡型 50/50 拆出</option></select><div>${revCell(x.key)}</div></td><td class="l"><input data-subnote="${esc(x.key)}" value="${esc(UC.note[x.key]||'')}" placeholder="備註" style="min-width:110px"></td><td class="l">${x.draft?'<span class="pill p-warn">待填比例</span> ':''}<button data-csdel="${i}">刪除</button></td></tr>`};
   const cs=UC.csubs||[],drafts=cs.filter(x=>x.draft).length;
-  const crows=cs.map((x,i)=>[x,i]).sort((a,b)=>(b[0].draft?1:0)-(a[0].draft?1:0)).map(([x,i])=>crow(x,i)).join('');
-  return `<div class="panel"><h2>子基金拆分比例（可調整）${drafts?`　<span class="pill p-warn">${drafts} 檔待填比例</span>`:''}</h2><p class="note" style="margin-bottom:8px">當前十大持股出現下列子基金時，該金額會依這裡的比例拆到各類別（單位 %，合計應為 100）。預設值來自同業 Excel「子基金分析」，「最近檢視月報」是該頁截圖標示的最新月份。月報比例變動不大時不必調整比例，看過後按「本月已檢視」即可；超過 3 個月沒檢視會標示提醒。修改比例後按下方「重算」套用。</p>
-   <div class="tw"><table><thead><tr><th class="l">子基金</th>${SUBK.map(k=>`<th>${k}</th>`).join('')}<th>合計</th><th class="l">最近檢視月報</th><th class="l">備註</th><th class="l">狀態</th></tr></thead><tbody>${crows}${rows}</tbody></table></div>
-   <div class="ctl" style="margin-top:8px"><input id="ncs" placeholder="新增子基金：名稱（需出現在持股名稱中）" style="min-width:260px"><input id="ncsa" placeholder="限定帳戶（選填，例 U1、U5）" style="width:170px"><button id="addcs">新增</button></div>
-   <p class="note" style="margin-top:6px">上方為 Excel「子基金分析」匯入的 ${cs.filter(x=>!x.auto).length} 檔與自動候選；下方為內建規則的子基金。新月報出現疑似組合型／多重資產基金時，會自動加入這裡並標示「待填比例」，填完合計 100 即啟用。「自 DM／IG／平衡型拆出」代表該基金原本被月報歸在哪一類，系統會先扣掉再依比例重分配。</p>
-   <h3 style="font-size:13px;margin:12px 0 4px">其他參數</h3>
+  const csl=cs.map((x,i)=>[x,i]).sort((a,b)=>(b[0].draft?1:0)-(a[0].draft?1:0)),nDr=csl.filter(([x])=>x.draft).length;let crows=csl.map(([x,i])=>crow(x,i)).join('');
+  return `<div class="panel"><h2>子基金拆分比例（可調整）${drafts?`　<span class="pill p-warn">${drafts} 檔待填比例</span>`:''}</h2><p class="note" style="margin-bottom:8px">當前十大持股出現下列子基金時，該金額會依這裡的比例拆到各類別（單位 %，合計應為 100）。預設值來自同業 Excel「子基金分析」，「最近檢視月報」是該頁截圖標示的最新月份。月報比例變動不大時不必調整比例，看過後按「本月已檢視」即可；超過 3 個月沒檢視會標示提醒。修改比例後，到最下方按「重算本月」套用。</p>
+   <div class="tw"><table><thead><tr><th class="l">子基金</th>${SUBK.map(k=>`<th>${k}</th>`).join('')}<th>合計</th><th class="l">最近檢視月報</th><th class="l">備註</th><th class="l">狀態</th></tr></thead><tbody>${crows}${rows}</tbody></table></div>${delB.length?`<p class="note" style="margin-top:6px">已刪除的內建規則：${delB.map(s=>esc((sx(s.key).name||s.key))+' <button data-subreset="'+esc(s.key)+'">還原</button>').join('　')}</p>`:''}
+   <div class="ctl" style="margin-top:8px"><input id="ncs" placeholder="新增子基金：名稱（需出現在持股名稱中）" style="min-width:260px"><button id="addcs">新增</button></div>
+   <div class="ctl" style="margin-top:8px"><button id="revAll">全部子基金標記為本月已檢視（比例不變）</button><button id="revReset">還原所有檢視月份為 Excel 原始值</button></div>
+   <p class="note" style="margin-top:6px"><b>怎麼用：</b>拆分比例＝這檔基金的內容要怎麼分配到各資產類別，<b>所有帳戶一律套用同一規則</b>。調整比例後，確認沒問題再按該列的「本月已檢視」；不需調整、只是確認過，也按「本月已檢視」。新月報出現疑似組合型或多重資產基金時，會自動加入「待填比例」，填完合計 100% 即啟用。「自 DM／IG／平衡型拆出」代表該基金原本被月報歸在哪一類，系統會先扣掉再依比例重分配。</p></div>`}
+function vRulesExtra(){const P=SA().PARAMS,PD=SA().PARAMS_DEF;return `   <div class="panel"><h2>其他參數</h2>
    <dl class="kv"><dt>施羅德環球計量核心</dt><dd>該基金計入 EM 的比例（從 DM 扣）<input type="number" step="0.1" style="width:60px" data-param="core" value="${pc(P.core)}"> %（預設 ${pc(PD.core)}）</dd>
    <dt>富達全球入息基金</dt><dd>計入 EM 的比例 <input type="number" step="0.1" style="width:60px" data-param="fidInc" value="${pc(P.fidInc)}"> %（預設 ${pc(PD.fidInc)}）</dd>
-   <dt>國泰平衡型基金</dt><dd>前十大有「國泰全球多重收益平衡」時，股票占比 <input type="number" step="1" style="width:60px" data-param="balCathay" value="${pc(P.balCathay)}"> %（預設 ${pc(PD.balCathay)}；沒有時固定 50/50）</dd></dl>
-   <div class="ctl" style="margin-top:10px"><button id="recM" class="primary">重算本月（${st.month}）</button><button id="recAll">重算所有已匯入月份</button><button id="revAll">全部子基金標記為本月已檢視（比例不變）</button><button id="revReset">還原所有檢視月份為 Excel 原始值</button><span class="note" id="recmsg"></span></div>
-   <p class="note" style="margin-top:6px">重算使用匯入當時讀到的原始數字（可在「步驟 2」展開查看），不需要重新拖入 PDF。只影響 PDF 與部分估算的帳戶，手動輸入與 Excel 既有資料不變。</p></div>
-   <div class="panel"><h2>共通分類字典（內建）</h2><dl class="kv">
-   <dt>產業股票 SEC</dt><dd>持股名稱含：科技、半導體、semiconductor、technology、TECH、金融、financ、AI新創、資訊科技、醫療、生技、healthcare、基礎建設、水電瓦斯 → 從 DM 挪入 SEC（僅 PDF 帳戶中有內建此邏輯者適用：U1、U3、U5、U8、U9、U17、U18、T5；其他帳戶請用「我的歸類記憶」補關鍵字）。</dd>
-   <dt>新興股票 EM</dt><dd>持股名稱含「新興市場／新興亞洲／emerging」，且不含「債／公債／bond」。</dd>
-   <dt>平衡型、多元資產</dt><dd>一律 50% 進 DM、50% 進 IG（RAW DATA 亦同）；國泰 U1、U5 見上方參數。</dd>
+   <dt>國泰平衡型基金</dt><dd>前十大有「國泰全球多重收益平衡」時，股票占比 <input type="number" step="1" style="width:60px" data-param="balCathay" value="${pc(P.balCathay)}"> %（預設 ${pc(PD.balCathay)}；沒有時固定 50/50）</dd></dl></div>`}
+function vSubFinal(){return `<div class="panel"><h2>最後一步　重算並更新總表</h2><p class="note" style="margin-bottom:8px">上面三塊都確認好之後，按「重算本月」，新的歸類與拆分比例就會套用到本月各帳戶，並更新 ① 配置表。</p>
+   <div class="ctl" style="margin-top:10px"><button id="recM" class="primary">重算本月（${st.month}）</button><button id="recAll">重算所有已匯入月份</button><span class="note" id="recmsg"></span></div>
+   <p class="note" style="margin-top:6px">重算使用匯入當時讀到的原始數字（可在「步驟 2」展開查看），不需要重新拖入 PDF。只影響 PDF 與部分估算的帳戶，手動輸入與 Excel 既有資料不變。</p></div>`}
+function vGrid(){const kw=UC.kw||[],G=(DATA.subs&&DATA.subs.grid)||[],gd=UC.gridDel||[];
+  const opts=(v,all)=>BKT.filter(b=>(all?['DM','EM','SEC','TW','IG','HY','EMD','CASH']:['EM','SEC','TW','IG','HY','EMD','CASH']).includes(b[0])).map(([k,l])=>`<option value="${k}"${k===v?' selected':''}>${l}</option>`).join('');
+  const ov=g=>kw.find(x=>x.fromGrid&&x.k===g.k),mine=kw.map((x,i)=>[x,i]).filter(([x])=>!x.fromGrid);
+  const live=G.map((g,gi)=>[g,gi]).filter(([g])=>!gd.includes(g.k)),dead=G.filter(g=>gd.includes(g.k));
+  return `<div class="panel"><h2>子基金類別（整檔歸入單一類別）</h2><p class="note" style="margin-bottom:8px"><b>這是什麼：</b>整檔基金只屬於某一個資產類別、不需要拆比例的，登記在這裡。只要任何帳戶的持股名稱<b>含有</b>你輸入的文字（可以是整檔基金名稱，也可以是名稱中的一段），那筆持股就會從 DM（HY、EMD 則從 IG）搬到你選的類別，適用<b>所有帳戶</b>，按最下方「重算本月」後生效。<br><b>新增方式：</b>在上方「新出現的持股」選某一類，會自動加到這裡；也可以在下面手動輸入。名稱與類別都能再修改、刪除。<br><b>需要拆成多類（例如一半股、一半債）的基金：</b>請放到上方的「子基金拆分比例」。</p>
+   <h3 style="font-size:13px;margin:8px 0 4px">你們新增的（${mine.length} 筆）</h3>
+   ${mine.length?`<div class="tw"><table><thead><tr><th class="l">持股名稱關鍵字</th><th class="l">類別</th><th></th></tr></thead><tbody>${mine.map(([x,i])=>`<tr><td class="l name"><input data-kwk="${i}" value="${esc(x.k)}" style="min-width:260px"></td><td class="l"><select data-kwb="${i}">${opts(x.b)}</select></td><td><button data-delkw="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="note">尚無紀錄。</p>'}
+   <div class="ctl" style="margin-top:6px"><input id="nkw" placeholder="基金名稱，或名稱中的一段文字（例：普徠仕全球科技）" style="min-width:260px"><select id="nkwb">${opts('')}</select><button id="addkw">新增</button></div>
+   <p class="note" style="margin-top:6px">關鍵字只要出現在持股名稱就算符合。搬移來源：SEC、EM、TW、IG、CASH 由 DM 搬入，HY、EMD 由 IG 搬入。</p>
+   <details data-id="f_grid" ${st.open.f_grid?'open':''} style="margin-top:10px"><summary><b>Excel「子基金分析」既有的基金分類（${live.length} 檔，可修改）</b></summary><p class="note" style="margin:6px 0">這些基金在 Excel 中是整檔歸入單一類別，已視為「已確認」，新月報再出現時不會被當成新持股。<b>沒改過的只用於辨識，不會搬動比例</b>（月報的大類別多半已含該基金，搬動會重複計算，例如台灣人壽 U20 的 PIMCO 新興市場債券）。<b>你把類別改成別的，才會實際套用</b>（比照上方新增的，由 DM／IG 搬入新類別，按「重算本月」生效）；改回原類別或按「還原」即取消。「刪除」會讓該基金回到「新出現的持股」。</p>
+   <div class="tw"><table><thead><tr><th class="l">基金</th><th class="l">類別</th><th class="l">帳戶</th><th class="l">狀態</th></tr></thead><tbody>${live.map(([g,gi])=>{const o=ov(g);return `<tr><td class="l name">${esc(g.k)}</td><td class="l"><select data-gb="${gi}">${opts(o?o.b:g.b,true)}</select></td><td class="l">${esc((g.accts||[]).join('、')||'全部')}</td><td class="l">${o?`<span class="pill p-warn">已修改（原：${esc(bktName(g.b))}）</span> <button data-greset="${gi}">還原</button> `:'<span class="note">預設</span> '}<button data-gdel="${gi}">刪除</button></td></tr>`}).join('')}</tbody></table></div>
+   ${dead.length?`<p class="note" style="margin-top:6px">已刪除：${dead.map(g=>esc(g.k)+' <button data-grest="'+esc(g.k)+'">還原</button>').join('　')}</p>`:''}</details></div>`}
+const dictTxt=a=>(a||[]).join('、');
+const dictVal=k=>(UC.dict&&UC.dict[k])||SA().DICT_DEF[k];
+function rawExtra(){const o=Object.assign({},UC.raw);(UC.rawDel||[]).forEach(k=>{if(!(k in UC.raw))o[k]=''});return o}
+function addDict(k){const el=document.querySelector('[data-dictadd="'+k+'"]'),w=el&&el.value.trim();if(!w)return;const l=dictVal(k).slice();if(!l.some(x=>x.toLowerCase()===w.toLowerCase()))l.push(w);UC.dict[k]=l;if(JSON.stringify(l)===JSON.stringify(SA().DICT_DEF[k]))delete UC.dict[k];applyUC();save();render()}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.dictadd){e.preventDefault();addDict(e.target.dataset.dictadd)}});
+function vDict(){const DD=SA().DICT_DEF,T8=SA().TYPE8,BO=SA().BUCKET_OF,del=UC.rawDel||[];
+  const dr=(k,l,note)=>{const L=dictVal(k),ch=JSON.stringify(L)!==JSON.stringify(DD[k]);return `<dt>${l}${ch?' <span class="pill p-warn">已修改</span>':''}</dt><dd>${note}<div style="margin:6px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">${L.map((w,i)=>`<span class="pill p-pdf" style="font-size:13px">${esc(w)} <button data-dictdel="${k}" data-i="${i}" title="刪除這個關鍵字" style="border:0;background:none;cursor:pointer;padding:0 0 0 4px">✕</button></span>`).join('')||'<span class="note">（目前沒有關鍵字）</span>'}</div><div class="ctl"><input data-dictadd="${k}" placeholder="輸入新關鍵字後按 Enter 或點新增" style="min-width:240px"><button data-dictaddb="${k}">新增</button>${ch?` <button data-dictreset="${k}">還原預設</button>`:''}</div></dd>`};
+  const cur=a=>{const o=UC.raw[a];return o!=null?o:(BO[T8[a]]||(T8[a]==='平衡型'?'平衡型':''))};
+  const defB=a=>BO[T8[a]]||(T8[a]==='平衡型'?'平衡型':'');
+  const defs=Object.keys(T8).filter(a=>!del.includes(a)),custom=Object.keys(UC.raw).filter(a=>!(a in T8));
+  const sel=(a,v)=>`<select data-rawb="${esc(a)}">${BKT.map(([k,l])=>`<option value="${k}"${k===v?' selected':''}>${l}</option>`).join('')}</select>`;
+  const rowD=a=>{const v=cur(a),ch=UC.raw[a]!=null&&UC.raw[a]!==defB(a);return `<tr data-q="${esc(a)}"><td class="l name">${esc(a)}</td><td class="l">${sel(a,v)}</td><td class="l">${ch?`<span class="pill p-warn">已修改（原：${esc(bktName(defB(a)))}）</span> <button data-rawreset="${esc(a)}">還原</button> `:'<span class="note">預設</span> '}<button data-rawdis="${esc(a)}">刪除</button></td></tr>`};
+  const rowC=a=>`<tr data-q="${esc(a)}"><td class="l name">${esc(a)}</td><td class="l">${sel(a,UC.raw[a])}</td><td class="l"><span class="pill p-pdf">自訂</span> <button data-delraw="${esc(a)}">刪除</button></td></tr>`;
+  return `<div class="panel"><h2>共通分類字典（持股名稱關鍵字）</h2><p class="note" style="margin-bottom:8px"><b>這是什麼：</b>月報 PDF 前十大持股的名稱，只要<b>含有</b>下方任一關鍵字，系統就自動把它歸到該類別（英文不分大小寫、比對時不看空白）。這份字典適用<b>所有帳戶</b>。<br><b>怎麼改：</b>每個關鍵字是一顆標籤，按 ✕ 刪除；在輸入框打新字按 Enter 或「新增」就加進去。改完到最下方按「重算本月」，才會套用到已匯入的月份。<br><b>只想歸類某一檔基金？</b>不要加在這裡（這裡是整個產業或地區的通用字），請到「⑤ 子基金分析」的子基金類別新增。</p><dl class="kv">
+   ${dr('sec','產業股票 SEC','持股名稱含下列任一關鍵字 → 從 DM 挪入 SEC（所有 PDF 帳戶適用（月報已直接列出產業股票的 U13、T1、T4、T9 以月報為準）；名稱含「台灣」的科技基金屬 TW，不算 SEC）。要新增只屬於單一類別的基金，請到「⑤ 子基金分析」的子基金類別。')}
+   ${dr('em','新興股票 EM','持股名稱含下列關鍵字 → 歸 EM，但名稱同時含下方「排除字」者不算。')}
+   ${dr('emx','　└ EM 排除字','名稱含這些字的新興市場基金屬於債券，不歸 EM。')}
+   </dl><h3 style="font-size:13px;margin:12px 0 4px">固定規則（唯讀）</h3><dl class="kv">
+   <dt>平衡型、多元資產</dt><dd>一律 50% 進 DM、50% 進 IG（RAW DATA 亦同）；國泰 U1、U5 見「說明與驗證」的其他參數。</dd>
    <dt>現金 CASH</dt><dd>各月報自己的現金或貨幣市場列；RAW DATA 則為 100% 減去其他各類合計。</dd>
    <dt>債券 ETF</dt><dd>聯博帳戶中名稱含 bond／債 的 ETF 歸 IG；名稱含 short／短天期且現金夠扣者，從現金扣。</dd>
-   <dt>EAFE Value ETF</dt><dd>歸 DM，不另外挪動。</dd></dl>
-   <p class="note" style="margin-top:6px">想新增字典外的關鍵字，用上方「我的歸類記憶」的持股關鍵字。</p></div>
-   <div class="panel"><details><summary><b>Excel「子基金分析」既有的基金分類（${((DATA.subs&&DATA.subs.grid)||[]).length} 檔，僅供辨識與參考）</b></summary><p class="note" style="margin:6px 0">這些基金在 Excel 中是整檔歸入單一類別，已視為「已確認」，新月報再出現時不會被當成新持股。系統不會自動依此搬移比例，因為月報的大類別多半已含該基金，搬動會重複計算（例如台灣人壽 U20 的 PIMCO 新興市場債券，已在月報的新興市場債券內）。若某檔需要搬，請用上方「我的歸類記憶」。</p>
-   <div class="tw"><table><thead><tr><th class="l">基金</th><th class="l">類別</th><th class="l">帳戶</th></tr></thead><tbody>${((DATA.subs&&DATA.subs.grid)||[]).map(g=>`<tr><td class="l name">${esc(g.k)}</td><td class="l">${esc(bktName(g.b))}</td><td class="l">${esc((g.accts||[]).join('、')||'全部')}</td></tr>`).join('')}</tbody></table></div></details></div>`}
+   <dt>EAFE Value ETF</dt><dd>歸 DM，不另外挪動。</dd></dl></div>
+   <div class="panel"><h2>RAW DATA 的 AssetName → 類別對照表</h2><p class="note" style="margin-bottom:8px">南山、T3、T6 的 RAW DATA Excel 逐檔依 AssetName 歸類（共 ${defs.length+custom.length} 項：內建 ${defs.length}、自訂 ${custom.length}）。類別可直接修改，改過的標「已修改」並可還原；「刪除」會讓該 AssetName 變成「待歸類資產」。<b>這張表在匯入 Excel 時套用，改完請重新匯入該月 RAW DATA Excel 才會更新數字。</b></p>
+   <div class="ctl" style="margin-bottom:6px"><input id="rawq" placeholder="搜尋 AssetName…" style="min-width:220px"> <span class="note" id="rawqn"></span></div>
+   <div class="tw" style="max-height:520px;overflow:auto"><table><thead><tr><th class="l">AssetName</th><th class="l">歸入類別</th><th class="l">狀態</th></tr></thead><tbody>${custom.map(rowC).join('')}${defs.map(rowD).join('')}</tbody></table></div>
+   ${del.length?`<p class="note" style="margin-top:6px">已刪除：${del.map(a=>esc(a)+' <button data-rawrest="'+esc(a)+'">還原</button>').join('　')}</p>`:''}
+   <div class="ctl" style="margin-top:8px"><input id="nraw" placeholder="新增 AssetName（需與 Excel 完全相同）" style="min-width:260px">${bktSel('id="nrawb"',false)}<button id="addraw">新增</button></div></div>
+   <div class="panel"><h2>套用</h2><div class="ctl"><button id="recM" class="primary">重算本月（${st.month}）</button><button id="recAll">重算所有已匯入月份</button><span class="note" id="recmsg"></span></div><p class="note" style="margin-top:6px">重算只更新 PDF 帳戶（字典關鍵字的修改）；RAW DATA 的對照表修改，需重新匯入 Excel。</p></div>`}
+function vSubTab(){return vNewHold()+vSubPanel()+vGrid()+vSubFinal()}
+
 function vRules(){
   const rows=ACC.map(a=>{const sp=SPECS.find(s=>s.id===a.id);const has=!!sp;const raw=!has&&(a.id==='T3'||a.id==='T6');const k=sp&&sp.approx?['p-warn','部分估算']:has?['p-pdf','與 Excel 吻合']:raw?['p-pdf','RAW DATA 匯入']:['p-none','尚無規則'];
     return `<tr><td class="l">${a.id}</td><td class="l name">${esc(a.name)}</td><td class="l name">${has?esc(RULE_FULL[a.id]||RULE_NOTE[a.id]||''):raw?'匯入 RAW DATA，依 AssetName 對照表分類（平衡型 50/50，現金＝100%－其他）；新資產見匯入頁「待歸類資產」':'未提供月報'}</td><td class="l"><span class="pill ${k[0]}">${k[1]}</span></td></tr>`}).join('');
@@ -897,16 +1011,9 @@ function vRules(){
    <dt>U7、U9 EM</dt><dd>計量核心基金 3% 計入 EM，Excel U7 漏加 0.03 點，所以工具為 0.09、Excel 為 0.06。</dd></dl></div>
    <div class="panel"><h2>各帳戶解析規則</h2><div class="tw"><table><thead><tr><th class="l">編號</th><th class="l">帳戶</th><th class="l">規則</th><th class="l">驗證</th></tr></thead><tbody>${rows}</tbody></table></div>
    <p class="note" style="margin-top:8px">T3 合庫復華、T6 臺銀復華：沒有月報 PDF，每月以 RAW DATA Excel 匯入（與南山同一個檔）。</p></div>
-   <div class="panel"><h2>我的歸類記憶</h2><p class="note" style="margin-bottom:8px">遇到對照表沒有的新基金時，在這裡記下它屬於哪一類，之後自動套用。資料存在瀏覽器內，並包含在下方備份檔中。</p>
-   <h3 style="font-size:13px;margin:8px 0 4px">RAW DATA 的 AssetName → 類別</h3>
-   ${Object.keys(UC.raw).length?`<div class="tw"><table><thead><tr><th class="l">AssetName</th><th class="l">類別</th><th></th></tr></thead><tbody>${Object.entries(UC.raw).map(([k,v])=>`<tr><td class="l name">${esc(k)}</td><td class="l">${esc(bktName(v))}</td><td><button data-delraw="${esc(k)}">刪除</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="note">尚無紀錄。</p>'}
-   <div class="ctl" style="margin-top:6px"><input id="nraw" placeholder="AssetName（需與 Excel 完全相同）" style="min-width:240px">${bktSel('id="nrawb"',false)}<button id="addraw">新增</button></div>
-   <h3 style="font-size:13px;margin:12px 0 4px">月報 PDF 的持股名稱關鍵字（用於 EM／產業股票判斷）</h3>
-   ${UC.kw.length?`<div class="tw"><table><thead><tr><th class="l">關鍵字</th><th class="l">類別</th><th></th></tr></thead><tbody>${UC.kw.map((x,i)=>`<tr><td class="l name">${esc(x.k)}</td><td class="l">${esc(bktName(x.b))}</td><td><button data-delkw="${i}">刪除</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="note">尚無紀錄。</p>'}
-   <div class="ctl" style="margin-top:6px"><input id="nkw" placeholder="持股名稱中的關鍵字，例如 AI 機器人" style="min-width:240px"><select id="nkwb">${['SEC','EM','TW','IG','HY','EMD','CASH'].map(v=>`<option value="${v}">${bktName(v)}</option>`).join('')}</select><button id="addkw">新增</button></div>
-   <p class="note" style="margin-top:6px">關鍵字只要出現在持股名稱就算符合。搬移來源：SEC、EM、TW、IG、CASH 由 DM 搬入，HY、EMD 由 IG 搬入。新增後按下方「重算」即套用到已匯入的 PDF 帳戶。</p></div>${vSubPanel()}
-   <div class="panel"><h2>資料備份</h2><p class="note" style="margin-bottom:8px">匯入與修改的資料存在這台電腦的瀏覽器內。換電腦或清除瀏覽資料前，請先匯出備份。</p>
-   <div class="ctl"><button id="bk">匯出備份（複製 JSON）</button><button id="bkd">匯出備份（下載檔案）</button><label class="btn">匯入備份<input type="file" id="bki" accept=".json" hidden></label><span id="msg" class="note"></span></div></div>`}
+   <p class="note" style="margin:0 0 10px">共通分類字典與 RAW DATA 的 AssetName 對照表，已移到「⑥ 分類字典」；月報持股的歸類與拆分比例在「⑤ 子基金分析」。</p>${vRulesExtra()}
+   <div class="panel"><h2>同業配置資料備份</h2><p class="note" style="margin-bottom:8px">只包含「同業配置追蹤」的資料：各月帳戶配置、已檢查標記、手動修正、南山／T3／T6 匯入，以及分類對照與規則設定。不含市場動態。同事核對完匯出，其他人匯入即可同步。匯入時，同月份同帳戶會被取代，分類設定會換成備份內的版本。</p>
+   <div class="ctl"><button id="bkP">匯出備份（複製 JSON）</button><button id="bkPd">匯出備份（下載檔案）</button><label class="btn">匯入備份<input type="file" id="bkPi" accept=".json" hidden></label><span id="msg" class="note"></span></div></div>`}
 
 
 // ══════════ 市場動態 ══════════
@@ -1012,7 +1119,7 @@ function vMkSum(){
       L3.push(`投資型保單帳戶價值 <b>${(tt/10000).toFixed(2)} 兆</b>（${lb}），較 ${dk} ${sp(tt/t0-1)}；類全委 ${sp(qn/q0-1)}、其他連結標的 ${sp(on/o0-1)}。`);
       L3.push(`類全委占帳戶價值 <b>${pct1(sh)}</b>，${dk} 為 ${pct1(sh0)}，${sh<sh0?'下降':'上升'} ${Math.abs((sh-sh0)*100).toFixed(1)} 個百分點${mx&&mx.sh>sh+0.005?`（歷年高點 ${pct1(mx.sh)}，${mx.lab.replace(/\n.*/,'')}）`:''}。今年帳戶價值增加 ${f0(gi)} 億，類全委占其中 ${pct1(sr)}${sr<sh0?'，低於其原有占比，新增部位中類全委的份額不及既有份額':sr>sh0?'，高於其原有占比':''}。帳戶價值含市價漲跌，不等於淨流入。`)}}
   if(L3.length){h+=secH('投資型保單資金流與類全委占比　<span class="note">資料來源：保發中心壽險統計樞紐・單位：億台幣</span>')+ul(L3)+tbl3+'</div>'}
-  /* ── 連通資訊：壽險帳戶層級 ── */
+  /* ── 精財網：壽險帳戶層級 ── */
   try{const lms=typeof lfMonths==='function'?lfMonths():[];if(lms.length){const m=lms[lms.length-1],C=lfCalc(m),T=C.T,pT=C.Ptot['*'],ok=C.okP,mom=pT?T.scale/pT-1:null,L4=[],cvr=x=>x.scale?x.cov/x.scale:0,ours=(MK().ours||'復華').replace('投信','');
     const ik=Object.keys(C.I).filter(k=>k!=='未歸屬').sort((a,b)=>C.I[b].scale-C.I[a].scale),hk=Object.keys(C.H).sort((a,b)=>C.H[b].scale-C.H[a].scale);
     L4.push(`${m} 去重後總規模 <b>${f0(T.scale)} 億</b>${mom!=null?`，較上月 ${sp(mom)}（含匯率變動）`:''}${ok&&T.nw?`；推估淨流入 <b>${sg(T.flow)} 億</b>（含撥回配息流出，涵蓋規模 ${pct1(T.cov/T.scale)}）`:'；上月資料不完整，無法推估淨流入'}。`);
@@ -1022,15 +1129,15 @@ function vMkSum(){
       if(b.length)L4.push(`代操投信／投顧推估淨流入：流入最多 ${b.slice(0,3).filter(k=>C.H[k].flow>0).map(k=>`${k.replace('投信','')} ${sg(C.H[k].flow)}`).join('、')||'無'}；流出最多 ${b.slice(-3).reverse().filter(k=>C.H[k].flow<0).map(k=>`${k.replace('投信','')} ${sg(C.H[k].flow)}`).join('、')||'無'}（億）。`)}
     const ok2=hk.find(k=>k.includes(ours));if(ok2){const x=C.H[ok2],pt=C.Ptot['H:'+ok2];
       const hist=lms.slice().reverse().slice(0,6).reverse().map(mm=>{const c=lfCalc(mm),y=c.H[ok2];return y&&c.okP&&y.nw?`${mm.slice(5)} 月 ${sg(y.flow)}`:null}).filter(Boolean);
-      L4.push(`<b>${esc(ours)}</b>（連通口徑）：規模 ${f0(x.scale)} 億，排名第 ${hk.indexOf(ok2)+1}、占 ${pct1(x.scale/T.scale)}${pt?`；較上月 ${sg(x.scale-pt)} 億`:''}${ok&&x.nw?`；推估淨流入 ${sg(x.flow)} 億（涵蓋 ${pct1(cvr(x))}）`:''}；${x.n} 個帳戶。${hist.length>1?`近 ${hist.length} 個月推估淨流入：${hist.join('、')}（億）。`:''}`)}
+      L4.push(`<b>${esc(ours)}</b>（精財網口徑）：規模 ${f0(x.scale)} 億，排名第 ${hk.indexOf(ok2)+1}、占 ${pct1(x.scale/T.scale)}${pt?`；較上月 ${sg(x.scale-pt)} 億`:''}${ok&&x.nw?`；推估淨流入 ${sg(x.flow)} 億（涵蓋 ${pct1(cvr(x))}）`:''}；${x.n} 個帳戶。${hist.length>1?`近 ${hist.length} 個月推估淨流入：${hist.join('、')}（億）。`:''}`)}
     const jm=ok?C.A.filter(a=>a.t!=null&&(a.pt==null?a.t>=10:(Math.abs(a.t-a.pt)>=10&&Math.abs(a.t/a.pt-1)>=.3))).sort((a,b)=>Math.abs(b.t-(b.pt||0))-Math.abs(a.t-(a.pt||0))).slice(0,5):[];
     if(jm.length)L4.push(`${m} 單月規模大幅變動的帳戶（≥10 億且 ≥30%，或新帳戶 ≥10 億）：${jm.map(a=>`${esc(a.n)}（${esc(a.ins.replace('人壽',''))}）${a.pt==null?'新帳戶 ':sg(a.t-a.pt)+' 億，'}${a.pt==null?f1(a.t)+' 億':'現為 '+f1(a.t)+' 億'}${a.pt!=null&&!(a.o&&a.o.flow!=null)?'（無淨值，無法分辨申購或資料異動）':''}`).join('；')}。`);
     const ev=(DATA.lifeNotes||[]).filter(x=>x.m<=m&&x.m>=lms[Math.max(0,lms.length-3)]).map(x=>`<b>${x.m} 事件備註</b>：${esc(x.t)}`);
     const tI=`<div class="tw" style="margin-top:10px"><table><thead><tr><th class="l">壽險公司（${m}）</th><th>規模(億)</th><th>市占</th><th>較上月(億)</th><th>推估淨流入(億)</th><th>涵蓋</th><th>今年以來績效</th></tr></thead><tbody>${ik.slice(0,10).map(k=>{const x=C.I[k],pt=ok?C.Ptot[k]||0:null;return`<tr${/南山/.test(k)?' class="ns"':''}><td class="l">${esc(k)}</td><td>${f0(x.scale)}</td><td>${pct1(x.scale/T.scale)}</td><td>${pt==null?'–':sg(x.scale-pt)}</td><td>${ok&&x.nw?sg(x.flow):'–'}</td><td>${x.scale?(cvr(x)*100).toFixed(0)+'%':'–'}</td><td>${x.wy?sp(x.sy/x.wy/100):'–'}</td></tr>`}).join('')}</tbody></table></div>`;
-    h+=secH('壽險帳戶層級（連通資訊）　<span class="note">資料到 '+m+'，晚於上方類全委（'+(ks[ks.length-1]||'')+'）；淨流入為推估值・單位：億台幣</span>')+ul(L4.concat(ev))+tI+'</div>';notes.push('連通資訊 '+m)}}catch(e){notes.push('連通資訊區塊產生失敗：'+e.message)}
+    h+=secH('壽險帳戶層級（精財網）　<span class="note">資料到 '+m+'，晚於上方類全委（'+(ks[ks.length-1]||'')+'）；淨流入為推估值・單位：億台幣</span>')+ul(L4.concat(ev))+tI+'</div>';notes.push('精財網 '+m)}}catch(e){notes.push('精財網區塊產生失敗：'+e.message)}
   const empty=!h;
-  return `<div class="panel"><h2>市況摘要　<span class="note">依平台目前資料自動產生：${notes.filter(x=>!/需要|尚無/.test(x)).join('・')||'尚無資料'}</span></h2><p class="note" style="margin:6px 0 0">每一句的數字都從資料計算而來，資料更新後會跟著改變；「加速／放緩」「升／降」是依數字大小規則判斷，沒有加入原因解讀。連通資訊區塊的事件備註是你確認過的事實，會一併帶入。</p>${notes.filter(x=>/需要|尚無/.test(x)).map(x=>`<p class="note" style="margin:4px 0 0">⚠ ${esc(x)}</p>`).join('')}</div>${empty?'<div class="panel" style="margin-top:12px"><p class="note">尚無資料，請按上方「從網路更新資料」。</p></div>':h}
-  <div class="panel" style="margin-top:12px"><h2>資料口徑</h2>${ul(['類全委規模取自投信投顧公會「投信（委任關係）」表加總；連通資訊含投顧代操，兩者規模不同，不能直接相比。','類全委成長含淨值漲跌，不等於淨申購；連通資訊的淨流入是用淨值推估（含撥回配息當流出、不含匯率），涵蓋率低時僅供參考，且資料月份可能晚於公會資料。','壽險公會報告為累計值，單月＝本月累計減上月累計，需連續兩個月的報告。','投資型保單帳戶價值（保發中心）與類全委規模（公會）來源不同，占比僅供趨勢參考。'])}</div>`}
+  return `<div class="panel"><h2>市況摘要　<span class="note">依平台目前資料自動產生：${notes.filter(x=>!/需要|尚無/.test(x)).join('・')||'尚無資料'}</span></h2><p class="note" style="margin:6px 0 0">每一句的數字都從資料計算而來，資料更新後會跟著改變；「加速／放緩」「升／降」是依數字大小規則判斷，沒有加入原因解讀。精財網區塊的事件備註是你確認過的事實，會一併帶入。</p>${notes.filter(x=>/需要|尚無/.test(x)).map(x=>`<p class="note" style="margin:4px 0 0">⚠ ${esc(x)}</p>`).join('')}</div>${empty?'<div class="panel" style="margin-top:12px"><p class="note">尚無資料，請按上方「從網路更新資料」。</p></div>':h}
+  <div class="panel" style="margin-top:12px"><h2>資料口徑</h2>${ul(['類全委規模取自投信投顧公會「投信（委任關係）」表加總；精財網含投顧代操，兩者規模不同，不能直接相比。','類全委成長含淨值漲跌，不等於淨申購；精財網的淨流入是用淨值推估（含撥回配息當流出、不含匯率），涵蓋率低時僅供參考，且資料月份可能晚於公會資料。','壽險公會報告為累計值，單月＝本月累計減上月累計，需連續兩個月的報告。','投資型保單帳戶價值（保發中心）與類全委規模（公會）來源不同，占比僅供趨勢參考。'])}</div>`}
 function vMkOver(){const cur=mkCur(),s=MK().snaps[cur],base=mkBaseKey(cur),b=base?MK().snaps[base]:null;const tot=s.tot.USD+s.tot.TWD;
   const gT=b?s.tot.TWD-b.tot.TWD:null,gU=b?s.tot.USD-b.tot.USD:null;
   const mv=st.mkv||'y';const P=mkSeries(mv);const svg=mkChart(P,mv);
@@ -1109,8 +1216,8 @@ function mkCheck(){const S=MK().snaps,ks=mkSnapKeys(),iss=[],info=[];const key=k
 function vMkData(){const ks=mkSnapKeys();const idx=k=>+k.slice(0,4)*12+ +k.slice(5)-1,have=new Set(ks.map(idx));let gapLast=null;if(ks.length){for(let i=Math.max(...have)-1;i>=Math.min(...have);i--){if(!have.has(i)){gapLast=i;break}}}
   const lk=ks.slice(-1)[0]||'2026-01',ly=+lk.slice(0,4),lm=+lk.slice(5),dy=gapLast!=null?Math.floor(gapLast/12):(lm===12?ly+1:ly),dm=gapLast!=null?gapLast%12+1:(lm===12?1:lm+1);
   const P_=INS().prm,B_=INS().bif,pk_=Object.keys(P_).sort(),bk_=Object.keys(B_).sort();
-  return `<div class="panel"><h2>資料更新　<span class="note">所有資料的更新都在這一頁</span></h2><ol style="margin:0;padding-left:20px"><li><b>公開資料（自動）</b>：按頁面上方「從網路更新資料」，會取得類全委規模（SITCA）、保費與帳戶價值與資金流（保發中心）、壽險公會報告、月底匯率。GitHub 每天自動抓取，平台只是讀取。</li><li><b>連通資訊資料（手動，每月）</b>：在下方選取規模檔與績效檔，系統自動辨識與對應。</li><li><b>備援</b>：若自動更新失敗，可在下方手動匯入保發中心檔案或貼上 SITCA 快照。</li><li>更新完成後，到規則頁匯出備份。</li></ol></div>
-  <div class="panel" style="margin-top:12px"><h2>連通資訊：壽險類全委規模與績效</h2>${lfImp(null,lfMonths())}</div>
+  return `<div class="panel"><h2>資料更新　<span class="note">所有資料的更新都在這一頁</span></h2><ol style="margin:0;padding-left:20px"><li><b>公開資料（自動）</b>：按頁面上方「從網路更新資料」，會取得類全委規模（SITCA）、保費與帳戶價值與資金流（保發中心）、壽險公會報告、月底匯率。GitHub 每天自動抓取，平台只是讀取。</li><li><b>精財網資料（手動，每月）</b>：在下方選取規模檔與績效檔，系統自動辨識與對應。</li><li><b>備援</b>：若自動更新失敗，可在下方手動匯入保發中心檔案或貼上 SITCA 快照。</li><li>更新完成後，到規則頁匯出備份。</li></ol></div>
+  <div class="panel" style="margin-top:12px"><h2>精財網：壽險類全委規模與績效</h2>${lfImp(null,lfMonths())}</div>
   <div class="panel" style="margin-top:12px"><h2>備援：保發中心投資型保單檔</h2><p class="note" style="margin:0 0 6px">自動更新失敗時才需要。到保發中心「壽險統計樞紐分析查詢」下載「個人投資型保險商品<b>保費收入</b>」(xPivoMonInvPrm1.xls) 與「<b>帳戶價值</b>」(xPivoMonInvBif1.xls)，可一次選兩個檔匯入，同月份會被覆蓋。</p><div class="ctl"><a href="https://www.tii.org.tw/tii/actuarial/actuarial3/pivot/index.html" target="_blank" rel="noopener"><button type="button">開啟保發中心頁面</button></a><input type="file" id="insFile" accept=".xls,.xlsx" multiple><span id="insFMsg" class="note"></span></div><p class="note" style="margin-top:6px">已有資料：保費 ${pk_[0]} ～ ${pk_[pk_.length-1]}；帳戶價值 ${bk_[0]} ～ ${bk_[bk_.length-1]}。</p></div>
   ${(()=>{const c=mkCheck();return `<div class="panel" style="margin-top:12px"><h2>資料檢查　<span class="note">${c.iss.length?'發現 '+c.iss.length+' 項需確認':'沒有發現重複或異常'}</span></h2>${c.iss.length?`<ul style="margin:0;padding-left:20px">${c.iss.map(x=>`<li style="margin:4px 0"><b>${x[0]}</b>：${esc(x[1])}</li>`).join('')}</ul>`:'<p class="note" style="margin:0">已檢查：不同月份是否內容相同、同月份投信名稱是否重複、各投信加總是否等於全市場合計、單月變動是否超過 8%、新帳戶是否重複。</p>'}${c.info.length?`<details style="margin-top:6px"><summary class="note">備註（${c.info.length}）</summary><ul style="margin:4px 0 0;padding-left:20px" class="note">${c.info.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:''}</div>`})()}
 <div class="panel" style="margin-top:12px"><h2>月份快照　<span class="note">已有：${snapSummary(ks).have}</span></h2>${snapSummary(ks).gap?`<p class="note" style="margin:0 0 6px">缺漏月份：${snapSummary(ks).gap}</p>`:''}
@@ -1118,6 +1225,8 @@ function vMkData(){const ks=mkSnapKeys();const idx=k=>+k.slice(0,4)*12+ +k.slice
    <textarea id="mkSnapTx" rows="7" style="width:100%;margin-top:8px" placeholder="可直接貼上 SITCA「投信(委任關係)-依公司別」整張表（含合計列，自動換算為億元），或貼三欄：投信、美元規模、台幣規模。若有一列名稱含「全類全委」或「總計」，會自動當作全市場總規模。"></textarea>
    <div class="ctl" style="margin-top:6px"><button id="mkSnapAdd" class="primary">匯入快照</button><span id="mkMsg" class="note"></span></div>
    <div class="ctl" style="margin-top:8px"><label class="f">刪除月份<select id="mkDelSel">${ks.slice().reverse().map(k=>`<option${k===st.delArm?' selected':''}>${k}</option>`).join('')}</select></label><button id="mkDelBtn" ${st.delArm?'class="primary"':''}>${st.delArm?'再按一次確認刪除 '+st.delArm:'刪除'}</button>${st.delArm?'<button id="mkDelCancel">取消</button>':''}</div></div>
+  <div class="panel" style="margin-top:12px"><h2>市場動態資料備份</h2><p class="note" style="margin-bottom:8px">只包含「市場動態」中存在這台瀏覽器的資料：精財網帳戶價值與績效匯入、新帳戶動態、壽險與投信資料。不含同業配置追蹤。公開資料（投信投顧公會、壽險公會、保發資金流）按上方「從網路更新資料」即可，通常不需要備份。匯入時會取代這台瀏覽器的市場動態資料。</p>
+  <div class="ctl"><button id="bkM">匯出備份（複製 JSON）</button><button id="bkMd">匯出備份（下載檔案）</button><label class="btn">匯入備份<input type="file" id="bkMi" accept=".json" hidden></label><span id="msg" class="note"></span></div></div>
   <div class="panel" style="margin-top:12px"><h2>補充說明</h2><p class="note">摘要已依資料自動產生；這裡可另外補充，每行一點，附在摘要後面。</p><textarea id="mkNotesTx" rows="5" style="width:100%">${esc((MK().notes||[]).join('\n'))}</textarea><div class="ctl" style="margin-top:4px"><button id="mkNotesSave">儲存補充說明</button></div></div>`}
 function parseSitca(txt){const rows=[];let tot=null;
   txt.split(/\r?\n/).forEach(l=>{const k=l.trim().split(/[\t ]+/);if(k.length<8&&!(k[0]==='合計'&&k.length>=7))return;
@@ -1160,6 +1269,20 @@ function hvGrowth(id,P,cols){const W=1000,n=P.length,pl=58,pr=16,H=300,pt=28,pb=
     vs.forEach((v,i)=>{if(v!=null)s+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3.2" fill="${da?'#fff':c}" stroke="${c}" stroke-width="2"/>`})});
   P.forEach((p,i)=>{if(i%stp===0&&(n-1-i>=stp*.6)||i===n-1)s+=`<text x="${X(i)}" y="${H-pb+16}" text-anchor="middle" fill="#6b7785">${p.lab}</text>`;cs.push({x:X(i),cw,html:p.html})});
   window.hvState=window.hvState||{};window.hvState[id]={W,cols:cs};
+  return s+'</svg><div class="hvtip" style="position:absolute;display:none;pointer-events:none;background:#fff;border:1px solid #cfd6de;border-radius:6px;padding:6px 10px;font-size:12px;line-height:1.6;box-shadow:0 2px 8px rgba(0,0,0,.12);white-space:nowrap"></div>'}
+function hvSigned(id,P){const W=1000,n=P.length,pl=58,pr=16,H1=270,pt=28,pb=34,vs=P.map(p=>p.val).filter(v=>v!=null);
+  let lo=Math.min(0,...vs)*1.15,hi=Math.max(0,...vs)*1.15;if(hi-lo<1){hi=1;lo=-1}
+  const raw=(hi-lo)/5,mag=Math.pow(10,Math.floor(Math.log10(raw))),step=[1,2,2.5,5,10].map(x=>x*mag).find(x=>x>=raw);lo=Math.floor(lo/step)*step;hi=Math.ceil(hi/step)*step;
+  const H=pt+H1+pb,Y=v=>pt+H1*(hi-v)/(hi-lo),cw=(W-pl-pr)/n,bw=Math.min(n<=8?84:38,cw*.66),X=i=>pl+cw*(i+.5),big=n<=14,stp=n>14?Math.ceil(n/10):1,st_=[],sg=v=>(v<0?'−':'+')+f0(Math.abs(v));
+  let s=`<svg id="${id}" class="hv" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-width:${n>14?760:560}px" font-size="11"><rect class="hvband" x="0" y="${pt}" width="0" height="${H1}" fill="#2f3e4e" opacity=".07" pointer-events="none"/>`;
+  for(let v=lo;v<=hi+1e-9;v+=step)s+=`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="${Math.abs(v)<1e-9?'#8a94a0':'#e3e7ec'}" ${Math.abs(v)<1e-9?'':'stroke-dasharray="3 3"'}/><text x="${pl-8}" y="${Y(v)+4}" text-anchor="end" fill="#6b7785">${f0(v)}</text>`;
+  s+=`<text x="${pl-8}" y="${pt-12}" text-anchor="end" fill="#6b7785">億台幣</text>`;
+  P.forEach((p,i)=>{const x=X(i)-bw/2;if(p.val!=null){const y0=Y(0),y1=Y(p.val),up=p.val>=0;s+=`<rect x="${x}" y="${Math.min(y0,y1)}" width="${bw}" height="${Math.max(1,Math.abs(y0-y1))}" fill="${up?'#4a6f8a':'#b3261e'}"/>`;
+      if(big||i===n-1)s+=`<text x="${X(i)}" y="${up?y1-6:y1+14}" text-anchor="middle" fill="#2b3640" font-size="12" font-weight="600">${sg(p.val)}</text>`}
+    else s+=`<text x="${X(i)}" y="${Y(0)-6}" text-anchor="middle" fill="#8a94a0">–</text>`;
+    if(i%stp===0&&(n-1-i>=stp*.6)||i===n-1)p.lab.split('\n').forEach((l,li)=>{s+=`<text x="${X(i)}" y="${H-pb+16+li*13}" text-anchor="middle" fill="#6b7785">${l}</text>`});
+    st_.push({x:X(i),cw,html:p.html})});
+  window.hvState=window.hvState||{};window.hvState[id]={W,cols:st_};
   return s+'</svg><div class="hvtip" style="position:absolute;display:none;pointer-events:none;background:#fff;border:1px solid #cfd6de;border-radius:6px;padding:6px 10px;font-size:12px;line-height:1.6;box-shadow:0 2px 8px rgba(0,0,0,.12);white-space:nowrap"></div>'}
 function hvBars(id,P,cols,line,lineName,opts){opts=opts||{};const fv=v=>opts.pct?v.toFixed(0)+'%':f0(v);const W=1000,n=P.length,pl=58,pr=16,H1=270,pt=28,pb=34,gap=18,H2=line?100:0,H=pt+H1+(line?gap+H2:0)+pb;
   const mx=Math.max(...P.map(p=>p.tot))*1.1,step=opts.pct?25:Math.max(1,Math.ceil(mx/4/(mx>4000?1000:mx>800?200:50)))*(mx>4000?1000:mx>800?200:50),top=opts.pct?100:step*4;
@@ -1272,7 +1395,7 @@ function vMkIns(){const mv=st.insv||'y',P=INS().prm,B=INS().bif,pk=Object.keys(P
   const years=[...new Set(pk.map(k=>k.slice(0,4)))].sort().reverse();
   const cmp=years.map(y=>{const a=sumY(y,lmn,0),b=sumY(y,lmn,1),c=sumY(y,lmn,2),pc=sumY(String(+y-1),lmn,2),has=pk.some(k=>k.slice(0,4)===String(+y-1));return`<tr${y===ly?' class="me"':''}><td class="l">${y} 年 1–${lmn} 月</td><td>${f1(a)}</td><td>${f1(b)}</td><td>${f1(c)}</td><td>${has&&pc?(c/pc-1>=0?'+':'')+((c/pc-1)*100).toFixed(1)+'%':'–'}</td></tr>`}).join('');
   const I0=INS().insurers,lfms=lfMonths(),lfm=lfms[lfms.length-1],LC=lfm?lfCalc(lfm):null;
-  const I=LC?{asof:lfm+'（月底）',src:'連通資訊・同資金池份額已去重・澳幣／人民幣／歐元併入美元欄'}:I0;
+  const I=LC?{asof:lfm+'（月底）',src:'精財網・同資金池份額已去重・澳幣／人民幣／歐元併入美元欄'}:I0;
   const rowsAll=(LC?Object.entries(LC.I).filter(([k])=>k!=='未歸屬').map(([n,x])=>({n,u:x.usd+x.oth,t:x.twd,tot:x.usd+x.oth+x.twd})):Object.entries(I0.rows).map(([n,v])=>({n,u:v[0],t:v[1],tot:v[0]+v[1]}))).sort((a,b)=>b.tot-a.tot);
   const rows=LC?rowsAll.slice(0,10):rowsAll;const sumU=rowsAll.reduce((a,r)=>a+r.u,0),sumT=rowsAll.reduce((a,r)=>a+r.t,0),TU=LC?LC.T.usd+LC.T.oth:(I0.tot?I0.tot[0]:sumU),TT=LC?LC.T.twd:(I0.tot?I0.tot[1]:sumT);
   const tg=`<div class="seg"><button data-insv="y" class="${mv==='y'?'primary':''}">每年</button><button data-insv="m" class="${mv==='m'?'primary':''}">每月</button></div>`;
@@ -1284,7 +1407,7 @@ function vMkIns(){const mv=st.insv||'y',P=INS().prm,B=INS().bif,pk=Object.keys(P
   <div class="panel" style="margin-top:12px"><h2>投資型保單帳戶價值與類全委占比</h2><div class="ctl" style="justify-content:space-between"><div class="legend"><span><i style="background:#c0504d"></i>類全委</span><span><i style="background:#6b8cae"></i>其他投資型保單帳戶價值</span><span><i style="background:#b8c0cb"></i>未拆分（缺類全委資料）</span><span><i style="background:#2f3e4e"></i>類全委占比（下圖）</span></div>${tg}</div><div class="tw" style="position:relative">${svgB}</div>
    <p class="note">帳戶價值來源：保發中心壽險統計月報（個人投資型人壽＋變額年金，單位萬元，已換算為億；2024-03 為 28,108.6 億，與簡報一致）。類全委規模：全部取自投信投顧公會（SITCA）「投信（委任關係）」表加總，2019 年以來各年底與每月口徑一致；該月缺 SITCA 資料時顯示為「未拆分」。</p></div>
   <div class="panel" style="margin-top:12px"><h2>前 10 大壽險類全委規模與市占　<span class="note">資料日 ${esc(I.asof)}・${esc(I.src)}・億台幣</span></h2><div class="tw"><table><thead><tr><th class="l" rowspan="2">壽險</th><th colspan="2">美元類全委</th><th colspan="2">台幣類全委</th><th rowspan="2">總規模</th><th rowspan="2">總市占</th></tr><tr><th>規模</th><th>市占</th><th>規模</th><th>市占</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="l">${esc(r.n)}</td><td>${f1(r.u)}</td><td>${pct1(r.u/TU)}</td><td>${f1(r.t)}</td><td>${pct1(r.t/TT)}</td><td>${f1(r.tot)}</td><td>${pct1(r.tot/(TU+TT))}</td></tr>`).join('')}<tr><td class="l"><b>全市場</b></td><td>${f1(TU)}</td><td>100%</td><td>${f1(TT)}</td><td>100%</td><td>${f1(TU+TT)}</td><td>100%</td></tr></tbody></table></div>
-   <p class="note" style="margin-top:6px">${LC?'資料來自連通資訊匯入的規模檔。':'目前是 '+esc(I0.asof)+' 的簡報資料，匯入連通資訊規模檔後會自動改用。'}所有資料更新都在「⑦ 資料更新」。</p></div>`}
+   <p class="note" style="margin-top:6px">${LC?'資料來自精財網匯入的規模檔。':'目前是 '+esc(I0.asof)+' 的簡報資料，匯入精財網規模檔後會自動改用。'}所有資料更新都在「⑦ 資料更新」。</p></div>`}
 async function insImport(files){const msg=$('#insFMsg');const out=[];
   for(const f of files){try{const wb=XLSX.read(new Uint8Array(await f.arrayBuffer()),{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:null}),txt=JSON.stringify(rows.slice(0,8));
     const isPrm=/初年度保費/.test(txt)&&/變額年金/.test(txt),isBif=/帳戶價值/.test(txt)&&/變額年金/.test(txt);if(!isPrm&&!isBif){out.push(f.name+'：不是個人投資型保費收入或帳戶價值檔（需含「投資型」「變額年金」）');continue}
@@ -1294,7 +1417,7 @@ async function insImport(files){const msg=$('#insFMsg');const out=[];
     out.push(f.name+'：'+(isPrm?'保費收入':'帳戶價值')+' 匯入 '+cnt+' 個月')}catch(e){out.push(f.name+'：讀取失敗（'+e.message+'）')}}
   save();render();const m2=$('#insFMsg');if(m2)m2.innerHTML=out.join('；')}
 const SYNC_BASE='https://raw.githubusercontent.com/Eva-twins/qq-market-data/main/data/';
-// ── 壽險規模與銷售推估（連通資訊訂閱資料：只存在這台電腦的瀏覽器，不進 GitHub）──
+// ── 壽險規模與銷售推估（精財網訂閱資料：只存在這台電腦的瀏覽器，不進 GitHub）──
 const LF_CUR={'美金':'USD','美元':'USD','台幣':'TWD','澳幣':'AUD','人民幣':'CNY','歐元':'EUR'},LF_CN={USD:'美元',TWD:'台幣',AUD:'澳幣',CNY:'人民幣',EUR:'歐元'},LF_ALIAS={'臺銀人壽':'台銀人壽'};
 const LF_COL=['#5b7c99','#e0a03c','#c0504d','#7aa874','#8e7cc3','#4fb0c6','#b5bec8'];
 function LF(){if(!UC.life)UC.life={};const L=UC.life;L.sz=L.sz||{};L.nav=L.nav||{};L.map=L.map||{};L.fx=L.fx||{};L.files=L.files||[];L.alias=L.alias||{};
@@ -1355,15 +1478,15 @@ async function lifeImport(files){const L=LF(),out=[];
         const got={};recs.forEach(x=>{if(x.t&&x.sc)got[x.c+'|'+x.ym+'|'+Math.round(x.sc/1e4)]=1});
         recs.forEach(x=>{if(!x.t){if(x.sc&&got[x.c+'|'+x.ym+'|'+Math.round(x.sc/1e4)]){dupc++;return}miss.push(x.nm);return}(L.nav[x.d]=L.nav[x.d]||{})[x.t]={n:x.nav,r1:x.r1,r3:x.r3,y:x.y,c:x.c};mm[x.d]=1;hit++;if(!(L.map[x.t]&&L.map[x.t][1])&&x.h&&!(DATA.lifeMap&&DATA.lifeMap[x.t]&&DATA.lifeMap[x.t][1]))L.map[x.t]=[lfIns(x.t),x.h]});n+=recs.length}
       L.files.push({name:f.name,type:'復華績效',at:todayISO(),info:Object.keys(mm).join('、')+'・配對 '+hit+'/'+n});out.push(`✓ ${f.name}：復華帳戶績效檔，淨值月份 ${Object.keys(mm).join('、')}，${n} 檔、成功對應規模檔帳戶 ${hit} 檔${dupc?'、同資金池其他份額 '+dupc+' 檔':''}${miss.length?'；未對應 '+miss.length+' 檔（'+miss.slice(0,3).join('、')+(miss.length>3?'…':'')+'）':''}`)}
-    else out.push(`－ ${f.name}：無法辨識（需連通資訊的 SizeRpt 或 PerformanceRpt，或復華績效檔）`)}catch(e){out.push('✖ '+f.name+'：'+(e.message||e))}}
+    else out.push(`－ ${f.name}：無法辨識（需精財網的 SizeRpt 或 PerformanceRpt，或復華績效檔）`)}catch(e){out.push('✖ '+f.name+'：'+(e.message||e))}}
   save();st.lfMsg=out.join('\n');render()}
 function vMkLife(){const L=LF(),ms=lfMonths(),v=st.lfv&&st.lfv!=='imp'?st.lfv:'ov';
   const tabs=[['ov','總覽'],['acct','帳戶明細'],['map','歸屬對照']];
   const nav=`<div class="seg">${tabs.map(([k,l])=>`<button data-lfv="${k}" class="${v===k?'primary':''}">${l}</button>`).join('')}</div>`;
   const m=ms.includes(st.lfm)?st.lfm:ms[ms.length-1];
   const sel=ms.length?`<label class="f">月份<select id="lfM">${ms.slice().reverse().map(k=>`<option value="${k}" ${k===m?'selected':''}>${k}</option>`).join('')}</select></label>`:'';
-  const body=!ms.length?`<div style="padding:18px 4px"><p style="margin:0 0 8px"><b>這個分頁目前沒有資料。</b></p><p class="note" style="margin:0 0 10px">資料來自連通資訊的規模檔（SizeRpt）與績效檔（PerformanceRpt），需要手動匯入，匯入後的資料只保存在這台電腦的瀏覽器。每個瀏覽器、每台電腦各自匯入一次；若已有備份檔，可到規則頁匯入備份。</p><button data-goto="mk_data" class="primary">前往「⑦ 資料更新」匯入</button></div>`:{ov:lfOv,acct:lfAcct,map:lfMap}[v](m,ms);
-  return `<div class="panel"><h2>壽險規模與銷售推估　<span class="note">資料：連通資訊訂閱資料，只存在這台電腦的瀏覽器，不會上傳</span></h2><div class="ctl" style="justify-content:space-between">${nav}${sel}</div>${body}</div>`}
+  const body=!ms.length?`<div style="padding:18px 4px"><p style="margin:0 0 8px"><b>這個分頁目前沒有資料。</b></p><p class="note" style="margin:0 0 10px">資料來自精財網的規模檔（SizeRpt）與績效檔（PerformanceRpt），需要手動匯入，匯入後的資料只保存在這台電腦的瀏覽器。每個瀏覽器、每台電腦各自匯入一次；若已有備份檔，可到規則頁匯入備份。</p><button data-goto="mk_data" class="primary">前往「⑦ 資料更新」匯入</button></div>`:{ov:lfOv,acct:lfAcct,map:lfMap}[v](m,ms);
+  return `<div class="panel"><h2>壽險規模與銷售推估　<span class="note">資料：精財網訂閱資料，只存在這台電腦的瀏覽器，不會上傳</span></h2><div class="ctl" style="justify-content:space-between">${nav}${sel}</div>${body}</div>`}
 function lfFxNote(C){const bad=C.A.filter(a=>a.t==null).length,ap=C.A.filter(a=>a.t!=null&&a.fx&&!a.fx.ex).length;return bad?`<p class="note" style="color:#b3261e">⚠ ${bad} 個外幣帳戶缺匯率未計入，請到「⑦ 資料更新」按「從網路更新資料」取得匯率。</p>`:ap?`<p class="note">有 ${ap} 個外幣帳戶本月尚無月底匯率，暫用最近一個月的匯率。</p>`:''}
 function lfOv(m,ms){const C=lfCalc(m),T=C.T,pT=C.Ptot['*'];
   const mom=pT?(T.scale/pT-1)*100:null,fl=C.okP?T.flow:null,cov=T.scale?T.cov/T.scale*100:0;
@@ -1372,23 +1495,39 @@ function lfOv(m,ms){const C=lfCalc(m),T=C.T,pT=C.Ptot['*'];
     return `<tr${ours?' class="ns"':''}><td class="l">${esc(k)}</td><td>${f0(x.scale)}</td><td>${sh.toFixed(1)}%</td><td>${pt==null?'–':lfS(x.scale-pt,0)}</td><td>${lfP(mm)}</td><td>${C.okP&&x.nw?lfS(x.flow,1):'–'}</td><td>${C.okP&&x.nw?lfP(fr):'–'}</td><td>${x.scale?(x.cov/x.scale*100).toFixed(0)+'%':'–'}</td><td>${x.n}</td><td>${x.w1?lfP(x.s1/x.w1):'–'}</td><td>${x.w3?lfP(x.s3/x.w3):'–'}</td><td>${x.wy?lfP(x.sy/x.wy):'–'}</td></tr>`};
   const th=`<th>規模(億)</th><th>市占</th><th>較上月(億)</th><th>%</th><th>推估淨流入(億)</th><th>占期初%</th><th>涵蓋</th><th>帳戶</th><th>1個月績效</th><th>3個月績效</th><th>今年以來</th>`;
   const ik=Object.keys(C.I).sort((a,b)=>C.I[b].scale-C.I[a].scale),hk=Object.keys(C.H).sort((a,b)=>C.H[b].scale-C.H[a].scale);
-  const tI=`<div class="tw"><table><thead><tr><th class="l">壽險公司</th>${th}</tr></thead><tbody>${ik.map(k=>row(k,C.I[k],C.okP?C.Ptot[k]||0:null,/南山/.test(k))).join('')}<tr class="me"><td class="l">合計</td><td>${f0(T.scale)}</td><td>100%</td><td>${pT?lfS(T.scale-pT,0):'–'}</td><td>${lfP(mom)}</td><td>${C.okP?lfS(T.flow,1):'–'}</td><td>${C.okP&&T.prev?lfP(T.flow/T.prev*100):'–'}</td><td>${cov.toFixed(0)}%</td><td>${T.n}</td><td>${T.w1?lfP(T.s1/T.w1):'–'}</td><td>${T.w3?lfP(T.s3/T.w3):'–'}</td><td>${T.wy?lfP(T.sy/T.wy):'–'}</td></tr></tbody></table></div>`;
+  const tI=`<div class="tw"><table class="sortable" data-sk="ov_i"><thead><tr><th class="l">壽險公司</th>${th}</tr></thead><tbody>${ik.map(k=>row(k,C.I[k],C.okP?C.Ptot[k]||0:null,/南山/.test(k))).join('')}<tr class="me"><td class="l">合計</td><td>${f0(T.scale)}</td><td>100%</td><td>${pT?lfS(T.scale-pT,0):'–'}</td><td>${lfP(mom)}</td><td>${C.okP?lfS(T.flow,1):'–'}</td><td>${C.okP&&T.prev?lfP(T.flow/T.prev*100):'–'}</td><td>${cov.toFixed(0)}%</td><td>${T.n}</td><td>${T.w1?lfP(T.s1/T.w1):'–'}</td><td>${T.w3?lfP(T.s3/T.w3):'–'}</td><td>${T.wy?lfP(T.sy/T.wy):'–'}</td></tr></tbody></table></div>`;
   const ours=MK().ours||'復華';
-  const tH=`<div class="tw"><table><thead><tr><th class="l">代操投信／投顧</th>${th}</tr></thead><tbody>${hk.slice(0,20).map(k=>row(k,C.H[k],C.okP?C.Ptot['H:'+k]||0:null,k.includes(ours))).join('')}</tbody></table></div>`;
+  const tH=`<div class="tw"><table class="sortable" data-sk="ov_h"><thead><tr><th class="l">代操投信／投顧</th>${th}</tr></thead><tbody>${hk.slice(0,20).map(k=>row(k,C.H[k],C.okP?C.Ptot['H:'+k]||0:null,k.includes(ours))).join('')}</tbody></table></div>`;
   // 歷史堆疊圖：前 6 大壽險 + 其他
   const top=ik.filter(k=>k!=='未歸屬').slice(0,6),cols=LF_COL.slice(0,top.length+1);
-  const P=ms.map(k=>{const c=lfCalc(k),vs=top.map(t=>(c.I[t]||{scale:0}).scale);const oth=c.T.scale-vs.reduce((a,b)=>a+b,0);const all=vs.concat([oth]);
-    return{lab:k.slice(2).replace('-','/'),v:all,tot:c.T.scale,html:`<b>${k}</b>　合計 ${f0(c.T.scale)} 億<br>${all.map((x,i)=>`<span style="color:${cols[i]}">■</span> ${i<top.length?top[i]:'其他'} ${f0(x)} 億（${c.T.scale?(x/c.T.scale*100).toFixed(1):0}%）`).join('<br>')}`}});
-  const chart=ms.length>=2?`<h3 style="margin:14px 0 4px;font-size:14px">壽險類全委規模走勢（億台幣）</h3><div class="legend">${top.concat(['其他']).map((n,i)=>`<span><i style="background:${cols[i]}"></i>${n}</span>`).join('')}</div><div class="tw" style="position:relative">${hvBars('hvL',P,cols,null)}</div>`:'';
+  const MET=st.lfmet||'sc',PER=st.lfper||'m',sg=v=>v==null?'–':(v<0?'−':'+')+f0(Math.abs(v));
+  const D=ms.map(k=>{const c=lfCalc(k),pt=c.Ptot['*'];return{k,c,chg:c.okP&&pt!=null?c.T.scale-pt:null,fl:c.okP&&c.T.nw>0?c.T.flow:null,cov:c.T.scale?c.T.cov/c.T.scale:0}});
+  const P=D.map(({k,c})=>{const vs=top.map(t=>(c.I[t]||{scale:0}).scale);const oth=c.T.scale-vs.reduce((a,b)=>a+b,0);const all=vs.concat([oth]);
+    return{lab:k.slice(2).replace('-','/'),v:all,tot:c.T.scale,k,html:`<b>${k}</b>　合計 ${f0(c.T.scale)} 億<br>${all.map((x,i)=>`<span style="color:${cols[i]}">■</span> ${i<top.length?top[i]:'其他'} ${f0(x)} 億（${c.T.scale?(x/c.T.scale*100).toFixed(1):0}%）`).join('<br>')}`}});
+  const det=(c,fn)=>top.map(n=>c.I[n]?`${n} ${fn(c.I[n],n,c)}`:'').filter(Boolean).join('<br>');
+  const mon=D.map(d=>MET==='chg'
+    ?{lab:d.k.slice(2).replace('-','/'),val:d.chg,html:`<b>${d.k}</b>　規模變化 ${d.chg==null?'無法計算（缺上月資料）':sg(d.chg)+' 億（含匯率變動）'}${d.chg==null?'':'<br>'+det(d.c,(x,n,c)=>sg(x.scale-(c.Ptot[n]||0)))}`}
+    :{lab:d.k.slice(2).replace('-','/'),val:d.fl,html:`<b>${d.k}</b>　推估淨流入 ${d.fl==null?(d.c.okP?'無法推估（當月缺淨值資料）':'無法推估（缺上月資料）'):sg(d.fl)+' 億（涵蓋 '+(d.cov*100).toFixed(0)+'%）'}${d.fl==null?'':'<br>'+det(d.c,x=>x.nw?sg(x.flow):'–')}`});
+  const yrs=[...new Set(D.map(d=>d.k.slice(0,4)))];
+  const yr=yrs.map(y=>{const rs=D.filter(d=>d.k.slice(0,4)===y),key=MET==='chg'?'chg':'fl',ok=rs.filter(d=>d[key]!=null),sum=ok.reduce((a,d)=>a+d[key],0);
+    const a=ok.length?+ok[0].k.slice(5):null,b=ok.length?+ok[ok.length-1].k.slice(5):null,full=ok.length===12,rng=!ok.length?'':full?'全年':(a===b?a+'月':a+'–'+b+'月');
+    return{lab:y+(ok.length&&!full?'\n（'+rng+'）':''),val:ok.length?sum:null,html:`<b>${y}${rng?'　'+rng:''}</b>　${MET==='chg'?'規模變化':'推估淨流入'}合計 ${ok.length?sg(sum)+' 億':'無法計算'}<br>${ok.length?'已計入 '+ok.length+' 個月'+(full?'':'（資料不足 12 個月，非全年）'):'沒有可計算的月份（缺上月資料或淨值）'}`}});
+  const yrScale=yrs.map(y=>{const last=P.filter(p=>p.k.slice(0,4)===y).slice(-1)[0],mm=+last.k.slice(5);return Object.assign({},last,{lab:y+'\n（'+(mm===12?'年底':mm+'月')+'）',html:last.html.replace('<b>'+last.k+'</b>','<b>'+y+(mm===12?' 年底':' '+mm+'月（最新）')+'</b>')})});
+  const ctl=`<div class="ctl" style="margin:6px 0"><div class="seg">${[['sc','規模'],['chg','規模變化'],['flow','推估淨流入']].map(([k,l])=>`<button data-lfmet="${k}" class="${MET===k?'primary':''}">${l}</button>`).join('')}</div><div class="seg">${[['m','每月'],['y','每年']].map(([k,l])=>`<button data-lfper="${k}" class="${PER===k?'primary':''}">${l}</button>`).join('')}</div></div>`;
+  const ttl={sc:'壽險類全委規模走勢（億台幣）',chg:'壽險類全委規模變化（億台幣，本月規模 − 上月規模，含匯率與市價變動）',flow:'壽險類全委推估淨流入（億台幣，不含匯率與市價變動）'}[MET]+(PER==='y'?'　每年':'　每月');
+  const body=MET==='sc'?(PER==='y'?hvBars('hvL',yrScale,cols,null):hvBars('hvL',P,cols,null)):hvSigned('hvL',PER==='y'?yr:mon);
+  const legend=MET==='sc'?`<div class="legend">${top.concat(['其他']).map((n,i)=>`<span><i style="background:${cols[i]}"></i>${n}</span>`).join('')}</div>`:`<div class="legend"><span><i style="background:#4a6f8a"></i>增加／流入</span><span><i style="background:#b3261e"></i>減少／流出</span></div>`;
+  const cn={sc:'',chg:'<p class="note">規模變化包含投資績效、匯率與資金進出，不能直接當成銷售。每年＝當年各月變化加總。</p>',flow:`<p class="note">推估淨流入只涵蓋可推估的帳戶（各月「涵蓋」見滑鼠提示），撥回配息會被當成流出。每年＝當年各月加總，未滿 12 個月會標示期間；補入更多月份的資料後，年度數字會自動變完整。</p>`}[MET];
+  const chart=ms.length>=2?`<h3 style="margin:14px 0 4px;font-size:14px">${ttl}</h3>${ctl}${legend}<div class="tw" style="position:relative">${body}</div>${cn}`:'';
   const jm=C.okP?C.A.filter(a=>a.t!=null&&(a.pt==null?a.t>=10:(Math.abs(a.t-a.pt)>=10&&Math.abs(a.t/a.pt-1)>=.3))).sort((a,b)=>Math.abs(b.t-(b.pt||0))-Math.abs(a.t-(a.pt||0))).slice(0,12):[];
-  const jt=jm.length?`<h3 style="margin:14px 0 4px;font-size:14px">單月規模大幅變動的帳戶（變動 ≥10 億且 ≥30%，或新帳戶 ≥10 億）</h3><div class="tw"><table><thead><tr><th class="l">帳戶</th><th class="l">壽險</th><th>上月(億)</th><th>本月(億)</th><th>變動(億)</th><th>判讀</th></tr></thead><tbody>${jm.map(a=>`<tr><td class="l">${esc(a.n)}</td><td class="l">${esc(a.ins)}</td><td>${a.pt==null?'–':f1(a.pt)}</td><td>${f1(a.t)}</td><td>${lfS(a.t-(a.pt||0),1)}</td><td class="l">${a.pt==null?'新帳戶':a.o&&a.o.flow!=null?'已用淨值拆出投資績效':'無淨值，無法分辨申購或資料異動'}</td></tr>`).join('')}</tbody></table></div><p class="note">這些帳戶的規模變動可能是新發行、資料單位異動或大額申購贖回，建議對照壽險官網確認。</p>`:'';
+  const jt=jm.length?`<h3 style="margin:14px 0 4px;font-size:14px">單月規模大幅變動的帳戶（變動 ≥10 億且 ≥30%，或新帳戶 ≥10 億）</h3><div class="tw"><table class="sortable" data-sk="ov_j"><thead><tr><th class="l">帳戶</th><th class="l">壽險</th><th>上月(億)</th><th>本月(億)</th><th>變動(億)</th><th>判讀</th></tr></thead><tbody>${jm.map(a=>`<tr><td class="l">${esc(a.n)}</td><td class="l">${esc(a.ins)}</td><td>${a.pt==null?'–':f1(a.pt)}</td><td>${f1(a.t)}</td><td>${lfS(a.t-(a.pt||0),1)}</td><td class="l">${a.pt==null?'新帳戶':a.o&&a.o.flow!=null?'已用淨值拆出投資績效':'無淨值，無法分辨申購或資料異動'}</td></tr>`).join('')}</tbody></table></div><p class="note">這些帳戶的規模變動可能是新發行、資料單位異動或大額申購贖回，建議對照壽險官網確認。</p>`:'';
   const nts=(DATA.lifeNotes||[]).filter(x=>x.m===m).map(x=>`<p class="note" style="border-left:3px solid #e0a03c;padding:4px 8px;margin:6px 0"><b>⚠ ${m} 事件備註</b>：${esc(x.t)}</p>`).join('');
   return `${kpi}${lfFxNote(C)}${nts}<h3 style="margin:10px 0 4px;font-size:14px">依壽險公司</h3>${tI}<h3 style="margin:14px 0 4px;font-size:14px">依代操投信／投顧（前 20）</h3>${tH}${jt}${chart}
-  <p class="note"><b>推估方法</b>：淨流入 ＝ 本月規模 − 上月規模 × （本月淨值 ÷ 上月淨值），以原幣計算後再換成台幣，因此不含匯率變動；使用不還原撥回淨值，所以<b>撥回配息會被當成流出</b>。新帳戶（上月無規模）與淨值缺漏、淨值變動超過 ±30% 的帳戶不納入，「涵蓋」欄顯示可推估的規模占比，占比低時數字僅供參考。規模是依連通資訊各壽險官網彙整，同壽險、同幣別、同規模的份額視為同一資金池只算一次。外幣以 FRED 月底匯率換算台幣（非台灣銀行收盤價）。績效為各帳戶還原撥回報酬依規模加權平均。${C.okP?'':'<b>上月資料不完整，本月無法推估流入。</b>'}</p>`}
+  <p class="note"><b>推估方法</b>：淨流入 ＝ 本月規模 − 上月規模 × （本月淨值 ÷ 上月淨值），以原幣計算後再換成台幣，因此不含匯率變動；使用不還原撥回淨值，所以<b>撥回配息會被當成流出</b>。新帳戶（上月無規模）與淨值缺漏、淨值變動超過 ±30% 的帳戶不納入，「涵蓋」欄顯示可推估的規模占比，占比低時數字僅供參考。規模是依精財網各壽險官網彙整，同壽險、同幣別、同規模的份額視為同一資金池只算一次。外幣以 FRED 月底匯率換算台幣（非台灣銀行收盤價）。績效為各帳戶還原撥回報酬依規模加權平均。${C.okP?'':'<b>上月資料不完整，本月無法推估流入。</b>'}</p>`}
 function lfAcct(m,ms){const C=lfCalc(m),ik=[...new Set(C.A.map(a=>a.ins))].sort(),sel=st.lfi&&ik.includes(st.lfi)?st.lfi:'';
   const A=C.A.filter(a=>a.t!=null&&(!sel||a.ins===sel)).sort((a,b)=>b.t-a.t).slice(0,80);
   const rows=A.map(a=>{const o=a.o,r=a.rec;return `<tr${/南山/.test(a.ins)?' class="ns"':''}><td class="l">${esc(a.n)}</td><td class="l">${esc(a.ins)}</td><td class="l">${esc(a.house)}</td><td>${LF_CN[a.c]||a.c}</td><td>${f0(a.v/1e6)}</td><td>${f1(a.t)}</td><td>${!o?'–':o.isNew?'新帳戶':lfS(o.flow,2)}</td><td>${r&&r.r1!=null?lfP(r.r1):'–'}</td><td>${r&&r.r3!=null?lfP(r.r3):'–'}</td><td>${r&&r.y!=null?lfP(r.y):'–'}</td></tr>`}).join('');
-  return `<div class="ctl" style="margin:8px 0"><label class="f">壽險公司<select id="lfI"><option value="">全部</option>${ik.map(k=>`<option ${k===sel?'selected':''}>${esc(k)}</option>`).join('')}</select></label><span class="note">依規模顯示前 80 檔（份額已去重）</span></div><div class="tw"><table><thead><tr><th class="l">帳戶</th><th class="l">壽險</th><th class="l">代操</th><th>幣別</th><th>規模(原幣,百萬)</th><th>規模(億台幣)</th><th>推估淨流入(億台幣)</th><th>1個月</th><th>3個月</th><th>今年以來</th></tr></thead><tbody>${rows}</tbody></table></div>`}
+  return `<div class="ctl" style="margin:8px 0"><label class="f">壽險公司<select id="lfI"><option value="">全部</option>${ik.map(k=>`<option ${k===sel?'selected':''}>${esc(k)}</option>`).join('')}</select></label><span class="note">依規模顯示前 80 檔（份額已去重）</span></div><div class="tw"><table class="sortable" data-sk="acct"><thead><tr><th class="l">帳戶</th><th class="l">壽險</th><th class="l">代操</th><th>幣別</th><th>規模(原幣,百萬)</th><th>規模(億台幣)</th><th>推估淨流入(億台幣)</th><th>1個月</th><th>3個月</th><th>今年以來</th></tr></thead><tbody>${rows}</tbody></table></div>`}
 function lfMap(m,ms){const C=lfCalc(m),q=(st.lfq||'').trim(),L=LF();
   const un=C.A.filter(a=>a.ins==='未歸屬'),all=Object.keys(L.sz[m]||{}),insl=[...new Set(Object.values(DATA.lifeMap||{}).map(x=>LF_ALIAS[x[0]]||x[0]).concat(Object.values(L.map).map(x=>x[0])))].sort();
   const hit=q?all.filter(n=>n.includes(q)).slice(0,30):un.map(a=>a.n);
@@ -1407,24 +1546,39 @@ function lfImp(m,ms){const L=LF(),sz=Object.keys(L.sz).sort(),fxk=Object.keys(L.
   ${sz.length?`<div class="tw"><table><thead><tr><th class="l">規模月份</th><th>帳戶數</th><th>去重總規模(億台幣)</th><th>績效檔筆數</th><th>狀態</th></tr></thead><tbody>${cov}</tbody></table></div>`:''}
   <p class="note">匯率：${fxk.length?'已有 '+fxk[0]+' 到 '+fxk[fxk.length-1]+' 月底匯率（FRED，按「從網路更新資料」更新）':'<span style="color:#b3261e">尚無匯率，外幣帳戶無法換算，請按上方「從網路更新資料」</span>'}。</p>
   <div class="ctl" style="margin-top:8px"><button id="lfClear" class="${st.lfArm?'danger':''}">${st.lfArm?'再按一次確認清除':'清除已匯入的壽險規模／績效資料'}</button>${st.lfArm?'<button id="lfClearNo">取消</button>':''}</div>
-  <p class="note"><b>使用提醒</b>：連通資訊檔案載明僅供簽約機構內部使用，不得對外提供。這些資料只保存在這台電腦的瀏覽器，沒有放進 GitHub。但「備份資料」匯出的 JSON、以及你把網頁另存分享時帶出的瀏覽器資料，都可能包含這些資料，轉交他人前請先確認授權範圍。</p>`}
+  <p class="note"><b>使用提醒</b>：精財網檔案載明僅供簽約機構內部使用，不得對外提供。這些資料只保存在這台電腦的瀏覽器，沒有放進 GitHub。但「備份資料」匯出的 JSON、以及你把網頁另存分享時帶出的瀏覽器資料，都可能包含這些資料，轉交他人前請先確認授權範圍。</p>`}
+// 狀態視窗：匯入／讀取結果以視窗顯示（kind: load 讀取中、ok 成功、err 失敗）
+function statusBox(kind,title,text){
+  let o=document.getElementById('qqStatus');if(o)o.remove();
+  o=document.createElement('div');o.id='qqStatus';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+  const col=kind==='ok'?'#2e7d32':kind==='err'?'#b3261e':'#8a94a0',ic=kind==='ok'?'✓':kind==='err'?'✗':'⏳';
+  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px';
+  o.innerHTML='<div style="background:var(--bg,#fff);color:var(--fg,#222);max-width:480px;width:100%;border-radius:10px;padding:20px 22px;box-shadow:0 8px 30px rgba(0,0,0,.35);border:1px solid var(--line,#ccc);border-top:5px solid '+col+'"><h3 style="margin:0 0 10px;font-size:17px;color:'+col+'"></h3><div class="sbt" style="margin:0 0 16px;line-height:1.7;font-size:14px;white-space:pre-wrap;max-height:50vh;overflow:auto"></div>'+(kind==='load'?'':'<div style="text-align:right"><button data-sx="1" class="primary">確定</button></div>')+'</div>';
+  o.querySelector('h3').textContent=ic+' '+title;o.querySelector('.sbt').textContent=text;
+  const close=()=>{o.remove();document.removeEventListener('keydown',kd,true)};
+  const kd=e=>{if(e.key==='Escape'||e.key==='Enter')close()};if(kind!=='load')document.addEventListener('keydown',kd,true);
+  o.addEventListener('click',e=>{e.stopPropagation();if(kind!=='load'&&(e.target===o||e.target.closest('[data-sx]')))close()});
+  document.body.appendChild(o);const b=o.querySelector('button');if(b)b.focus()}
+function flashBar(){const f=st.flash;if(!f)return'';return `<div class="panel" style="margin-bottom:10px;border-left:4px solid ${f.k==='ok'?'#2e7d32':f.k==='err'?'#b3261e':'#8a94a0'};display:flex;gap:10px;align-items:flex-start"><div style="flex:1;line-height:1.6">${esc(f.t)}</div><button data-flashx="1">關閉</button></div>`}
 function syncBar(){const y=UC.sync||{},ms=Object.keys(MK().snaps).sort(),ps=Object.keys(INS().prm).sort();
   const info=st.syncMsg?`<span style="${st.syncOk===false?'color:#c0392b':''}">${st.syncMsg}</span>`:(y.at?`上次更新 ${y.at}　｜　類全委規模至 ${ms[ms.length-1]||'—'}　｜　保費至 ${ps[ps.length-1]||'—'}`:'尚未從網路更新過');
   return `<div class="ctl" style="margin:0 0 12px;padding:8px 12px;border:1px solid #d5dde6;border-radius:8px;background:#f7f9fb"><button id="syncBtn" class="primary"${st.syncBusy?' disabled':''}>${st.syncBusy?'更新中…':'🔄 從網路更新資料'}</button><span id="syncMsg" style="font-size:13px">${info}</span></div>`}
 async function syncRemote(){if(st.syncBusy)return;st.syncBusy=true;st.syncMsg='';render();
   try{const get=async n=>{const r=await fetch(SYNC_BASE+n+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error(n+' HTTP '+r.status);return r.json()};
-    const [ins,mk,lia,flow,fxj]=await Promise.all([get('ins.json'),get('mk.json'),get('lia.json'),get('flow.json'),get('fx.json').catch(()=>null)]);
+    const [ins,mk,lia,flow,fxj,peer]=await Promise.all([get('ins.json'),get('mk.json'),get('lia.json'),get('flow.json'),get('fx.json').catch(()=>null),get('peer.json').catch(()=>null)]);
     if(!ins||!ins.prm||!ins.bif||!mk||!mk.snaps)throw new Error('資料格式不符');
     let nI=0,cI=0,nM=0,cM=0;
     for(const q of['prm','bif'])for(const k in ins[q]){const o=INS()[q][k],n=ins[q][k];if(!o){nI++}else if(JSON.stringify(o)!==JSON.stringify(n)){cI++}INS()[q][k]=n}
     const ks=Object.keys(mk.snaps).sort(),recent=new Set(ks.slice(-3));
     ks.forEach(k=>{const o=MK().snaps[k];if(!o){MK().snaps[k]=mk.snaps[k];nM++}else if(Object.keys(o.rows).length<Object.keys(mk.snaps[k].rows).length||recent.has(k)&&(o.tot.TWD!==mk.snaps[k].tot.TWD||o.tot.USD!==mk.snaps[k].tot.USD)){MK().snaps[k]=mk.snaps[k];cM++}});
-    ks.filter(k=>k.slice(5)==='12').forEach(k=>{const t=MK().snaps[k].tot;MK().years[k.slice(0,4)]={USD:Math.round(t.USD),TWD:Math.round(t.TWD)}});if(lia&&lia.periods)UC.lia=lia;if(flow&&flow.inv)UC.flow=flow;if(fxj&&fxj.months)LF().fx=fxj.months;UC.sync={at:todayISO()+' '+new Date().toTimeString().slice(0,5),ins:ins.updated,mk:mk.updated};save();
-    st.syncOk=true;st.syncMsg=`✔ 已更新。新增 ${nM} 個月類全委規模、${nI} 個月保費／帳戶價值資料；修正 ${cM+cI} 筆。險別／通路報告 ${lia&&lia.periods?Object.keys(lia.periods).length:0} 期。資料抓取時間：${mk.updated}`}
+    ks.filter(k=>k.slice(5)==='12').forEach(k=>{const t=MK().snaps[k].tot;MK().years[k.slice(0,4)]={USD:Math.round(t.USD),TWD:Math.round(t.TWD)}});if(lia&&lia.periods)UC.lia=lia;if(flow&&flow.inv)UC.flow=flow;if(fxj&&fxj.months)LF().fx=fxj.months;let nP=0;if(peer&&peer.months){for(const m in peer.months)for(const id in peer.months[m]){const o=ent(m,id),n=peer.months[m][id];if(!o||o.src==='auto'){if(!o||JSON.stringify(o.b)!==JSON.stringify(n.b))nP++;(store[m]=store[m]||{})[id]=Object.assign({},n,{src:'auto'})}}}st.syncPeer=nP;UC.sync={at:todayISO()+' '+new Date().toTimeString().slice(0,5),ins:ins.updated,mk:mk.updated,peer:peer&&peer.updated};save();
+    st.syncOk=true;st.syncMsg=`✔ 已更新。新增 ${nM} 個月類全委規模、${nI} 個月保費／帳戶價值資料；修正 ${cM+cI} 筆。險別／通路報告 ${lia&&lia.periods?Object.keys(lia.periods).length:0} 期。資料抓取時間：${mk.updated}${peer&&peer.months?`；同業配置月報 ${nP} 檔新增或更新（待核對）`:''}`}
   catch(e){st.syncOk=false;st.syncMsg='✖ 更新失敗：'+(e.message||e)+'。請確認網路可連到 GitHub，或改用下方手動匯入。'}
   st.syncBusy=false;render()}
 function mkClick(t){
   if(t.dataset.lfv){st.lfv=t.dataset.lfv;render();return true}
+  if(t.dataset.lfmet){st.lfmet=t.dataset.lfmet;render();return true}
+  if(t.dataset.lfper){st.lfper=t.dataset.lfper;render();return true}
   if(t.id==='lfClear'){if(st.lfArm){const L=LF();L.sz={};L.nav={};L.files=[];st.lfArm=false;st.lfMsg='';save()}else st.lfArm=true;render();return true}
   if(t.id==='lfClearNo'){st.lfArm=false;render();return true}
   if(t.id==='syncBtn'){syncRemote();return true}
@@ -1466,8 +1620,15 @@ function mkClick(t){
 const NA_ST={plan:'傳出消息・籌備中',live:'已有發行日期／已發行'};
 const todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const NA_CCY={TWD:'台幣',USD:'美元',FX:'外幣',OTH:'其他'};
+// 新帳戶 × ⑤ 帳戶清單對照（只比對最新一個月；用保險公司＋帳戶名稱相似度）
+const naNorm=s=>String(s||'').replace(/[\s「」『』()（）\[\]【】\-－–—_、，,.\/／:：]/g,'').replace(/全權委託|投資帳戶|管理帳戶|帳戶|委託|投資|人壽|保險|股份有限公司/g,'').toLowerCase();
+function naBig(s){const o=new Set();for(let i=0;i<s.length-1;i++)o.add(s.slice(i,i+2));if(s.length===1)o.add(s);return o}
+function naSim(a,b){if(!a||!b)return 0;if(a.includes(b)||b.includes(a))return 1;const A=naBig(a),B=naBig(b);let n=0;A.forEach(x=>{if(B.has(x))n++});return 2*n/(A.size+B.size||1)}
+function naMatch(x,C){const ni=naNorm(x.insurer),nm=naNorm(x.name),lv=(String(x.name).match(/([A-Za-z]\d?)\s*級別/)||[])[1];let best=null,bs=0;
+  C.A.forEach(a=>{if(a.t==null)return;if(lv&&!new RegExp(lv+'\\s*級別','i').test(a.n))return;const ai=naNorm(a.ins);if(!(ai&&ni&&(ai.includes(ni)||ni.includes(ai))))return;const s=naSim(nm,naNorm(a.n));if(s>bs){bs=s;best=a}});
+  return bs>=.6?best:null}
 function vNewAcc(){const list=(UC.na||[]).map((x,i)=>Object.assign({i},x));const now=new Date('2026-10-30');
-  const age=x=>x.date?Math.round((new Date()-new Date(x.date))/864e5):9999;const T0=todayISO();
+  const lm=lfMonths().slice(-1)[0],LC=lm?lfCalc(lm):null;const age=x=>x.date?Math.round((new Date()-new Date(x.date))/864e5):9999;const T0=todayISO();
   const fut=x=>x.status==='live'&&x.date&&x.date>T0,recent=x=>x.status==='live'&&x.date&&x.date<=T0&&age(x)<=120;
   const groups=[['soon','即將發行（發行日在今日之後）',list.filter(fut)],['plan','傳出消息・籌備中（尚無發行日）',list.filter(x=>x.status==='plan')],['live','近期已發行（近 120 天）',list.filter(recent)],['old','較早已發行（參考）',list.filter(x=>x.status==='live'&&!fut(x)&&!recent(x))]];
   const card=x=>`<div style="border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-top:8px;background:var(--surface)">
@@ -1477,12 +1638,11 @@ function vNewAcc(){const list=(UC.na||[]).map((x,i)=>Object.assign({i},x));const
    ${x.strategy?`<div style="margin-top:4px">${esc(x.strategy)}</div>`:''}
    ${x.extra?`<div class="note" style="margin-top:2px">${esc(x.extra)}</div>`:''}
    <div class="ctl" style="margin-top:6px"><span class="note">資料：${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.src||'來源')} ↗</a>`:esc(x.src||'手動輸入')}（${esc(x.asof||'')}）</span>
-    <label class="note"><input type="checkbox" data-natrack="${x.i}" ${x.tracked?'checked':''}> 已加入追蹤表</label>
+    ${(()=>{if(!LC)return'';const a=naMatch(x,LC);return a?`<span class="pill p-pdf" title="${esc(a.n)}">⑤ 已有規模資料（${lm}：${f1(a.t)} 億）</span>`:`<span class="pill p-none">⑤ 尚無規模資料</span>`})()}
     <select data-nast="${x.i}">${Object.entries(NA_ST).map(([k,v])=>`<option value="${k}"${x.status===k?' selected':''}>${v}</option>`).join('')}</select>
     <button data-nadel="${x.i}">刪除</button></div></div>`;
   const body=groups.map(([k,title,items])=>`<div class="panel" style="margin-bottom:12px"><h2>${title}　<span class="note">${items.length} 檔</span></h2>${items.length?items.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(card).join(''):`<p class="note">${k==='soon'?'目前沒有發行日在今日之後的帳戶。':k==='plan'?'目前沒有項目。新聞提到但尚無發行日的帳戶可用下方表單加入。':'無'}</p>`}</div>`).join('');
-  const untracked=list.filter(x=>!x.tracked&&(recent(x)||fut(x))).length;
-  return `<div class="panel" style="margin-bottom:12px"><h2>即將登場的新類全委帳戶</h2><p class="note">依發行日期分組：即將發行、籌備中、近期已發行。類全委帳戶沒有類似 ETF 的核准／上市流程，狀態以公開的發行日期為準。${untracked?`<b>⚠ 有 ${untracked} 檔近期上線的帳戶尚未加入追蹤表</b>（含即將發行；勾選「已加入追蹤表」可消除提醒）。`:''}</p>
+  return `<div class="panel" style="margin-bottom:12px"><h2>即將登場的新類全委帳戶</h2><p class="note">依發行日期分組：即將發行、籌備中、近期已發行。類全委帳戶沒有類似 ETF 的核准／上市流程，狀態以公開的發行日期為準。</p>
    <p class="note" style="margin-top:4px">資料依新聞、保險公司公告與精財網「類全委商品總覽」彙整，每筆標示來源與蒐集日；此頁不會自動抓網路資料，每日檢查由排程任務回報。內容僅供參考，不構成投資建議。</p></div>${body}
    <div class="panel"><h2>新增一檔</h2><div class="ctl"><input id="na_ins" placeholder="保險公司" style="width:110px"><input id="na_mgr" placeholder="投信" style="width:100px"><input id="na_name" placeholder="帳戶名稱" style="min-width:220px"><select id="na_ccy">${Object.entries(NA_CCY).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><select id="na_st">${Object.entries(NA_ST).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
    <div class="ctl" style="margin-top:6px"><input id="na_date" placeholder="日期 YYYY-MM-DD" style="width:140px"><input id="na_dl" placeholder="日期說明（例 11/10 起募集）" style="width:200px"><input id="na_prod" placeholder="連結商品" style="width:200px"><input id="na_url" placeholder="來源網址" style="min-width:220px"></div>
@@ -1496,7 +1656,7 @@ async function exportPptx(){
   for(const[c,no]of[['USD',1],['TWD',2]]){
     const rows=peerRows(c,m);const cur=nsGet(c,m),prv=nsGet(c,prevM(m));const nm=c==='USD'?'美元':'台幣';
     if(rows.length<3){miss.push(nm+'帳戶同業資料不足');continue}
-    if(!cur){miss.push(nm+'帳戶尚未輸入南山配置');continue}
+    if(!cur){miss.push(nm+'帳戶尚未匯入南山配置');continue}
     const S=stats(c,m),cols=COLS(c),L=LBL(c);
     const ns=[{label:'南山'+nm+'帳戶('+eom(m)+')',b:cur,stk:stk(cur)}];if(prv)ns.push({label:'南山'+nm+'帳戶('+eom(prevM(m))+')',b:prv,stk:stk(prv)});
     const t=c==='USD'?{x:288032,y:1650000,w:8316416,rh:180000,headH:360000,withNo:false,sz:900}:{x:252000,y:1650000,w:8604448,rh:180000,headH:360000,withNo:false,sz:900};
@@ -1508,28 +1668,85 @@ async function exportPptx(){
     msg('已產生投影片'+(miss.length?'（略過：'+miss.join('、')+'）':'')+'；若瀏覽器未開始下載，請改用單檔 HTML 版')}catch(e){msg('匯出失敗：'+e.message)}
 }
 // ── 事件 ──
-const msg=t=>{const e=$('#msg');if(e){e.textContent=t;setTimeout(()=>{if(e.textContent===t)e.textContent=''},3000)}};
+// 備份：同業配置與市場動態分開
+const BK_PEER=['raw','kw','sub','params','seen','note','rev','csubs','subx','gridDel','dict','rawDel'],BK_MKT=['mk','na','ins','flow','lia','life'];
+function bkExport(kind){const o=JSON.parse(localStorage.getItem(LS)||'{}'),c=o.cats||{},pick=ks=>{const r={};ks.forEach(k=>{if(c[k]!==undefined)r[k]=c[k]});return r};
+  return JSON.stringify(kind==='peer'?{kind:'peer',v:1,saved:new Date().toISOString(),entries:o.entries||{},ns:o.ns||{USD:{},TWD:{}},cats:pick(BK_PEER)}:{kind:'market',v:1,saved:new Date().toISOString(),cats:pick(BK_MKT)})}
+function bkImport(o,want){
+  if(o.kind&&o.kind!==want)throw new Error('這是「'+(o.kind==='peer'?'同業配置':'市場動態')+'」備份，請到對應頁面匯入');
+  if(!o.kind){load(o);save();return '完整（舊格式）'}
+  let sum='';
+  if(want==='peer'){const ch=[];for(const m in o.entries)for(const id in o.entries[m])if(JSON.stringify((store[m]||{})[id])!==JSON.stringify(o.entries[m][id]))ch.push(m+' '+id);
+    load({entries:o.entries,ns:o.ns});sum='同業配置：更新 '+ch.length+' 筆'+(ch.length?'（'+ch.slice(0,10).join('、')+(ch.length>10?'…':'')+'）':'，備份內容與目前資料相同，沒有差異')}
+  const ks=want==='peer'?BK_PEER:BK_MKT;ks.forEach(k=>{if(o.cats&&o.cats[k]!==undefined)UC[k]=o.cats[k]});applyUC();save();return sum||'市場動態'}
+// 任何未預期的錯誤都顯示在頁面上方，避免「按了沒反應」
+window.addEventListener('error',e=>{try{const m=(e.message||e.error)+'';st.flash={k:'err',t:'✗ 發生錯誤：'+m+'（請截圖給維護者，並附上畫面標題旁的版本號）'};statusBox('err','發生錯誤',m+'\n\n請截圖給維護者，並附上畫面標題旁的版本號。');render()}catch(_){}});
+window.addEventListener('unhandledrejection',e=>{try{const m=((e.reason&&e.reason.message)||e.reason)+'';st.flash={k:'err',t:'✗ 發生錯誤：'+m+'（請截圖給維護者，並附上畫面標題旁的版本號）'};statusBox('err','發生錯誤',m+'\n\n請截圖給維護者，並附上畫面標題旁的版本號。');render()}catch(_){}});
+const msg=(t,keep)=>{const e=$('#msg');if(e){e.textContent=t;if(!keep)setTimeout(()=>{if(e.textContent===t)e.textContent=''},3000)}};
 async function copyText(t){try{await navigator.clipboard.writeText(t);return true}catch(e){return false}}
 function dl(name,text,type){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove()}catch(e){}}
+// 點表頭排序：表格加 class="sortable" data-sk="鍵值"；「合計／中位數／平均」列固定在底部；每欄循環：第一次→反向→還原
+st.sorts=st.sorts||{};
+function sortVal(s){s=s.trim();if(s===''||s==='–'||s==='-')return null;const n=parseFloat(s.replace(/[,%+\s]/g,'').replace('−','-'));return isNaN(n)?s:n}
+const FOLD_DEF={rules:['子基金拆分比例','共通分類字典','2026/09 驗證結果','各帳戶解析規則','同業配置資料備份']};
+st.fold=st.fold||{};
+function foldKey(h){return st.mod+'|'+st.tab+'|'+(h.firstChild?h.firstChild.textContent:h.textContent).trim()}
+function foldPanels(){const tb=$('#tabs');
+  document.querySelectorAll('#pane .panel').forEach(pn=>{const h=pn.firstElementChild;if(!h||h.tagName!=='H2')return;const k=foldKey(h);pn.classList.add('fd');
+    let f=st.fold[k];if(f===undefined)f=(FOLD_DEF[st.tab]||[]).some(x=>k.includes('|'+x));pn.classList.toggle('folded',!!f);pn.dataset.fk=k});
+  if(tb&&!tb.querySelector('.foldbar'))tb.insertAdjacentHTML('beforeend','<span class="foldbar"><button data-foldall="1">全部收合</button><button data-foldall="0">全部展開</button></span>')}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-foldall]');
+  if(b){const v=b.dataset.foldall==='1';document.querySelectorAll('#pane .panel.fd').forEach(pn=>{pn.classList.toggle('folded',v);st.fold[pn.dataset.fk]=v});return}
+  const h=e.target.closest&&e.target.closest('.panel.fd>h2');if(h&&!e.target.closest('button,input,select,a,label')){const pn=h.parentElement,v=!pn.classList.contains('folded');pn.classList.toggle('folded',v);st.fold[pn.dataset.fk]=v}});
+function applySorts(){document.querySelectorAll('table.sortable').forEach(tb=>{const body=tb.tBodies[0],S=st.sorts[tb.dataset.sk];if(!body)return;
+  const rows=[...body.rows];rows.forEach((r,i)=>{if(r.dataset.i==null)r.dataset.i=i});
+  const pin=r=>/(^|\s)(me|sum)(\s|$)/.test(r.className),fx=rows.filter(pin),mv=rows.filter(r=>!pin(r));
+  if(S){const c=S.c,sg=S.d==='asc'?1:-1;mv.sort((a,b)=>{const x=sortVal(a.cells[c]?a.cells[c].textContent:''),y=sortVal(b.cells[c]?b.cells[c].textContent:'');
+    if(x==null&&y==null)return a.dataset.i-b.dataset.i;if(x==null)return 1;if(y==null)return -1;
+    if(typeof x==='number'&&typeof y==='number')return x===y?a.dataset.i-b.dataset.i:(x-y)*sg;return String(x).localeCompare(String(y),'zh-Hant')*sg})}
+  else mv.sort((a,b)=>a.dataset.i-b.dataset.i);
+  mv.concat(fx).forEach(r=>body.appendChild(r));
+  tb.querySelectorAll('thead th').forEach((th,i)=>{const o=th.querySelector('.sa');if(o)o.remove();if(S&&S.c===i){const s=document.createElement('span');s.className='sa';s.textContent=S.d==='asc'?'▲':'▼';th.appendChild(s)}})})}
+document.addEventListener('click',e=>{const th=e.target.closest('table.sortable thead th');if(!th)return;const tb=th.closest('table'),k=tb.dataset.sk,c=th.cellIndex,txt=th.classList.contains('l'),first=txt?'asc':'desc',S=st.sorts[k];
+  if(!S||S.c!==c)st.sorts[k]={c,d:first};else if(S.d===first)S.d=first==='asc'?'desc':'asc';else delete st.sorts[k];
+  applySorts()});
 document.addEventListener('click',async e=>{
   const t=e.target.closest('button');if(!t)return;
   if(t.parentElement.id==='tabs'||t.dataset.goto){st.tab=t.dataset.t||t.dataset.goto;render();window.scrollTo(0,0);return}
   if(t.parentElement.id==='mods'){st.mod=t.dataset.mod;st.tab=null;render();return}
+  if(t.id==='confirmAuto'){accs().forEach(a=>{const e=ent(st.month,a.id);if(e&&e.src==='auto'&&!reviewFlags(a,e).length)e.src='pdf'});save();render();return true}
+  if(t.dataset&&t.dataset.ok){const e=ent(st.month,t.dataset.ok);if(e){e.ok=true;if(e.src==='auto')e.src='pdf';save();render()}return true}
+  if(t.id==='clearAuto'){if(st.armAuto){const s=store[st.month]||{};Object.keys(s).forEach(id=>{if(s[id]&&s[id].src==='auto')delete s[id]});st.armAuto=false;save()}else st.armAuto=true;render();return true}
+  if(t.id==='clearAll'){const m=st.month,n=clearCount(m);confirmBox('清除 '+m+' 全部資料？','將刪除這個瀏覽器中 '+m+' 的同業帳戶與南山資料，共 '+n+' 筆（包含自動取得、手動修正、PDF 與 Excel 匯入）。此動作無法復原，也不影響其他月份，不影響 GitHub 與其他同事。',' 確認清除'.trim(),()=>{clearMonth(m);st.log.push('✓ 已清除 '+m+' 全部資料（'+n+' 筆）');render()});return true}
+  if(t.dataset.flashx){st.flash=null;render();return true}
+  if(t.id==='clearAutoNo'){st.armAuto=false;render();return true}
+  if(t.id==='flagOnly'){st.onlyFlag=!st.onlyFlag;render();return true}
   if(t.id==='carry'){const pm=prevM(st.month);accs().forEach(a=>{if(!ent(st.month,a.id)&&ent(pm,a.id))store[st.month]=Object.assign(store[st.month]||{},{[a.id]:{b:Object.assign({},ent(pm,a.id).b),src:'carry'}})});save();render()}
   if(mkClick(t))return;
   if(t.id==='pptx'){exportPptx();return}
   if(t.id==='na_add'){const v=i=>$('#'+i).value.trim();if(!v('na_ins')||!v('na_name')){return}UC.na.unshift({status:v('na_st')||$('#na_st').value,insurer:v('na_ins'),mgr:v('na_mgr'),name:v('na_name'),ccy:$('#na_ccy').value,product:v('na_prod'),date:v('na_date'),dateLabel:v('na_dl'),strategy:v('na_str'),src:v('na_url')?'來源':'手動輸入',url:v('na_url'),asof:new Date().toISOString().slice(0,10)});save();render();return}
   if(t.dataset.nadel!=null&&t.dataset.nadel!==''){UC.na.splice(+t.dataset.nadel,1);save();render();return}
   if(t.id==='recM'||t.id==='recAll'){const n=recalcPdf(t.id==='recAll');render();const m=$('#recmsg');if(m)m.textContent='已重算 '+n+' 筆';return}
-  if(t.id==='nhOk'){let n=0;document.querySelectorAll('select[data-nh]').forEach(s=>{const nm=s.dataset.nh;if(s.value){UC.kw.push({k:nm,b:s.value});n++}UC.seen.push(nn(nm))});applyUC();recalcPdf(false);save();st.log.push('已確認 '+document.querySelectorAll('select[data-nh]').length+' 檔新持股，其中 '+n+' 檔改歸類，已重算本月');render();return}
+  if(t.id==='nhOk'){let n=0;let ns2=0;document.querySelectorAll('select[data-nh]').forEach(s=>{const nm=s.dataset.nh;if(s.value==='__split__'){const k=nn(nm);if(!(UC.csubs||[]).some(x=>x.match===k||x.key===nm)){UC.csubs.unshift({key:nm,match:k,accts:[],seen:[],m:{},from:'BAL',rev:'',draft:true});ns2++}}else if(s.value){UC.kw.push({k:nm,b:s.value});n++}UC.seen.push(nn(nm))});applyUC();save();st.log.push('已確認 '+document.querySelectorAll('select[data-nh]').length+' 檔新持股：'+n+' 檔加到子基金類別，'+ns2+' 檔加到子基金拆分比例（請填比例）。確認完成後請按最下方「重算本月」');render();return}
   if(t.dataset.gap){const id=t.dataset.gap,e=ent(st.month,id),k=document.querySelector('select[data-gapsel="'+id+'"]').value;if(e){const d=100-tot(e.b);e.b[k]=(e.b[k]||0)+d;e.src='manual';(e.notes=e.notes||[]).push('差額 '+d.toFixed(2)+'% 手動歸入 '+k);save();render()}return}
+  if(t.dataset.gdel!=null&&t.dataset.gdel!==''){const g=DATA.subs.grid[+t.dataset.gdel];UC.gridDel.push(g.k);UC.kw=UC.kw.filter(x=>!(x.fromGrid&&x.k===g.k));applyUC();save();render();return}
+  if(t.dataset.grest){UC.gridDel=UC.gridDel.filter(k=>k!==t.dataset.grest);applyUC();save();render();return}
+  if(t.dataset.greset!=null&&t.dataset.greset!==''){const g=DATA.subs.grid[+t.dataset.greset];UC.kw=UC.kw.filter(x=>!(x.fromGrid&&x.k===g.k));applyUC();save();render();return}
+  if(t.dataset.dictdel){const k=t.dataset.dictdel,l=dictVal(k).slice();l.splice(+t.dataset.i,1);UC.dict[k]=l;if(JSON.stringify(l)===JSON.stringify(SA().DICT_DEF[k]))delete UC.dict[k];applyUC();save();render();return}
+  if(t.dataset.dictaddb){addDict(t.dataset.dictaddb);return}
+  if(t.dataset.dictreset){delete UC.dict[t.dataset.dictreset];applyUC();save();render();return}
+  if(t.dataset.rawdis){UC.rawDel.push(t.dataset.rawdis);delete UC.raw[t.dataset.rawdis];save();render();return}
+  if(t.dataset.rawrest){UC.rawDel=UC.rawDel.filter(k=>k!==t.dataset.rawrest);save();render();return}
+  if(t.dataset.rawreset){delete UC.raw[t.dataset.rawreset];save();render();return}
+  if(t.dataset.goto){st.tab=t.dataset.goto;render();window.scrollTo(0,0);return}
+  if(t.dataset.bsdel){const k=t.dataset.bsdel;confirmBox('刪除內建規則？','「'+k+'」將不再被辨識與拆分（持股會被當成未辨識的新標的）。之後可在表格下方「已刪除的內建規則」按「還原」。','刪除',()=>{(UC.subx[k]=UC.subx[k]||{}).del=true;applyUC();save();render()});return}
   if(t.dataset.csdel!=null&&t.dataset.csdel!==''){UC.csubs.splice(+t.dataset.csdel,1);applyUC();save();render();return}
-  if(t.id==='addcs'){const k=$('#ncs').value.trim();if(k){UC.csubs.unshift({key:k,match:k.replace(/\s+/g,''),accts:($('#ncsa').value.match(/[UT]\d+/g)||[]),m:{},from:'BAL',rev:st.month,draft:true});applyUC();save();render()}return}
+  if(t.id==='addcs'){const k=$('#ncs').value.trim();if(k){UC.csubs.unshift({key:k,match:k.replace(/\s+/g,''),accts:[],m:{},from:'BAL',rev:'',draft:true});applyUC();save();render()}return}
   if(t.dataset.revdone){UC.rev[t.dataset.revdone]=st.month;save();render();return}
   if(t.dataset.revundo){delete UC.rev[t.dataset.revundo];save();render();return}
   if(t.id==='revReset'){UC.rev={};save();render();return}
-  if(t.id==='revAll'){SA().subfundList().forEach(s=>UC.rev[s.key]=st.month);save();render();return}
-  if(t.dataset.subreset){delete UC.sub[t.dataset.subreset];applyUC();save();render();return}
+  if(t.id==='revAll'){SA().subfundList().forEach(s=>UC.rev[s.key]=st.month);(UC.csubs||[]).forEach(x=>UC.rev[x.key]=st.month);save();render();return}
+  if(t.dataset.subreset){delete UC.sub[t.dataset.subreset];delete UC.subx[t.dataset.subreset];applyUC();save();render();return}
   if(t.id==='pendOk'){let n=0;document.querySelectorAll('select[data-pa]').forEach(s=>{if(s.value){UC.raw[s.dataset.pa]=s.value;n++}});if(n&&st.rawCtx){save();handleRaw(st.rawCtx.wb,st.rawCtx.file);st.log.push('已記住 '+n+' 項歸類，並重新計算')}render();return}
   if(t.id==='addraw'){const k=$('#nraw').value.trim();if(k){UC.raw[k]=$('#nrawb').value;save();render()}return}
   if(t.dataset.delraw!=null&&t.dataset.delraw!==''){delete UC.raw[t.dataset.delraw];save();render();return}
@@ -1540,6 +1757,7 @@ document.addEventListener('click',async e=>{
     try{await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([tb.innerText],{type:'text/plain'})})]);ok=true}catch(err){try{const r=document.createRange();r.selectNode(tb);const s=getSelection();s.removeAllRanges();s.addRange(r);ok=document.execCommand('copy')}catch(e2){}}
     msg(ok?'已複製，貼到 PowerPoint 或 Excel 即可':'複製失敗，請手動選取表格')}
   if(t.id==='csv'){const rows=[...$('#rtable').rows].map(r=>[...r.cells].map(c=>'"'+c.innerText.replace(/"/g,'""')+'"').join(','));dl('同業配置_'+st.ccy+'_'+st.month+'.csv','﻿'+rows.join('\n'),'text/csv');msg('若瀏覽器未開始下載，請改用「複製表格」')}
+  if(t.id==='bkP'||t.id==='bkPd'||t.id==='bkM'||t.id==='bkMd'){const kd=t.id[2]==='P'?'peer':'market',j=bkExport(kd);if(t.id.length===3)msg(await copyText(j)?'已複製 JSON':'複製失敗');else dl((kd==='peer'?'qq_peer_backup_':'qq_market_backup_')+new Date().toISOString().slice(0,10)+'.json',j,'application/json');return true}
   if(t.id==='bk'||t.id==='bkd'){const j=localStorage.getItem(LS)||'{}';if(t.id==='bk')msg(await copyText(j)?'已複製 JSON':'複製失敗');else dl('qq_backup_'+new Date().toISOString().slice(0,10)+'.json',j,'application/json')}
 });
 document.addEventListener('change',e=>{const t=e.target;
@@ -1557,7 +1775,18 @@ document.addEventListener('change',e=>{const t=e.target;
   if(t.dataset&&t.dataset.nast!=null){UC.na[+t.dataset.nast].status=t.value;save();render();return}
   if(t.dataset&&t.dataset.natrack!=null){UC.na[+t.dataset.natrack].tracked=t.checked;save();render();return}
   if(t.dataset&&t.dataset.sub){const key=t.dataset.sub,cur=Object.assign({},SA().subfundList().find(s=>s.key===key).m);const v=parseFloat(t.value);if(isNaN(v)||v===0)delete cur[t.dataset.bk];else cur[t.dataset.bk]=v/100;UC.sub[key]=cur;applyUC();save();render();return}
-  if(t.dataset&&t.dataset.cs!=null&&t.dataset.bk){const x=UC.csubs[+t.dataset.cs];x.m=x.m||{};const v=parseFloat(t.value);if(isNaN(v)||v===0)delete x.m[t.dataset.bk];else x.m[t.dataset.bk]=v/100;const sm=Object.values(x.m).reduce((a,b)=>a+b,0);x.draft=Math.abs(sm-1)>0.005;x.rev=st.month;applyUC();save();render();return}
+  if(t.dataset&&t.dataset.cs!=null&&t.dataset.bk){const x=UC.csubs[+t.dataset.cs];x.m=x.m||{};const v=parseFloat(t.value);if(isNaN(v)||v===0)delete x.m[t.dataset.bk];else x.m[t.dataset.bk]=v/100;const sm=Object.values(x.m).reduce((a,b)=>a+b,0);x.draft=Math.abs(sm-1)>0.005;applyUC();save();render();return}
+  if(t.dataset&&t.dataset.dict){const k=t.dataset.dict,l=t.value.split(/[,，、\n]/).map(x=>x.trim()).filter(Boolean);if(JSON.stringify(l)===JSON.stringify(SA().DICT_DEF[k]))delete UC.dict[k];else UC.dict[k]=l;applyUC();save();render();return}
+  if(t.dataset&&t.dataset.rawb!=null){const a=t.dataset.rawb,T=SA().TYPE8,BO=SA().BUCKET_OF,d=a in T?(BO[T[a]]||(T[a]==='平衡型'?'平衡型':'')):null;if(d!==null&&t.value===d)delete UC.raw[a];else UC.raw[a]=t.value;save();render();return}
+  if(t.dataset&&t.dataset.gb!=null){const g=DATA.subs.grid[+t.dataset.gb],v=t.value;UC.kw=UC.kw.filter(x=>!(x.fromGrid&&x.k===g.k));
+    if(v!==g.b){if(v==='DM'){statusBox('err','無法改為 DM','系統只支援「由 DM／IG 搬入」其他類別，不能把已歸入其他類的基金搬回 DM。若只是要取消修改，請改回原類別或按「還原」。')}else UC.kw.push({k:g.k,b:v,fromGrid:1})}
+    applyUC();save();render();return}
+  if(t.dataset&&t.dataset.kwk!=null){const x=UC.kw[+t.dataset.kwk],v=t.value.trim();if(v)x.k=v;applyUC();save();render();return}
+  if(t.dataset&&t.dataset.kwb!=null){UC.kw[+t.dataset.kwb].b=t.value;applyUC();save();render();return}
+  if(t.dataset&&t.dataset.bsf){const k=t.dataset.bsf,f=t.dataset.f,v=t.value.trim(),o=UC.subx[k]=UC.subx[k]||{};
+    if(f==='name'){if(v&&v!==k)o.name=v;else delete o.name}
+    else{const def=SA().subfundList().find(s=>s.key===k).reDef;if(!v||v===def)delete o.re;else{try{new RegExp(v)}catch(e){statusBox('err','比對關鍵字格式不正確','「'+v+'」不是有效的比對式，已保留原本設定。可用 | 表示「或」，.* 表示中間任意文字。');render();return}o.re=v}}
+    if(!Object.keys(o).length)delete UC.subx[k];applyUC();save();render();return}
   if(t.dataset&&t.dataset.csf!=null){const x=UC.csubs[+t.dataset.csf],f=t.dataset.f;if(f==='accts')x.accts=t.value.match(/[UT]\d+/g)||[];else if(f==='match')x.match=t.value.replace(/\s+/g,'');else x.key=t.value;applyUC();save();render();return}
   if(t.dataset&&t.dataset.csfrom!=null){UC.csubs[+t.dataset.csfrom].from=t.value;applyUC();save();render();return}
   if(t.dataset&&t.dataset.subnote){UC.note[t.dataset.subnote]=t.value;save();return}
@@ -1565,18 +1794,20 @@ document.addEventListener('change',e=>{const t=e.target;
   if(t.id==='ccy'){st.ccy=t.value;render()}
   else if(t.id==='month'){if(t.value){st.month=t.value;render()}}
   else if(t.id==='file'){handleFiles([...t.files])}
-  else if(t.id==='xl'){const f=t.files[0];if(f)handleXlsx(f,'missing');t.value=''}
+  else if(t.id==='xl'){const f=t.files[0];if(f){st.flash={k:'info',t:'⏳ 讀取中：'+f.name};statusBox('load','讀取中…',f.name);render();handleXlsx(f,'missing')}t.value=''}
+  else if(t.id==='bkPi'||t.id==='bkMi'){const f=t.files[0],w=t.id==='bkPi'?'peer':'market';if(f)f.text().then(x=>{try{const r=bkImport(JSON.parse(x),w);render();msg('已匯入｜'+r,true);statusBox('ok','備份匯入完成',r)}catch(err){const m=err.message&&err.message.indexOf('備份')>=0?err.message:'檔案格式不正確';msg(m,true);statusBox('err','備份匯入失敗',m)}});t.value=''}
   else if(t.id==='bki'){const f=t.files[0];if(f)f.text().then(x=>{try{load(JSON.parse(x));save();render();msg('已匯入')}catch(err){msg('檔案格式不正確')}})}
   else if(t.id==='tk'){st.tk=t.value;render()}else if(t.id==='tn'){st.tn=t.value;render()}
   else if(t.dataset&&t.dataset.id&&t.dataset.k){const id=t.dataset.id,k=t.dataset.k;let e0=ent(st.month,id);if(!e0)e0={b:{TW:0},src:'manual'};const v=parseFloat(t.value);e0.b[k]=isNaN(v)?0:v;e0.src='manual';setEntry(id,e0);render()}
   else if(t.dataset&&t.dataset.ns){const m=t.dataset.ns,k=t.dataset.k;const b=ns[st.ccy][m]||(ns[st.ccy][m]={});const v=parseFloat(t.value);b[k]=isNaN(v)?0:v;b._u=1;save();render()}
   else if(t.tagName==='SUMMARY'){}
 });
+document.addEventListener('input',e=>{if(e.target.id==='rawq'){const q=e.target.value.trim().toLowerCase();let n=0;document.querySelectorAll('tr[data-q]').forEach(r=>{const v=!q||r.dataset.q.toLowerCase().includes(q);r.style.display=v?'':'none';if(v)n++});const m=$('#rawqn');if(m)m.textContent=q?n+' 筆符合':''}});
 document.addEventListener('toggle',e=>{if(e.target.tagName==='DETAILS'&&e.target.dataset.id)st.open[e.target.dataset.id]=e.target.open},true);
 ['dragover','dragenter'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target.closest&&e.target.closest('#drop')){e.preventDefault();$('#drop').classList.add('over')}}));
 ['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{const d=e.target.closest&&e.target.closest('#drop');if(d){e.preventDefault();d.classList.remove('over');if(ev==='drop')handleFiles([...e.dataTransfer.files].filter(f=>/pdf$/i.test(f.name)||f.type==='application/pdf'))}}));
 $('#month').value=st.month;
 render();
-window.__qq={st,store,handleFiles,render};
+window.__qq={st,store,handleFiles,render,scaleOf,QQ,pdfjs};
 })();
 </script>
