@@ -1,5 +1,5 @@
 {
- "at": "2026-11-24T06:36+00:00",
+ "at": "2026-11-24T06:48+00:00",
  "log": [
   "U1 OK 2026-10 679KB",
   "U5 OK 2026-10 699KB",
@@ -20,6 +20,7 @@
   "T8 非PDF或404 https://www.twfhclife.com.tw/wp-content/uploads/%E6%9C%88%E5%A0%B1-%E8%87%BA%E9%8A%80%E4%B",
   "T8 OK 2026-09 566KB",
   "T4 OK 2026-10 453KB",
+  "T9 頁面找到 1 個月報網址",
   "T9 OK 2026-09 575KB",
   "T10 頁面找到 1 個月報網址",
   "T10 OK 2026-10 622KB",
@@ -149,6 +150,36 @@
      "nm": "月報_月月興利(富邦投信)_11510.pdf",
      "ref": "/api/publish/assetDiaFile/450eaf64-7b81-4b8a-b9a3-8573428a2a08.pdf",
      "items": "[('fileName', '月報_月月興利(富邦投信)_11510.pdf'), ('filePath', '/api/publish/assetDiaFile/450eaf64-7b81-4b8a-b9a3-8573428a2a08.pdf')]"
+    }
+   ],
+   "reqs": []
+  },
+  "fb_T9": {
+   "url": "https://invest.fubonlife.com.tw/funds/overview/DIA/43/DSD3",
+   "anchors": [
+    {
+     "t": "財務報表_優享退.pdf\n月報_優享退N(安聯投信)_11509.pdf\n收益分配來源_優享退N(安聯投信)_11509.pdf",
+     "h": null
+    },
+    {
+     "t": "月報_優享退N(安聯投信)_11509.pdf",
+     "h": null
+    },
+    {
+     "t": "財務報表_優享退.pdf\n\n\n\n 月報_優享退N(安聯投信)_11509.pdf\n\n\n\n 收益分配來源_優享退N(安聯投信)_11509.pdf",
+     "h": null
+    },
+    {
+     "t": "月報_優享退N(安聯投信)_11509.pdf",
+     "h": null
+    }
+   ],
+   "api": [
+    {
+     "u": "https://invest.fubonlife.com.tw/api/discretionary/getDiscretionaryInfo",
+     "nm": "月報_優享退N(安聯投信)_11509.pdf",
+     "ref": "/api/publish/assetDiaFile/ffe3df5f-bca6-4c29-8958-b8196580718f.pdf",
+     "items": "[('fileName', '月報_優享退N(安聯投信)_11509.pdf'), ('filePath', '/api/publish/assetDiaFile/ffe3df5f-bca6-4c29-8958-b8196580718f.pdf')]"
     }
    ],
    "reqs": []
