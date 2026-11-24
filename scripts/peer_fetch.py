@@ -130,7 +130,7 @@ if jobs:
     with sync_playwright() as p:
         br=p.chromium.launch();pg=br.new_page()
         pg.goto('file://'+os.path.join(ROOT,'app/peer_parser.html'));pg.evaluate("localStorage.clear()");pg.reload();pg.wait_for_timeout(1500)
-        pg.click('#mods [data-mod=peer]');pg.wait_for_timeout(500)
+        pg.click('#mods [data-mod=peer]');pg.wait_for_timeout(300);pg.click('#tabs [data-t=import]');pg.wait_for_timeout(500)
         for aid,m,path,u in jobs:
             try:
                 pg.fill('#month',m);pg.dispatch_event('#month','change');pg.wait_for_timeout(300)
