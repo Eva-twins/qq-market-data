@@ -31,32 +31,116 @@ U18 OK 2026-10 502KB
 U3 OK 2026-10 519KB
 U17 OK 2026-10 500KB
 T1 OK 2026-10 588KB
-U1 解析 2026-10 合計 100.0
-U5 解析 2026-10 合計 100.0
-U7 解析 2026-10 合計 100.0
-U16 解析 2026-10 合計 95.9
-U2 解析 2026-10 合計 100.0
-U15 解析 2026-10 合計 100.0
-U6 解析 2026-10 合計 79.6
-U14 解析 2026-10 合計 100.0
-U13 解析 2026-10 合計 100.0
-U11 解析 2026-10 合計 100.0
-U12 解析 2026-10 合計 100.0
-U4 解析 2026-10 合計 100.0
-U9 解析 2026-10 合計 100.0
-U8 解析 2026-10 合計 100.0
-T5 解析 2026-10 合計 94.2
-U19 解析 2026-10 合計 100.0
-T8 解析 2026-09 合計 100.0
-T4 解析 2026-10 合計 100.0
-T9 解析 2026-09 合計 100.0
-T10 解析 2026-10 合計 100.0
-T7 解析 2026-10 合計 100.0
-T2 解析 2026-10 合計 100.0
-U20 解析 2026-10 合計 100.0
-U10 解析 2026-10 合計 99.0
-U18 解析 2026-10 合計 100.0
-U3 解析 2026-10 合計 100.0
-U17 解析 2026-10 合計 100.0
-T1 解析 2026-10 合計 100.0
+U1 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U5 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U7 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U16 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U2 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U15 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U6 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U14 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U13 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U11 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U12 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U4 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U9 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U8 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+T5 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U19 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+T8 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+T4 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+T9 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+T10 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+T7 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+T2 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U20 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U10 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U18 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U3 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+U17 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
+T1 解析錯誤 TimeoutError: Page.set_input_files: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#file")
+
 新增或變動 0
