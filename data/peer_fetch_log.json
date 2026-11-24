@@ -1,5 +1,5 @@
 {
- "at": "2026-11-23T03:23+00:00",
+ "at": "2026-11-24T02:26+00:00",
  "log": [
   "U1 OK 2026-10 679KB",
   "U5 OK 2026-10 699KB",
@@ -130,7 +130,7 @@
    {
     "page": "https://mlivul.moneydj.com/w/wfv/wfv01.djhtm?a=MDI00010",
     "status": 200,
-    "len": 14351,
+    "len": 14350,
     "links": [
      "https://mlivul.moneydj.com/savefile/discretionary/20261112_112120/月報-MDI10-11510.pdf",
      "https://mlivul.moneydj.com/savefile/discretionary/20260713_034503/子標的費用-MDI10-11507.pdf",
@@ -142,7 +142,7 @@
    {
     "page": "https://mlivul.moneydj.com/W/WFV/WFV01.DJHTM?A=MDI00010",
     "status": 200,
-    "len": 14351,
+    "len": 14350,
     "links": [
      "https://mlivul.moneydj.com/savefile/discretionary/20261112_112120/月報-MDI10-11510.pdf",
      "https://mlivul.moneydj.com/savefile/discretionary/20260713_034503/子標的費用-MDI10-11507.pdf",
