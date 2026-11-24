@@ -1,5 +1,5 @@
 {
- "at": "2026-11-24T02:26+00:00",
+ "at": "2026-11-24T06:36+00:00",
  "log": [
   "U1 OK 2026-10 679KB",
   "U5 OK 2026-10 699KB",
@@ -21,8 +21,11 @@
   "T8 OK 2026-09 566KB",
   "T4 OK 2026-10 453KB",
   "T9 OK 2026-09 575KB",
-  "T10 OK 2026-09 407KB",
-  "T7 OK 2026-09 586KB",
+  "T10 頁面找到 1 個月報網址",
+  "T10 OK 2026-10 622KB",
+  "T7 頁面找到 1 個月報網址",
+  "T7 OK 2026-10 562KB",
+  "T2 頁面找到 1 個月報網址",
   "T2 OK 2026-10 1208KB",
   "U20 OK 2026-10 680KB",
   "U10 OK 2026-10 490KB",
@@ -49,8 +52,8 @@
   "T8 解析 2026-09 合計 100.0",
   "T4 解析 2026-10 合計 100.0",
   "T9 解析 2026-09 合計 100.0",
-  "T10 解析 2026-09 合計 100.0",
-  "T7 解析 2026-09 合計 100.0",
+  "T10 解析 2026-10 合計 100.0",
+  "T7 解析 2026-10 合計 100.0",
   "T2 解析 2026-10 合計 100.0",
   "U20 解析 2026-10 合計 100.0",
   "U10 解析 2026-10 合計 99.0",
@@ -60,6 +63,96 @@
   "T1 解析 2026-10 合計 100.0"
  ],
  "mdj": {
+  "fb_T2": {
+   "url": "https://invest.fubonlife.com.tw/funds/overview/DIA/47/ACD5",
+   "anchors": [
+    {
+     "t": "財務報表_月得意.PDF\n月報_月得意(聯博投信)_11510.pdf\n收益分配來源_月得意(聯博投信)_11510.pdf",
+     "h": null
+    },
+    {
+     "t": "月報_月得意(聯博投信)_11510.pdf",
+     "h": null
+    },
+    {
+     "t": "財務報表_月得意.PDF\n\n\n\n 月報_月得意(聯博投信)_11510.pdf\n\n\n\n 收益分配來源_月得意(聯博投信)_11510.pdf",
+     "h": null
+    },
+    {
+     "t": "月報_月得意(聯博投信)_11510.pdf",
+     "h": null
+    }
+   ],
+   "api": [
+    {
+     "u": "https://invest.fubonlife.com.tw/api/discretionary/getDiscretionaryInfo",
+     "nm": "月報_月得意(聯博投信)_11510.pdf",
+     "ref": "/api/publish/assetDiaFile/651421c7-b252-4e94-a834-5ece62d37504.pdf",
+     "items": "[('fileName', '月報_月得意(聯博投信)_11510.pdf'), ('filePath', '/api/publish/assetDiaFile/651421c7-b252-4e94-a834-5ece62d37504.pdf')]"
+    }
+   ],
+   "reqs": []
+  },
+  "fb_T7": {
+   "url": "https://invest.fubonlife.com.tw/funds/overview/DIA/45/FBD12",
+   "anchors": [
+    {
+     "t": "財務報表_富多利.pdf\n月報_富多利(富邦投信)_11510.pdf\n收益分配來源_富多利(富邦投信)_11510.pdf",
+     "h": null
+    },
+    {
+     "t": "月報_富多利(富邦投信)_11510.pdf",
+     "h": null
+    },
+    {
+     "t": "財務報表_富多利.pdf\n\n\n\n 月報_富多利(富邦投信)_11510.pdf\n\n\n\n 收益分配來源_富多利(富邦投信)_11510.pdf",
+     "h": null
+    },
+    {
+     "t": "月報_富多利(富邦投信)_11510.pdf",
+     "h": null
+    }
+   ],
+   "api": [
+    {
+     "u": "https://invest.fubonlife.com.tw/api/discretionary/getDiscretionaryInfo",
+     "nm": "月報_富多利(富邦投信)_11510.pdf",
+     "ref": "/api/publish/assetDiaFile/8d64b532-eb3c-45f7-b04a-965ee9c0a611.pdf",
+     "items": "[('fileName', '月報_富多利(富邦投信)_11510.pdf'), ('filePath', '/api/publish/assetDiaFile/8d64b532-eb3c-45f7-b04a-965ee9c0a611.pdf')]"
+    }
+   ],
+   "reqs": []
+  },
+  "fb_T10": {
+   "url": "https://invest.fubonlife.com.tw/funds/overview/DIA/45/FBD6",
+   "anchors": [
+    {
+     "t": "月報_月月興利(富邦投信)_11510.pdf\n收益分配來源_月月興利(富邦投信)_11510.pdf\n財務報表_月月興利.pdf",
+     "h": null
+    },
+    {
+     "t": "月報_月月興利(富邦投信)_11510.pdf",
+     "h": null
+    },
+    {
+     "t": "月報_月月興利(富邦投信)_11510.pdf\n\n\n\n 收益分配來源_月月興利(富邦投信)_11510.pdf\n\n\n\n 財務報表_月月興利.pdf",
+     "h": null
+    },
+    {
+     "t": "月報_月月興利(富邦投信)_11510.pdf",
+     "h": null
+    }
+   ],
+   "api": [
+    {
+     "u": "https://invest.fubonlife.com.tw/api/discretionary/getDiscretionaryInfo",
+     "nm": "月報_月月興利(富邦投信)_11510.pdf",
+     "ref": "/api/publish/assetDiaFile/450eaf64-7b81-4b8a-b9a3-8573428a2a08.pdf",
+     "items": "[('fileName', '月報_月月興利(富邦投信)_11510.pdf'), ('filePath', '/api/publish/assetDiaFile/450eaf64-7b81-4b8a-b9a3-8573428a2a08.pdf')]"
+    }
+   ],
+   "reqs": []
+  },
   "U3": [
    {
     "page": "https://mlivul.moneydj.com/w/wfv/wfv01.djhtm?a=MFD00010",
