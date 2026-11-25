@@ -1,27 +1,8 @@
-name: update-data
+name: diag-disabled
 on:
-  push:
-    branches: [diag]
-permissions:
-  contents: write
+  workflow_dispatch:
 jobs:
-  diag:
+  noop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.12' }
-      - run: sudo apt-get install -y -qq poppler-utils
-      - run: pip install requests beautifulsoup4 playwright && playwright install --with-deps chromium
-      - name: Dump layout
-        run: PEER_DUMP=1 python scripts/peer_fetch.py 2>&1 | tee dump.log
-      - name: Commit
-        if: always()
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@users.noreply.github.com"
-          mkdir -p logs data; cp dump.log logs/dump.log || true
-          ls -la data | head -20; git add -A data logs
-          git commit -m "layout dump" || echo none
-          git pull --rebase -q || true
-          git push
+      - run: echo disabled
