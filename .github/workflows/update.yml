@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
+      - run: sudo apt-get install -y -qq poppler-utils
       - run: pip install requests beautifulsoup4 playwright && playwright install --with-deps chromium
       - name: Dump layout
         run: PEER_DUMP=1 python scripts/peer_fetch.py 2>&1 | tee dump.log
