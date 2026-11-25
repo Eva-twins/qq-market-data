@@ -19,8 +19,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          cp dump.log logs/dump.log || true
-          git add data/layout_dump.json logs/dump.log
+          mkdir -p logs data; cp dump.log logs/dump.log || true
+          ls -la data | head -20; git add -A data logs
           git commit -m "layout dump" || echo none
           git pull --rebase -q || true
           git push
