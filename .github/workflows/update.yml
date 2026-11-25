@@ -1,37 +1,26 @@
 name: update-data
 on:
-  schedule:
-    - cron: '17 1 * * *'   # 每天 09:17 台北時間
-  workflow_dispatch:
   push:
-    paths: ['scripts/**', 'app/**', '.github/workflows/update.yml']
+    branches: [diag]
 permissions:
   contents: write
-concurrency: update-data
 jobs:
-  update:
+  diag:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: sudo apt-get install -y -qq poppler-utils
-      - run: pip install requests beautifulsoup4 xlrd
-      - name: Fetch data
-        run: python scripts/update.py 2>&1 | tee run.log
-      - name: Install browser for peer report parsing
-        continue-on-error: true
-        run: pip install playwright && playwright install --with-deps chromium
-      - name: Fetch peer reports (download + parse)
-        continue-on-error: true
-        run: python scripts/peer_fetch.py 2>&1 | tee peer.log
-      - name: Commit if changed
+      - run: pip install requests beautifulsoup4 playwright && playwright install --with-deps chromium
+      - name: Dump layout
+        run: PEER_DUMP=1 python scripts/peer_fetch.py 2>&1 | tee dump.log
+      - name: Commit
         if: always()
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          mkdir -p logs && cp run.log logs/last_run.log || true; cp peer.log logs/last_peer.log || true
-          git add data logs
-          git commit -m "data update $(date -u +%F)" || echo "nothing to commit"
+          cp dump.log logs/dump.log || true
+          git add data/layout_dump.json logs/dump.log
+          git commit -m "layout dump" || echo none
           git pull --rebase -q || true
           git push

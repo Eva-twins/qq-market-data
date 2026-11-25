@@ -123,6 +123,19 @@ for aid,fn in ([] if TESTDIR else list(SRC.items())+[(a,None) for a in MDJ]):
         if aid in ('T7','T10'):tx=text_of(b);DEBUG['scale_'+aid]={'len':len(tx),'hit':[re.sub(r'\s+',' ',l.strip())[:160] for l in tx.splitlines() if re.search(r'規模|百萬|NT\$|億|淨資產|資產總',l)][:10],'head':[re.sub(r'\s+',' ',l.strip())[:100] for l in tx.splitlines() if l.strip()][:12]}
         path=os.path.join(tmp,f'{aid}__{m}.pdf');open(path,'wb').write(b);jobs.append((aid,m,path,u));log.append(f'{aid} OK {m} {len(b)//1024}KB');done=True;break
     if not done:log.append(f'{aid} 沒有取得新月報')
+if os.environ.get('PEER_DUMP'):
+    import base64
+    D={}
+    with sync_playwright() as p:
+        br=p.chromium.launch();pg=br.new_page()
+        pg.goto('file://'+os.path.join(ROOT,'app/peer_parser.html'));pg.wait_for_timeout(1500)
+        for aid,m,path,u in jobs:
+            try:
+                D[aid+'__'+m]=pg.evaluate("async b64=>{const q=window.__qq;const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const doc=await q.QQ.loadPdf(q.pdfjs,bin);return doc.slice(0,3).map(p=>p.map(r=>({y:Math.round(r.y*10)/10,s:r.segs.map(g=>[Math.round(g.x*10)/10,Math.round(g.x2*10)/10,g.s])})))}",base64.b64encode(open(path,'rb').read()).decode())
+            except Exception as e:D[aid+'__'+m]={'error':str(e)[:200]}
+        br.close()
+    json.dump(D,open(os.path.join(ROOT,'data/layout_dump.json'),'w',encoding='utf8'),ensure_ascii=False,separators=(',',':'))
+    print('\n'.join(log));print('dumped',len(D));sys.exit()
 old={'months':{}}
 try:old=json.load(open(os.path.join(ROOT,'data/peer.json'),encoding='utf8'))
 except Exception:pass
