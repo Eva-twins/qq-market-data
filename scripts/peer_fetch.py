@@ -97,6 +97,56 @@ def discover_fb():
     except Exception as e:DEBUG['fb_error']=str(e)[:150]
     return found
 FBFOUND=discover_fb() if not os.environ.get('PEER_TEST_DIR') else {}
+
+# 富邦 T7／T10：配置圖是圖片，用 OCR 讀圖上的各類別比例，並用文字段落的合計交叉驗證；驗證不過就不採用（維持沿用上月＋提示手動）
+import difflib,glob,shutil
+OCRL=[('全球非投資等級債券','c_hy'),('全球投資等級債券','c_ig'),('不動產證券化型','c_sec'),('不動產證券化','c_sec'),('新興市場債','c_emd'),('美國公債','c_gov'),('約當現金','c_cash'),('貨幣市場','c_mm'),('全球股票','c_gs'),('美國股票','c_us'),('歐洲股票','c_eu'),('日本股票','c_jp'),('亞洲股票','c_asia'),('台灣股票','c_tw')]
+CMAP={'c_gs':'DM','c_us':'DM','c_eu':'DM','c_jp':'DM','c_asia':'EM','c_sec':'SEC','c_tw':'TW','c_ig':'IG','c_gov':'IG','c_hy':'HY','c_emd':'EMD','c_cash':'CASH','c_mm':'CASH'}
+def ocr_parse(txt):
+    got={};bad=[]
+    for line in unicodedata.normalize('NFKC',txt).splitlines():
+        nums=re.findall(r'(\d{1,3}\.\d{2})',line)
+        if not nums:continue
+        lab=re.sub(r'[^\u4e00-\u9fff]','',line)
+        if not lab:continue
+        key=None
+        for l,k in sorted(OCRL,key=lambda x:-len(x[0])):
+            if l in lab:key=k;break
+        if not key:
+            m=difflib.get_close_matches(lab,[l for l,_ in OCRL],n=1,cutoff=0.7)
+            if m:key=dict(OCRL)[m[0]]
+        if key and key not in got:got[key]=float(nums[-1])
+        elif not key:bad.append((lab,float(nums[-1])))
+    return got,bad
+def ocr_chart(b,ent,aid):
+    d=tempfile.mkdtemp();pdf=os.path.join(d,'a.pdf');open(pdf,'wb').write(b)
+    subprocess.run(['pdfimages','-png','-l','3',pdf,os.path.join(d,'im')],capture_output=True,timeout=120)
+    subprocess.run(['pdftoppm','-r','300','-png','-l','3',pdf,os.path.join(d,'pg')],capture_output=True,timeout=180)
+    cands=sorted(glob.glob(d+'/im*.png'),key=os.path.getsize,reverse=True)[:6]+sorted(glob.glob(d+'/pg*.png'))
+    r=ent.get('raw',{}).get('raw',{});best=None;dbg=[]
+    try:
+        from PIL import Image
+        ups=[]
+        for f in cands:
+            if os.path.basename(f).startswith('im'):
+                im=Image.open(f).convert('RGB')
+                for z in (2,3):
+                    g=f[:-4]+f'_x{z}.png';im.resize((im.width*z,im.height*z),Image.LANCZOS).save(g);ups.append(g)
+        cands=cands+ups
+    except Exception as e:dbg.append('PIL:'+str(e)[:60])
+    for f in cands:
+        for psm in ('6',):
+            try:txt=subprocess.run(['tesseract',f,'-','-l','chi_tra+eng','--psm',psm],capture_output=True,text=True,timeout=120).stdout
+            except Exception as e:dbg.append(str(e)[:60]);continue
+            got,bad=ocr_parse(txt);tot=sum(got.values())
+            stk=sum(got.get(k,0) for k in ('c_gs','c_us','c_eu','c_jp','c_asia','c_sec','c_tw'));bond=sum(got.get(k,0) for k in ('c_ig','c_gov','c_hy','c_emd'));cash=got.get('c_cash',0)+got.get('c_mm',0)
+            ok=len(got)>=8 and abs(tot-100)<=1.2 and not any(v>0.3 for _,v in bad)
+            if ok and isinstance(r.get('stk'),(int,float)) and abs(stk-r['stk'])>0.6:ok=False
+            if ok and isinstance(r.get('bond'),(int,float)) and abs(bond-r['bond'])>0.6:ok=False
+            dbg.append({'f':os.path.basename(f),'psm':psm,'n':len(got),'sum':round(tot,2),'stk':round(stk,2),'bond':round(bond,2),'bad':bad[:4],'ok':ok})
+            if ok and (best is None or abs(tot-100)<abs(sum(best.values())-100)):best=got;DEBUG['ocr_text_'+aid]=txt[:900]
+    DEBUG['ocr_'+aid]=dbg[:14];shutil.rmtree(d,ignore_errors=True)
+    return best
 tmp=tempfile.mkdtemp();jobs=[];log=[]
 TESTDIR=os.environ.get('PEER_TEST_DIR')
 if TESTDIR:
@@ -146,6 +196,15 @@ if jobs:
                 if aid and rid!=aid:log.append(f'{aid} 下載到的是 {rid} 的月報，已略過');continue
                 aid=rid
                 ent['notes']=[n for n in (ent.get('notes') or []) if '月報內容未見' not in n]
+                if aid in ('T7','T10'):
+                    try:
+                        ch=ocr_chart(open(path,'rb').read(),ent,aid)
+                        if ch:
+                            ent['raw']['raw'].update(ch);nb={k:0.0 for k in ('DM','EM','SEC','TW','IG','HY','EMD','CASH')}
+                            for k,v in ch.items():nb[CMAP[k]]+=v
+                            ent['b']={k:round(v,4) for k,v in nb.items()};ent['notes']=['依月報配置圖 OCR 讀取（圖表合計 %.2f%%，已與文字段落的股／債／現金合計交叉驗證），請與圖表核對'%sum(ch.values())];log.append(f'{aid} 配置圖 OCR 成功 {len(ch)} 類')
+                        else:log.append(f'{aid} 配置圖 OCR 未通過驗證，沿用上月比例')
+                    except Exception as e:log.append(f'{aid} OCR 錯誤 {type(e).__name__}: {str(e)[:80]}')
                 ent.update(src='auto',fetched=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='minutes'),url=u,file=os.path.basename(u.split('?')[0]) or aid)
                 prev=(months.get(m) or {}).get(aid)
                 if not prev or prev.get('b')!=ent['b']:new+=1
