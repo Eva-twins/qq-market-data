@@ -1,5 +1,5 @@
 {
- "at": "2026-11-27T09:29+00:00",
+ "at": "2026-11-27T09:32+00:00",
  "log": [
   "U1 OK 2026-10 679KB",
   "U5 OK 2026-10 699KB",
@@ -320,7 +320,35 @@
     "iframes": []
    }
   ],
-  "ocr_T10": [],
+  "ocr_txt_T10_im-000.png": "",
+  "ocr_txt_T10_im-001.png": "和 富邦投信    富邦證券投資信託股份有限公司 台北市10557敦化南路一段108號8機 0800.070-388 www:fuboncom 。【富邦投信獨立經營管理】\n",
+  "ocr_txt_T10_im-002.png": "",
+  "ocr_txt_T10_im-003.png": "",
+  "ocr_txt_T10_im-004.png": "",
+  "ocr_txt_T10_im-011.png": "2, LLL LL LA LA LAA A 26.58\n全球投資等級債券 (i bass\n亞洲股票 人 aos\n台灣股票 ————— | 10.45\nSUS A 3.17\n新興市場債 LL 7.91\n",
+  "ocr_txt_T10_im-012.png": "約當現金 MET 3.53\n美國公債 ME 2.36\n不動產證券化型 ME 1.93\n貨幣市場 Wo.2o\n歐洲股票 io6\n一一一一一一一一二二二二二二一\n0.00            5.00            10.00           15.00           20.00           25.00\n",
+  "ocr_txt_T10_im-013.png": "— RE a )--         BRaAarea\n1\n140                                   Mas\n11.8                   _      oe     me\nao                ;\n:                                                      |\n79\nperry              ena              amen\n",
+  "ocr_txt_T10_im-014.png": "一投資組合淨值(提解前)--左軸          一投資組合淨值\n15.0\n14.0\n13.0\n120\n11.0\nA\n10.0    al\n9.0\n8.0\n7.0\n2017/07                                                                    2020/08                                                                    2023/09                                                                    2026/10\n",
+  "ocr_txt_T10_im-015.png": "        ,\n",
+  "ocr_txt_T10_im-016.png": "",
+  "ocr_T10": [
+   {
+    "f": "combined",
+    "rows": 15,
+    "sum": 0
+   }
+  ],
+  "ocr_txt_T7_im-000.png": "",
+  "ocr_txt_T7_im-001.png": "",
+  "ocr_txt_T7_im-002.png": "",
+  "ocr_txt_T7_im-003.png": "To   _宮多和釘淨值(押解前)--左輻   Senta\n\n14.0\n\n13.0\n\n120\n\n11.9\n\nwo!\n\n20\n\n80\n\n70\n\n2020/12 20210  2022mMe 202808 20244  2008M2 2028r12 2028N0\n",
+  "ocr_txt_T7_im-004.png": "150                  一富多利淨值(提解前)--左崗              ESA\n14.0\n\n13.0\n\n12.0\n\n11.0\n\nLorn\n\n10.0\n\n9.0\n\n8.0\n\n7.0\n\n202012 2021/10 2022/08 2023/06 2024/04 2025/02 2025/12 2026/10\n",
+  "ocr_txt_T7_im-006.png": "和 富邦投信    富邦證券投資信託股份有限公司 台北市10557敦化南路一段108號8機 0800.070-388 www:fuboncom 。【富邦投信獨立經營管理】\n",
+  "ocr_txt_T7_im-010.png": "",
+  "ocr_txt_T7_im-012.png": "RT\nSRR\n\nCS =)\nBee BLS\nSBR  — §.36\n\n新與市場值479\nBBS 442\n\nPRR MR 3.44\nIRS 2D\nTHESE 2.16\n\nmame 861.02\nBORA 6.26\n",
+  "ocr_txt_T7_im-013.png": "SERRAS                                                                                                              28.1\n人金球投資等級倘券                                                                            18.90\n\n台灣股栗                                                                     15.28\n亞洲股栗                                                              13.53\n美國股票                           5.36\n\n新興市場債                         4.70\n美國公債                        4.42\n\n全球非投資等級債券                     ",
+  "ocr_txt_T7_im-018.png": "        ,\n",
+  "ocr_txt_T7_im-022.png": "",
   "ocr_T7": [
    {
     "f": "im-004.png",
