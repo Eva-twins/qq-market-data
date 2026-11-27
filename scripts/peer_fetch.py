@@ -148,6 +148,7 @@ def ocr_chart(b,ent,aid):
     r=ent.get('raw',{}).get('raw',{});best=None;dbg=[]
     from PIL import Image
     fs=[f for f in sorted(glob.glob(d+'/im*.png')) if Image.open(f).width>=350 and Image.open(f).height>=150]
+    allrows=[]
     for f in fs:
         im=Image.open(f).convert('RGB')
         for z in (1,2):
@@ -156,11 +157,21 @@ def ocr_chart(b,ent,aid):
             try:txt=subprocess.run(['tesseract',g,'-','-l','chi_tra+eng','--psm','6'],capture_output=True,text=True,timeout=120).stdout
             except Exception as e:dbg.append(str(e)[:60]);continue
             rows=ocr_rows(txt)
+            if z==1:allrows+=rows;DEBUG['ocr_txt_%s_%s'%(aid,os.path.basename(g))]=txt[:500]
             if len(rows)<8:continue
             res=ocr_resolve(rows,r);tot=sum(res.values()) if res else 0
             ok=bool(res) and abs(tot-100)<=1.2
             dbg.append({'f':os.path.basename(g),'rows':len(rows),'sum':round(tot,2),'ok':ok})
             if ok and (best is None or abs(tot-100)<abs(sum(best.values())-100)):best=res
+    if best is None and allrows:
+        seen=set();comb=[]
+        for k,v,ex in allrows:
+            if k and k in seen:continue
+            if k:seen.add(k)
+            comb.append((k,v,ex))
+        res=ocr_resolve(comb,r);tot=sum(res.values()) if res else 0
+        dbg.append({'f':'combined','rows':len(comb),'sum':round(tot,2)})
+        if res and abs(tot-100)<=1.2:best=res
     DEBUG['ocr_'+aid]=dbg[:20];shutil.rmtree(d,ignore_errors=True)
     return best
 tmp=tempfile.mkdtemp();jobs=[];log=[]
