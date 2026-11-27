@@ -122,18 +122,21 @@ def ocr_chart(b,ent,aid):
     d=tempfile.mkdtemp();pdf=os.path.join(d,'a.pdf');open(pdf,'wb').write(b)
     subprocess.run(['pdfimages','-png','-l','3',pdf,os.path.join(d,'im')],capture_output=True,timeout=120)
     subprocess.run(['pdftoppm','-r','300','-png','-l','3',pdf,os.path.join(d,'pg')],capture_output=True,timeout=180)
-    cands=sorted(glob.glob(d+'/im*.png'),key=os.path.getsize,reverse=True)[:6]+sorted(glob.glob(d+'/pg*.png'))
-    r=ent.get('raw',{}).get('raw',{});best=None;dbg=[]
+    r=ent.get('raw',{}).get('raw',{});best=None;dbg=[];ims=[]
     try:
         from PIL import Image
-        ups=[]
-        for f in cands:
-            if os.path.basename(f).startswith('im'):
-                im=Image.open(f).convert('RGB')
-                for z in (2,3):
-                    g=f[:-4]+f'_x{z}.png';im.resize((im.width*z,im.height*z),Image.LANCZOS).save(g);ups.append(g)
-        cands=cands+ups
-    except Exception as e:dbg.append('PIL:'+str(e)[:60])
+        for f in glob.glob(d+'/im*.png'):
+            im=Image.open(f);ims.append((os.path.basename(f),im.width,im.height))
+        DEBUG['ocr_imgs_'+aid]=sorted(ims)
+        big=sorted([x for x in ims if x[1]>=350 and x[2]>=150],key=lambda x:-x[1]*x[2])[:8]
+        cands=[]
+        for nm,w,h in big:
+            f=os.path.join(d,nm);cands.append(f)
+            im=Image.open(f).convert('RGB')
+            for z in (2,3):
+                g=f[:-4]+f'_x{z}.png';im.resize((im.width*z,im.height*z),Image.LANCZOS).save(g);cands.append(g)
+    except Exception as e:dbg.append('PIL:'+str(e)[:60]);cands=[]
+    cands+=sorted(glob.glob(d+'/pg*.png'))
     for f in cands:
         for psm in ('6',):
             try:txt=subprocess.run(['tesseract',f,'-','-l','chi_tra+eng','--psm',psm],capture_output=True,text=True,timeout=120).stdout
@@ -143,9 +146,10 @@ def ocr_chart(b,ent,aid):
             ok=len(got)>=8 and abs(tot-100)<=1.2 and not any(v>0.3 for _,v in bad)
             if ok and isinstance(r.get('stk'),(int,float)) and abs(stk-r['stk'])>0.6:ok=False
             if ok and isinstance(r.get('bond'),(int,float)) and abs(bond-r['bond'])>0.6:ok=False
-            dbg.append({'f':os.path.basename(f),'psm':psm,'n':len(got),'sum':round(tot,2),'stk':round(stk,2),'bond':round(bond,2),'bad':bad[:4],'ok':ok})
-            if ok and (best is None or abs(tot-100)<abs(sum(best.values())-100)):best=got;DEBUG['ocr_text_'+aid]=txt[:900]
-    DEBUG['ocr_'+aid]=dbg[:14];shutil.rmtree(d,ignore_errors=True)
+            dbg.append({'f':os.path.basename(f),'n':len(got),'sum':round(tot,2),'stk':round(stk,2),'bond':round(bond,2),'ok':ok})
+            if len(got)>=3:DEBUG['ocr_text_%s_%s'%(aid,os.path.basename(f))]=txt[:700]
+            if ok and (best is None or abs(tot-100)<abs(sum(best.values())-100)):best=got
+    DEBUG['ocr_'+aid]=dbg[:40];shutil.rmtree(d,ignore_errors=True)
     return best
 tmp=tempfile.mkdtemp();jobs=[];log=[]
 TESTDIR=os.environ.get('PEER_TEST_DIR')
