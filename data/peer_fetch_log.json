@@ -1,5 +1,5 @@
 {
- "at": "2026-11-26T02:29+00:00",
+ "at": "2026-11-27T02:29+00:00",
  "log": [
   "U1 OK 2026-10 679KB",
   "U5 OK 2026-10 699KB",
@@ -17,8 +17,7 @@
   "U8 OK 2026-10 673KB",
   "T5 OK 2026-10 583KB",
   "U19 OK 2026-10 521KB",
-  "T8 非PDF或404 https://www.twfhclife.com.tw/wp-content/uploads/%E6%9C%88%E5%A0%B1-%E8%87%BA%E9%8A%80%E4%B",
-  "T8 OK 2026-09 566KB",
+  "T8 OK 2026-10 542KB",
   "T4 OK 2026-10 453KB",
   "T9 頁面找到 1 個月報網址",
   "T9 OK 2026-09 575KB",
@@ -50,7 +49,7 @@
   "U8 解析 2026-10 合計 100.0",
   "T5 解析 2026-10 合計 100.0",
   "U19 解析 2026-10 合計 100.0",
-  "T8 解析 2026-09 合計 100.0",
+  "T8 解析 2026-10 合計 100.0",
   "T4 解析 2026-10 合計 100.0",
   "T9 解析 2026-09 合計 100.0",
   "T10 解析 2026-10 合計 100.0",
@@ -224,7 +223,7 @@
    {
     "page": "https://mlivul.moneydj.com/w/wfv/wfv01.djhtm?a=MFD00010",
     "status": 200,
-    "len": 14585,
+    "len": 14574,
     "links": [
      "https://mlivul.moneydj.com/savefile/discretionary/20261112_112231/月報-MFD10-11510.pdf",
      "https://mlivul.moneydj.com/savefile/discretionary/20260713_035151/子標的費用-MFD10-11507.pdf",
@@ -236,7 +235,7 @@
    {
     "page": "https://mlivul.moneydj.com/W/WFV/WFV01.DJHTM?A=MFD00010",
     "status": 200,
-    "len": 14585,
+    "len": 14574,
     "links": [
      "https://mlivul.moneydj.com/savefile/discretionary/20261112_112231/月報-MFD10-11510.pdf",
      "https://mlivul.moneydj.com/savefile/discretionary/20260713_035151/子標的費用-MFD10-11507.pdf",
@@ -290,7 +289,7 @@
    {
     "page": "https://mlivul.moneydj.com/w/wfv/wfv01.djhtm?a=MDI00010",
     "status": 200,
-    "len": 14348,
+    "len": 14350,
     "links": [
      "https://mlivul.moneydj.com/savefile/discretionary/20261112_112120/月報-MDI10-11510.pdf",
      "https://mlivul.moneydj.com/savefile/discretionary/20260713_034503/子標的費用-MDI10-11507.pdf",
@@ -302,7 +301,7 @@
    {
     "page": "https://mlivul.moneydj.com/W/WFV/WFV01.DJHTM?A=MDI00010",
     "status": 200,
-    "len": 14348,
+    "len": 14350,
     "links": [
      "https://mlivul.moneydj.com/savefile/discretionary/20261112_112120/月報-MDI10-11510.pdf",
      "https://mlivul.moneydj.com/savefile/discretionary/20260713_034503/子標的費用-MDI10-11507.pdf",
