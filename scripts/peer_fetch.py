@@ -102,54 +102,66 @@ FBFOUND=discover_fb() if not os.environ.get('PEER_TEST_DIR') else {}
 import difflib,glob,shutil
 OCRL=[('全球非投資等級債券','c_hy'),('全球投資等級債券','c_ig'),('不動產證券化型','c_sec'),('不動產證券化','c_sec'),('新興市場債','c_emd'),('美國公債','c_gov'),('約當現金','c_cash'),('貨幣市場','c_mm'),('全球股票','c_gs'),('美國股票','c_us'),('歐洲股票','c_eu'),('日本股票','c_jp'),('亞洲股票','c_asia'),('台灣股票','c_tw')]
 CMAP={'c_gs':'DM','c_us':'DM','c_eu':'DM','c_jp':'DM','c_asia':'EM','c_sec':'SEC','c_tw':'TW','c_ig':'IG','c_gov':'IG','c_hy':'HY','c_emd':'EMD','c_cash':'CASH','c_mm':'CASH'}
-def ocr_parse(txt):
-    got={};bad=[]
+STKK=('c_gs','c_us','c_eu','c_jp','c_asia','c_sec','c_tw');BONDK=('c_ig','c_gov','c_hy','c_emd')
+FIXC=[('股栗','股票'),('倘券','債券'),('人金球','全球'),('金球','全球')]
+def ocr_rows(txt):
+    rows=[]
     for line in unicodedata.normalize('NFKC',txt).splitlines():
-        nums=re.findall(r'(\d{1,3}\.\d{2})',line)
-        if not nums:continue
-        lab=re.sub(r'[^\u4e00-\u9fff]','',line)
-        if not lab:continue
+        m=re.findall(r'(\d{1,3}\.\d{1,2})\s*$',line.strip())
+        if not m:continue
+        val=m[-1];lab=re.sub(r'[^\u4e00-\u9fff]','',line)
+        for a,b in FIXC:lab=lab.replace(a,b)
         key=None
         for l,k in sorted(OCRL,key=lambda x:-len(x[0])):
             if l in lab:key=k;break
-        if not key:
-            m=difflib.get_close_matches(lab,[l for l,_ in OCRL],n=1,cutoff=0.7)
-            if m:key=dict(OCRL)[m[0]]
-        if key and key not in got:got[key]=float(nums[-1])
-        elif not key:bad.append((lab,float(nums[-1])))
-    return got,bad
+        if not key and lab:
+            mm=difflib.get_close_matches(lab,[l for l,_ in OCRL],n=1,cutoff=0.75)
+            if mm:key=dict(OCRL)[mm[0]]
+        rows.append((key,float(val),len(val.split('.')[1])==2))
+    return rows
+def ocr_resolve(rows,r):
+    import itertools
+    got={};unk=[]
+    for k,v,ex in rows:
+        if k and ex and k not in got:got[k]=v
+        elif not k or not ex:unk.append((k,v,ex))
+    missing=[k for _,k in dict(OCRL).items() if k not in got and k!='c_sec' or (k=='c_sec' and 'c_sec' not in got)]
+    missing=list(dict.fromkeys(missing));missing.sort(key=lambda k:(['c_gs','c_cash'].index(k) if k in ('c_gs','c_cash') else 9))
+    n=len(unk)
+    if n==0:return got
+    if n>2 or n>len(missing):return None
+    K=sum(got.values());vals=[v if ex else None for _,v,ex in unk]
+    if vals.count(None)>1:return None
+    if None in vals:vals[vals.index(None)]=round(100-K-sum(x for x in vals if x is not None),2)
+    best=None
+    for perm in itertools.permutations(missing,n):
+        g=dict(got)
+        for k,v in zip(perm,vals):g[k]=v
+        stk=sum(g.get(k,0) for k in STKK);bond=sum(g.get(k,0) for k in BONDK)
+        if isinstance(r.get('stk'),(int,float)) and abs(stk-r['stk'])>0.6:continue
+        if isinstance(r.get('bond'),(int,float)) and abs(bond-r['bond'])>0.6:continue
+        return g
+    return None
 def ocr_chart(b,ent,aid):
     d=tempfile.mkdtemp();pdf=os.path.join(d,'a.pdf');open(pdf,'wb').write(b)
     subprocess.run(['pdfimages','-png','-l','3',pdf,os.path.join(d,'im')],capture_output=True,timeout=120)
-    subprocess.run(['pdftoppm','-r','300','-png','-l','3',pdf,os.path.join(d,'pg')],capture_output=True,timeout=180)
-    r=ent.get('raw',{}).get('raw',{});best=None;dbg=[];ims=[]
-    try:
-        from PIL import Image
-        for f in glob.glob(d+'/im*.png'):
-            im=Image.open(f);ims.append((os.path.basename(f),im.width,im.height))
-        DEBUG['ocr_imgs_'+aid]=sorted(ims)
-        big=sorted([x for x in ims if x[1]>=350 and x[2]>=150],key=lambda x:-x[1]*x[2])[:8]
-        cands=[]
-        for nm,w,h in big:
-            f=os.path.join(d,nm);cands.append(f)
-            im=Image.open(f).convert('RGB')
-            for z in (2,3):
-                g=f[:-4]+f'_x{z}.png';im.resize((im.width*z,im.height*z),Image.LANCZOS).save(g);cands.append(g)
-    except Exception as e:dbg.append('PIL:'+str(e)[:60]);cands=[]
-    cands+=sorted(glob.glob(d+'/pg*.png'))
-    for f in cands:
-        for psm in ('6',):
-            try:txt=subprocess.run(['tesseract',f,'-','-l','chi_tra+eng','--psm',psm],capture_output=True,text=True,timeout=120).stdout
+    r=ent.get('raw',{}).get('raw',{});best=None;dbg=[]
+    from PIL import Image
+    fs=[f for f in sorted(glob.glob(d+'/im*.png')) if Image.open(f).width>=350 and Image.open(f).height>=150]
+    for f in fs:
+        im=Image.open(f).convert('RGB')
+        for z in (1,2):
+            g=f if z==1 else f[:-4]+'_x2.png'
+            if z==2:im.resize((im.width*2,im.height*2),Image.LANCZOS).save(g)
+            try:txt=subprocess.run(['tesseract',g,'-','-l','chi_tra+eng','--psm','6'],capture_output=True,text=True,timeout=120).stdout
             except Exception as e:dbg.append(str(e)[:60]);continue
-            got,bad=ocr_parse(txt);tot=sum(got.values())
-            stk=sum(got.get(k,0) for k in ('c_gs','c_us','c_eu','c_jp','c_asia','c_sec','c_tw'));bond=sum(got.get(k,0) for k in ('c_ig','c_gov','c_hy','c_emd'));cash=got.get('c_cash',0)+got.get('c_mm',0)
-            ok=len(got)>=8 and abs(tot-100)<=1.2 and not any(v>0.3 for _,v in bad)
-            if ok and isinstance(r.get('stk'),(int,float)) and abs(stk-r['stk'])>0.6:ok=False
-            if ok and isinstance(r.get('bond'),(int,float)) and abs(bond-r['bond'])>0.6:ok=False
-            dbg.append({'f':os.path.basename(f),'n':len(got),'sum':round(tot,2),'stk':round(stk,2),'bond':round(bond,2),'ok':ok})
-            if len(got)>=3:DEBUG['ocr_text_%s_%s'%(aid,os.path.basename(f))]=txt[:700]
-            if ok and (best is None or abs(tot-100)<abs(sum(best.values())-100)):best=got
-    DEBUG['ocr_'+aid]=dbg[:40];shutil.rmtree(d,ignore_errors=True)
+            rows=ocr_rows(txt)
+            if len(rows)<8:continue
+            res=ocr_resolve(rows,r);tot=sum(res.values()) if res else 0
+            ok=bool(res) and abs(tot-100)<=1.2
+            dbg.append({'f':os.path.basename(g),'rows':len(rows),'sum':round(tot,2),'ok':ok})
+            if ok and (best is None or abs(tot-100)<abs(sum(best.values())-100)):best=res
+    DEBUG['ocr_'+aid]=dbg[:20];shutil.rmtree(d,ignore_errors=True)
     return best
 tmp=tempfile.mkdtemp();jobs=[];log=[]
 TESTDIR=os.environ.get('PEER_TEST_DIR')
