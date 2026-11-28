@@ -1,5 +1,5 @@
 {
- "at": "2026-11-28T02:26+00:00",
+ "at": "2026-11-28T12:08+00:00",
  "log": [
   "U1 OK 2026-10 679KB",
   "U5 OK 2026-10 699KB",
@@ -320,53 +320,219 @@
     "iframes": []
    }
   ],
-  "ocr_txt_T10_im-000.png": "",
-  "ocr_txt_T10_im-001.png": "和 富邦投信    富邦證券投資信託股份有限公司 台北市10557敦化南路一段108號8機 0800.070-388 www:fuboncom 。【富邦投信獨立經營管理】\n",
-  "ocr_txt_T10_im-002.png": "",
-  "ocr_txt_T10_im-003.png": "",
-  "ocr_txt_T10_im-004.png": "",
-  "ocr_txt_T10_im-011.png": "2, LLL LL LA LA LAA A 26.58\n全球投資等級債券 (i bass\n亞洲股票 人 aos\n台灣股票 ————— | 10.45\nSUS A 3.17\n新興市場債 LL 7.91\n",
-  "ocr_txt_T10_im-012.png": "約當現金 MET 3.53\n美國公債 ME 2.36\n不動產證券化型 ME 1.93\n貨幣市場 Wo.2o\n歐洲股票 io6\n一一一一一一一一二二二二二二一\n0.00            5.00            10.00           15.00           20.00           25.00\n",
-  "ocr_txt_T10_im-013.png": "— RE a )--         BRaAarea\n1\n140                                   Mas\n11.8                   _      oe     me\nao                ;\n:                                                      |\n79\nperry              ena              amen\n",
-  "ocr_txt_T10_im-014.png": "一投資組合淨值(提解前)--左軸          一投資組合淨值\n15.0\n14.0\n13.0\n120\n11.0\nA\n10.0    al\n9.0\n8.0\n7.0\n2017/07                                                                    2020/08                                                                    2023/09                                                                    2026/10\n",
-  "ocr_txt_T10_im-015.png": "        ,\n",
-  "ocr_txt_T10_im-016.png": "",
+  "ocr_txt_T10_im-000_o.png": "",
+  "ocr_txt_T10_im-000_x2.png": "",
+  "ocr_txt_T10_im-000_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T10_im-000_inv.png": "",
+  "ocr_txt_T10_im-001_o.png": "和 富邦投信    富邦證券投資信託股份有限公司 台北市10557敦化南路一段108號8機 0800.070-388 www:fuboncom 。【富邦投信獨立經營管理】\n",
+  "ocr_txt_T10_im-001_x2.png": "(3 SRE  CIEARRISHDAIRAR  AdktH105578(LK—F1008R8IR 。 0800-070-388 — wwwfuboncom ”【富邦投信獨立經營管理】\n",
+  "ocr_txt_T10_im-001_th.png": "中)  = PRE        MEE REEMA RAS] © Sorh 108579 10B8ReB —-0800-070-388 — wwwfuboncom = [SHMA MEE AST\n",
+  "ocr_txt_T10_im-001_inv.png": "選,富存投信 Dy\n",
+  "ocr_txt_T10_im-002_o.png": "",
+  "ocr_txt_T10_im-002_x2.png": "",
+  "ocr_txt_T10_im-002_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T10_im-002_inv.png": "",
+  "ocr_txt_T10_im-003_o.png": "",
+  "ocr_txt_T10_im-003_x2.png": "",
+  "ocr_txt_T10_im-003_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T10_im-003_inv.png": "",
+  "ocr_txt_T10_im-004_o.png": "",
+  "ocr_txt_T10_im-004_x2.png": "",
+  "ocr_txt_T10_im-004_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T10_im-004_inv.png": "",
+  "ocr_txt_T10_im-011_o.png": "2, LLL LL LA LA LAA A 26.58\n全球投資等級債券 (i bass\n亞洲股票 人 aos\n台灣股票 ————— | 10.45\nSUS A 3.17\n新興市場債 LL 7.91\n",
+  "ocr_txt_T10_im-011_x2.png": "SERRA eee 26.58\n金球投資等級債券 [__._ 24.65\n亞洲股票 和 A688\n台灣股票 —————————s 10.45\nSRIERES Ry 轉還: 3.17\nPepe DA 7.91\n",
+  "ocr_txt_T10_im-011_th.png": "全球股票 De 26.53\nSees en 24.65\nNS ee 14.06\nSi = Dee 10.45\n全球非投資等級債六 DE 8.17\n新興市場信 es 7.91\n",
+  "ocr_txt_T10_im-011_inv.png": "金球股票5\n全球投資等級偵券6\n亞洲股票 上114.06\n人台灣股票 上110.45\n全球菲投資等級偵券上上 18.17\n新興市場倘上1791\n",
+  "ocr_txt_T10_im-012_o.png": "約當現金 MET 3.53\n美國公債 ME 2.36\n不動產證券化型 ME 1.93\n貨幣市場 Wo.2o\n歐洲股票 io6\n一一一一一一一一二二二二二二一\n0.00            5.00            10.00           15.00           20.00           25.00\n",
+  "ocr_txt_T10_im-012_x2.png": "約當現金 MA 3.53\n美國公債 MM 2.36\n不動產證券化型 轉千稅 193\n貨幣市場 0.20\n歐洲股票 jo.le\n0.00            5.00           10.00           15.00           20.00           25.00\n",
+  "ocr_txt_T10_im-012_th.png": "約當現金 HEE 3.53\nSOA MEE 2.36\n不動產證券化型 圖加國國 1.93\n貨幣市場 Wo.2o\n歐洲股票io.6\n0.00            5.00           10.00           15.00           20.00           25.00\n",
+  "ocr_txt_T10_im-012_inv.png": "約當現金上 |3.53\nHi Ls 2.36\n不動產證券化型[|193\n貨幣市場 和 o.20o\n歐洲股票to.16\n4              !              1              !              1              i)\n0.00           5.00          10.00          15.00          20.00          25.00\n",
+  "ocr_txt_T10_im-013_o.png": "— RE a )--         BRaAarea\n1\n140                                   Mas\n11.8                   _      oe     me\nao                ;\n:                                                      |\n79\nperry              ena              amen\n",
+  "ocr_txt_T10_im-013_x2.png": "   | RRR SS aC e)--Se   投資組合兆值\n",
+  "ocr_txt_T10_im-013_th.png": "投喜組合并側(襄飼兩上-左還                ' RPRAAE\n15.0\nLae                              .  2  r        和\n7.0                                  :\nB77                              2008                              2023108                              yor. y (1)\n",
+  "ocr_txt_T10_im-013_inv.png": "RES GAta)--= 8                    HRAACE\n16.0\n140\n120\n120\n1.0\n100\n80\n74\nBTA                                                      2200s                                                      S220\n",
+  "ocr_txt_T10_im-014_o.png": "to                            一投資組合淨值(提解前)--左點                    一投資組合淨值\n14.0\n13.0\n120\n11.0\n10.0         a:\n8.0\n人                                       202008                                       2023/09                                       2026/10\n",
+  "ocr_txt_T10_im-014_x2.png": "一投資組合淨值(提解前)--左軸                    一投資組合淨值\n\n15.0\n14.0\n13.0                                                                                                                                    :\n12.0\n11.0\n10.0        al:\n\n2.0\n\n8.0\n\n7.0\n\n2017/07                                       2020/08                                       2023/09                                       2026/10\n",
+  "ocr_txt_T10_im-014_th.png": "一投資組合淨值(提解前)--左軸                    一投資組合淨值\n\n15.0\n14.0\n13.0\n120\n11.0\n10.0        al :*\n\n9.0\n\n8.0\n\n7.0\n\n2017/07                                       2020/08                                       2023/09                                       2026/10\n",
+  "ocr_txt_T10_im-014_inv.png": "一投資組合淨值(提解前)--左軸                    一投資組合淨值\n\n15.0\n14.0\n13.0\n12.0\n11.0\n10.0        af:\n\n92.0                        |;\n\n8.0\n\n7.0\n\n2017/07                                       2020/08                                       2023/09                                       2026/10\n",
+  "ocr_txt_T10_im-015_o.png": "        ,\n",
+  "ocr_txt_T10_im-015_x2.png": "        ;\n",
+  "ocr_txt_T10_im-015_th.png": "        ;\n",
+  "ocr_txt_T10_im-015_inv.png": "        加讓\n",
+  "ocr_txt_T10_im-016_o.png": "",
+  "ocr_txt_T10_im-016_x2.png": "",
+  "ocr_txt_T10_im-016_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T10_im-016_inv.png": "",
   "ocr_T10": [
    {
+    "f": "im-014_x2.png",
+    "rows": 9,
+    "sum": 0
+   },
+   {
+    "f": "im-014_th.png",
+    "rows": 8,
+    "sum": 0
+   },
+   {
+    "f": "im-014_inv.png",
+    "rows": 9,
+    "sum": 0
+   },
+   {
     "f": "combined",
-    "rows": 15,
+    "lab": {
+     "c_tw": 10.45,
+     "c_emd": 7.91,
+     "c_ig": 24.65,
+     "c_gs": 26.53,
+     "c_hy": 8.17,
+     "c_asia": 114.06,
+     "c_cash": 3.53,
+     "c_gov": 2.36,
+     "c_sec": 1.93,
+     "c_mm": 0.2
+    },
+    "nov": [
+     "c_ig",
+     "c_asia",
+     "c_gs",
+     "c_mm",
+     "c_eu",
+     "c_sec"
+    ],
+    "unl": [
+     [
+      15.0,
+      4
+     ],
+     [
+      7.0,
+      4
+     ],
+     [
+      14.0,
+      4
+     ],
+     [
+      13.0,
+      4
+     ],
+     [
+      11.0,
+      4
+     ],
+     [
+      10.0,
+      4
+     ],
+     [
+      8.0,
+      4
+     ],
+     [
+      26.58,
+      2
+     ]
+    ],
     "sum": 0
    }
   ],
-  "ocr_txt_T7_im-000.png": "",
-  "ocr_txt_T7_im-001.png": "",
-  "ocr_txt_T7_im-002.png": "",
-  "ocr_txt_T7_im-003.png": "To   _宮多和釘淨值(押解前)--左輻   Senta\n\n14.0\n\n13.0\n\n120\n\n11.9\n\nwo!\n\n20\n\n80\n\n70\n\n2020/12 20210  2022mMe 202808 20244  2008M2 2028r12 2028N0\n",
-  "ocr_txt_T7_im-004.png": "150                  一富多利淨值(提解前)--左崗              ESA\n14.0\n\n13.0\n\n12.0\n\n11.0\n\nLorn\n\n10.0\n\n9.0\n\n8.0\n\n7.0\n\n202012 2021/10 2022/08 2023/06 2024/04 2025/02 2025/12 2026/10\n",
-  "ocr_txt_T7_im-006.png": "和 富邦投信    富邦證券投資信託股份有限公司 台北市10557敦化南路一段108號8機 0800.070-388 www:fuboncom 。【富邦投信獨立經營管理】\n",
-  "ocr_txt_T7_im-010.png": "",
-  "ocr_txt_T7_im-012.png": "RT\nSRR\n\nCS =)\nBee BLS\nSBR  — §.36\n\n新與市場值479\nBBS 442\n\nPRR MR 3.44\nIRS 2D\nTHESE 2.16\n\nmame 861.02\nBORA 6.26\n",
-  "ocr_txt_T7_im-013.png": "SERRAS                                                                                                              28.1\n人金球投資等級倘券                                                                            18.90\n\n台灣股栗                                                                     15.28\n亞洲股栗                                                              13.53\n美國股票                           5.36\n\n新興市場債                         4.70\n美國公債                        4.42\n\n全球非投資等級債券                     ",
-  "ocr_txt_T7_im-018.png": "        ,\n",
-  "ocr_txt_T7_im-022.png": "",
+  "ocr_txt_T7_im-000_o.png": "",
+  "ocr_txt_T7_im-000_x2.png": "",
+  "ocr_txt_T7_im-000_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T7_im-000_inv.png": "",
+  "ocr_txt_T7_im-001_o.png": "",
+  "ocr_txt_T7_im-001_x2.png": "",
+  "ocr_txt_T7_im-001_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T7_im-001_inv.png": "",
+  "ocr_txt_T7_im-002_o.png": "",
+  "ocr_txt_T7_im-002_x2.png": "",
+  "ocr_txt_T7_im-002_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T7_im-002_inv.png": "",
+  "ocr_txt_T7_im-003_o.png": "To   _宮多和釘淨值(押解前)--左輻   Senta\n\n14.0\n\n13.0\n\n120\n\n11.9\n\nwo!\n\n20\n\n80\n\n70\n\n2020/12 20210  2022mMe 202808 20244  2008M2 2028r12 2028N0\n",
+  "ocr_txt_T7_im-003_x2.png": "       Bens aieee)--=m        Bene ea\n\n14.0                                                                                                        Bh te\n\n12.0                                                      nf\n\n129                                 RON,     ee\n\n11.0        —                         —_        Sy\n\n10.0 AA      Ge\n\n8.0\n\n7.0                                                     |\n222",
+  "ocr_txt_T7_im-003_th.png": "16.0                     BONO EGE S)--=m               mo!\nme        FW                     一       :              Pag ated Het,                   Pint\n;                                       me SF      oo    a    s                       oe! 從                      “ie          qe\n8.0                            還            Pom                 he\nHs   om al ged wert         聲                       ",
+  "ocr_txt_T7_im-003_inv.png": "15.0   SOAP EGF R)--—e   Bone\n\n14.0\n\n12.0\n\n12.0\n11.0\n\n10.0\n\n|\n\n8.0\n\n7.0                    ,\n2020012 2021/0 222m™R #202908 20244 2025W02 202812 2026/10\n",
+  "ocr_txt_T7_im-004_o.png": "150                  一富多利淨值(提解前)--左崗              一富多利淨值\n14.0\n\n13.0\n\n12.0\n\n11.0\n\n全\n\n10.0\n\n9.0\n\n8.0\n\n7.0\n\n2020/12 2024/10 2022/08 2023/06 2024/04 2025/02 2025/12 2026/10\n",
+  "ocr_txt_T7_im-004_x2.png": "15.0             一罕多利淨值(提解前)--左還          一富多利淨值\n14.0\n13.0\n12.0\n11.0\n.  shonin\n\n10.0                                                               é,\n\n9.0\n\n8.0\n\n7.0\n\n2020/12            2021/10            2022/08            2023/06             2024/04             2025/02            2025/12            2026/10\n",
+  "ocr_txt_T7_im-004_th.png": "15.0             一富多利淨值(提解前)--左還          一窩多利淨值\n14.0\n13.0\n12.0\n11.0\n6 Ne\n10.0             )\n9.0\n8.0\n7.0\n2020/12 2021/10 #2022/08 #### 2023/06 2024/04 2025/02 2025/12 2076/10\n",
+  "ocr_txt_T7_im-004_inv.png": "15.0             一井多利淨值(提解前)--左還          一富多利淨值\n14.0\n13.0\n12.0\n11.0\n,  shonin\n\n10.0                                                               ,\n\n9.0\n\n8.0\n\n7.0\n\n2020/12            2021/10            2022/08            2023/06             2024/04             2025/02            2025/12            2026/10\n",
+  "ocr_txt_T7_im-006_o.png": "和 富邦投信    富邦證券投資信託股份有限公司 台北市10557敦化南路一段108號8機 0800.070-388 www:fuboncom 。【富邦投信獨立經營管理】\n",
+  "ocr_txt_T7_im-006_x2.png": "(3 SRE  CIEARRISHDAIRAR  AdktH105578(LK—F1008R8IR 。 0800-070-388 — wwwfuboncom ”【富邦投信獨立經營管理】\n",
+  "ocr_txt_T7_im-006_th.png": "中)  = PRE        MEE REEMA RAS] © Sorh 108579 10B8ReB —-0800-070-388 — wwwfuboncom = [SHMA MEE AST\n",
+  "ocr_txt_T7_im-006_inv.png": "選,富存投信 Dy\n",
+  "ocr_txt_T7_im-010_o.png": "",
+  "ocr_txt_T7_im-010_x2.png": "",
+  "ocr_txt_T7_im-010_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T7_im-010_inv.png": "",
+  "ocr_txt_T7_im-012_o.png": "RT\nSRR\n\nCS =)\nBee BLS\nSBR  — §.36\n\n新與市場值479\nBBS 442\n\nPRR MR 3.44\nIRS 2D\nTHESE 2.16\n\nmame 861.02\nBORA 6.26\n",
+  "ocr_txt_T7_im-012_x2.png": "ER BBR\nSUR\n\nBe\neR 4S\nSER @ @ @ 8.36\n\ncel tc Oi)\nMESH 442\n\nPRR MSR S44\nmmIse 2.82\nTeme 2.16\n\nMate 8 8=«61.02\nBARTS g.26\n",
+  "ocr_txt_T7_im-012_th.png": "2m                                                                                                                                                             25. 1\nPRR MBS                                                                                                        18.30\n會次股票                                          16.28\nGe HERA                                      13.83\n@2Bhs          ",
+  "ocr_txt_T7_im-012_inv.png": "Paget ord                                                                                                18.28\nME in                              4.42\nPERSE MESERE Late                         3.44\na ei                       2.82\nmile            1.02\n",
+  "ocr_txt_T7_im-013_o.png": "SERRAS                                                                                                              28.1\n人金球投資等級倘券                                                                            18.90\n\n台灣股栗                                                                     15.28\n亞洲股栗                                                              13.53\n美國股票                           5.36\n",
+  "ocr_txt_T7_im-013_x2.png": "= BRAG                                                                                                                           28.1\n金球投資等級倘券                                                                                    18.90\n台灣股林                                                                     15.28\nco Age                                                              13.53\n美國股票           ",
+  "ocr_txt_T7_im-013_th.png": "= BAG Se                                                                                                                           28.1\nShige Sais                                                                                    18.90\n台灣股林                                                                     15.28\nco Ae                                                              13.53\n>a BRAS Se  ",
+  "ocr_txt_T7_im-013_inv.png": "= BRAG                                                                                                                           28.1\nShia eS ie                                                                                    18.90\n台灣股栗                                                                     15.28\n亞洲股評                                                              13.53\n美國股權           ",
+  "ocr_txt_T7_im-018_o.png": "        ,\n",
+  "ocr_txt_T7_im-018_x2.png": "        ;\n",
+  "ocr_txt_T7_im-018_th.png": "        ;\n",
+  "ocr_txt_T7_im-018_inv.png": "        加讓\n",
+  "ocr_txt_T7_im-022_o.png": "",
+  "ocr_txt_T7_im-022_x2.png": "",
+  "ocr_txt_T7_im-022_th.png": "ee IP,    =       |  \"\n|\ni}\nI\naa. |          i  a!\n",
+  "ocr_txt_T7_im-022_inv.png": "",
   "ocr_T7": [
    {
-    "f": "im-004.png",
+    "f": "im-003_inv.png",
     "rows": 8,
-    "sum": 0,
-    "ok": false
+    "sum": 0
    },
    {
-    "f": "im-013.png",
+    "f": "im-004_o.png",
+    "rows": 8,
+    "sum": 0
+   },
+   {
+    "f": "im-004_x2.png",
+    "rows": 9,
+    "sum": 0
+   },
+   {
+    "f": "im-004_th.png",
+    "rows": 9,
+    "sum": 0
+   },
+   {
+    "f": "im-004_inv.png",
+    "rows": 9,
+    "sum": 0
+   },
+   {
+    "f": "im-012_th.png",
+    "rows": 10,
+    "sum": 0
+   },
+   {
+    "f": "im-013_o.png",
     "rows": 12,
-    "sum": 100.0,
-    "ok": true
+    "sum": 100.0
    },
    {
     "f": "im-013_x2.png",
     "rows": 12,
-    "sum": 0,
-    "ok": false
+    "sum": 0
+   },
+   {
+    "f": "im-013_th.png",
+    "rows": 12,
+    "sum": 0
+   },
+   {
+    "f": "im-013_inv.png",
+    "rows": 12,
+    "sum": 0
    }
   ]
  }
