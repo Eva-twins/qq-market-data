@@ -118,11 +118,12 @@ def ocr_rows(txt):
             mm=difflib.get_close_matches(lab,[l for l,_ in OCRL],n=1,cutoff=0.75)
             if mm:key=dict(OCRL)[mm[0]]
         val=nums[-1] if nums else None
+        if val and float(val)>=60 and lab:val=val[1:] if len(val.split('.')[0])==3 else val
         if key is None and val is None:continue
         rows.append((key,float(val) if val else None,bool(val) and len(val.split('.')[1])==2))
     return rows
 PRIO=['c_gs','c_us','c_cash','c_jp','c_eu','c_asia','c_ig','c_gov','c_mm','c_hy','c_emd','c_tw','c_sec']
-LIM={'c_cash':8,'c_mm':8,'c_sec':8,'c_jp':10,'c_eu':12,'c_gov':20,'c_hy':20,'c_emd':20}
+LIM={'c_eu':6,'c_cash':8,'c_mm':8,'c_sec':8,'c_jp':10,'c_gov':20,'c_hy':20,'c_emd':20}
 def ocr_resolve(rows,r):
     import itertools
     lab={};nov=[];unl=[]
@@ -141,7 +142,11 @@ def ocr_resolve(rows,r):
     if len(unl)>3 or len(unl)>len(missing):return None
     approx=[i for i,(v,ex) in enumerate(unl) if not ex]
     if len(approx)>1 or len(nov)>4:return None
-    for perm in itertools.permutations(missing,len(unl)):
+    full=unl
+    for sub in [c for n in range(len(full),-1,-1) for c in itertools.combinations(full,n)]:
+      unl=list(sub);approx=[i for i,(v,ex) in enumerate(unl) if not ex]
+      if len(approx)>1:continue
+      for perm in itertools.permutations(missing,len(unl)):
         g=dict(lab);ok=True
         for (v,ex),k in zip(unl,perm):
             if v>LIM.get(k,100):ok=False;break
@@ -153,7 +158,9 @@ def ocr_resolve(rows,r):
             vl=[k for k in nov if k in grp]
             if isinstance(tot,(int,float)):
                 res=tot-sum(g.get(k,0) for k in grp)
-                if len(vl)==1:g[vl[0]]=round(res,2)
+                if len(vl)==1:
+                    if res<-0.05 or res>LIM.get(vl[0],60):ok=False
+                    g[vl[0]]=round(res,2)
                 elif len(vl)>1:ok=False
                 elif abs(res)>0.6:ok=False
         if not ok:continue
@@ -194,11 +201,22 @@ def ocr_chart(b,ent,aid):
             if k and v is not None and ex:cnt.setdefault(k,Counter())[v]+=1
             elif k and k not in nov:nov.append(k)
             elif not k and v is not None:unl[(v,ex)]+=1
-        lab={k:c.most_common(1)[0][0] for k,c in cnt.items()}
-        rows=[(k,v,True) for k,v in lab.items()]+[(k,None,False) for k in nov if k not in lab]
-        for (v,ex),n in unl.most_common():
-            if v not in lab.values() and n>=1:rows.append((None,v,ex))
-        res=ocr_resolve(rows,r);tot=sum(res.values()) if res else 0
+        # 近似值（差≤0.06）的無標籤讀值併入同標籤票數
+        for (v,ex),n in list(unl.items()):
+            if not ex:continue
+            for k,c in cnt.items():
+                if any(abs(v-x)<=0.06 for x in c):c[v]+=n;unl.pop((v,ex),None);break
+        import itertools as _it
+        ks=sorted(cnt);cl=[[v for v,_ in cnt[k].most_common(3)] for k in ks]
+        extra=[(v,ex) for (v,ex),n in unl.most_common() if ex]
+        res=None;lab={k:cnt[k].most_common(1)[0][0] for k in ks}
+        for combo in list(_it.islice(_it.product(*cl),300)):
+            lab2=dict(zip(ks,combo))
+            rows=[(k,v,True) for k,v in lab2.items()]+[(k,None,False) for k in nov if k not in lab2]+[(None,v,ex) for v,ex in extra if v not in lab2.values()]
+            res=ocr_resolve(rows,r)
+            if res and abs(sum(res.values())-100)<=1.2:lab=lab2;break
+            res=None
+        tot=sum(res.values()) if res else 0
         dbg.append({'f':'combined','lab':lab,'nov':nov,'unl':[(v,n) for (v,ex),n in unl.most_common(8)],'sum':round(tot,2)})
         if res and abs(tot-100)<=1.2:best=res
     DEBUG['ocr_'+aid]=dbg[:20];shutil.rmtree(d,ignore_errors=True)
