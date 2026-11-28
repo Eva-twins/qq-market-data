@@ -107,70 +107,99 @@ FIXC=[('股栗','股票'),('倘券','債券'),('人金球','全球'),('金球','
 def ocr_rows(txt):
     rows=[]
     for line in unicodedata.normalize('NFKC',txt).splitlines():
-        m=re.findall(r'(\d{1,3}\.\d{1,2})\s*$',line.strip())
-        if not m:continue
-        val=m[-1];lab=re.sub(r'[^\u4e00-\u9fff]','',line)
+        nums=re.findall(r'\d{1,3}\.\d{1,2}',line)
+        if len(nums)>=3:continue
+        lab=re.sub(r'[^\u4e00-\u9fff]','',line)
         for a,b in FIXC:lab=lab.replace(a,b)
         key=None
         for l,k in sorted(OCRL,key=lambda x:-len(x[0])):
             if l in lab:key=k;break
-        if not key and lab:
+        if not key and len(lab)>=3:
             mm=difflib.get_close_matches(lab,[l for l,_ in OCRL],n=1,cutoff=0.75)
             if mm:key=dict(OCRL)[mm[0]]
-        rows.append((key,float(val),len(val.split('.')[1])==2))
+        val=nums[-1] if nums else None
+        if key is None and val is None:continue
+        rows.append((key,float(val) if val else None,bool(val) and len(val.split('.')[1])==2))
     return rows
+PRIO=['c_gs','c_us','c_cash','c_jp','c_eu','c_asia','c_ig','c_gov','c_mm','c_hy','c_emd','c_tw','c_sec']
+LIM={'c_cash':8,'c_mm':8,'c_sec':8,'c_jp':10,'c_eu':12,'c_gov':20,'c_hy':20,'c_emd':20}
 def ocr_resolve(rows,r):
     import itertools
-    got={};unk=[]
+    lab={};nov=[];unl=[]
     for k,v,ex in rows:
-        if k and ex and k not in got:got[k]=v
-        elif not k or not ex:unk.append((k,v,ex))
-    missing=[k for _,k in dict(OCRL).items() if k not in got and k!='c_sec' or (k=='c_sec' and 'c_sec' not in got)]
-    missing=list(dict.fromkeys(missing));missing.sort(key=lambda k:(['c_gs','c_cash'].index(k) if k in ('c_gs','c_cash') else 9))
-    n=len(unk)
-    if n==0:return got
-    if n>2 or n>len(missing):return None
-    K=sum(got.values());vals=[v if ex else None for _,v,ex in unk]
-    if vals.count(None)>1:return None
-    if None in vals:vals[vals.index(None)]=round(100-K-sum(x for x in vals if x is not None),2)
-    best=None
-    for perm in itertools.permutations(missing,n):
-        g=dict(got)
-        for k,v in zip(perm,vals):g[k]=v
-        stk=sum(g.get(k,0) for k in STKK);bond=sum(g.get(k,0) for k in BONDK)
-        if isinstance(r.get('stk'),(int,float)) and abs(stk-r['stk'])>0.6:continue
-        if isinstance(r.get('bond'),(int,float)) and abs(bond-r['bond'])>0.6:continue
+        if k and v is not None and ex:lab.setdefault(k,v)
+        elif k and k not in nov:nov.append(k)
+        elif not k:unl.append((v,ex))
+    for k in list(nov):
+        if k in lab:nov.remove(k)
+    seen=set();u2=[]
+    for v,ex in unl:
+        if v in seen or v in lab.values():continue
+        seen.add(v);u2.append((v,ex))
+    unl=u2
+    missing=[k for k in PRIO if k not in lab and k not in nov]
+    if len(unl)>3 or len(unl)>len(missing):return None
+    approx=[i for i,(v,ex) in enumerate(unl) if not ex]
+    if len(approx)>1 or len(nov)>4:return None
+    for perm in itertools.permutations(missing,len(unl)):
+        g=dict(lab);ok=True
+        for (v,ex),k in zip(unl,perm):
+            if v>LIM.get(k,100):ok=False;break
+            g[k]=v
+        if not ok:continue
+        if approx and not nov:
+            k=perm[approx[0]];g[k]=0;g[k]=round(100-sum(g.values()),2)
+        for grp,tot in ((STKK,r.get('stk')),(BONDK,r.get('bond'))):
+            vl=[k for k in nov if k in grp]
+            if isinstance(tot,(int,float)):
+                res=tot-sum(g.get(k,0) for k in grp)
+                if len(vl)==1:g[vl[0]]=round(res,2)
+                elif len(vl)>1:ok=False
+                elif abs(res)>0.6:ok=False
+        if not ok:continue
+        vl=[k for k in nov if k not in g]
+        if len(vl)==1:g[vl[0]]=round(100-sum(g.values()),2)
+        elif vl:continue
+        if any(v<-0.05 or v>60 for v in g.values()):continue
+        if abs(sum(g.values())-100)>1.2 or len(g)<11:continue
         return g
     return None
 def ocr_chart(b,ent,aid):
     d=tempfile.mkdtemp();pdf=os.path.join(d,'a.pdf');open(pdf,'wb').write(b)
     subprocess.run(['pdfimages','-png','-l','3',pdf,os.path.join(d,'im')],capture_output=True,timeout=120)
     r=ent.get('raw',{}).get('raw',{});best=None;dbg=[]
-    from PIL import Image
+    from PIL import Image,ImageOps
     fs=[f for f in sorted(glob.glob(d+'/im*.png')) if Image.open(f).width>=350 and Image.open(f).height>=150]
     allrows=[]
     for f in fs:
-        im=Image.open(f).convert('RGB')
-        for z in (1,2):
-            g=f if z==1 else f[:-4]+'_x2.png'
-            if z==2:im.resize((im.width*2,im.height*2),Image.LANCZOS).save(g)
+        im=Image.open(f).convert('RGB');gr=ImageOps.autocontrast(im.convert('L'))
+        vars_={'o':im,'x2':im.resize((im.width*2,im.height*2),Image.LANCZOS),
+               'th':gr.resize((gr.width*2,gr.height*2),Image.LANCZOS).point(lambda x:0 if x<150 else 255),
+               'inv':ImageOps.invert(gr).resize((gr.width*2,gr.height*2),Image.LANCZOS).point(lambda x:0 if x<150 else 255)}
+        for nm,vi in vars_.items():
+            g=f[:-4]+'_'+nm+'.png';vi.save(g)
             try:txt=subprocess.run(['tesseract',g,'-','-l','chi_tra+eng','--psm','6'],capture_output=True,text=True,timeout=120).stdout
             except Exception as e:dbg.append(str(e)[:60]);continue
-            rows=ocr_rows(txt)
-            if z==1:allrows+=rows;DEBUG['ocr_txt_%s_%s'%(aid,os.path.basename(g))]=txt[:500]
-            if len(rows)<8:continue
-            res=ocr_resolve(rows,r);tot=sum(res.values()) if res else 0
-            ok=bool(res) and abs(tot-100)<=1.2
-            dbg.append({'f':os.path.basename(g),'rows':len(rows),'sum':round(tot,2),'ok':ok})
-            if ok and (best is None or abs(tot-100)<abs(sum(best.values())-100)):best=res
+            rows=ocr_rows(txt);DEBUG['ocr_txt_%s_%s'%(aid,os.path.basename(g))]=txt[:400]
+            if len(rows)>=8:
+                res=ocr_resolve(rows,r);tot=sum(res.values()) if res else 0
+                dbg.append({'f':os.path.basename(g),'rows':len(rows),'sum':round(tot,2)})
+                if res and abs(tot-100)<=1.2 and (best is None or abs(tot-100)<abs(sum(best.values())-100)):best=res
+            allrows+=rows
     if best is None and allrows:
-        seen=set();comb=[]
+        # 合併多張切片、多種前處理：同標籤取最常出現的兩位小數值
+        from collections import Counter
+        cnt={};unl=Counter();nov=[]
         for k,v,ex in allrows:
-            if k and k in seen:continue
-            if k:seen.add(k)
-            comb.append((k,v,ex))
-        res=ocr_resolve(comb,r);tot=sum(res.values()) if res else 0
-        dbg.append({'f':'combined','rows':len(comb),'sum':round(tot,2)})
+            if k and v is not None and ex:cnt.setdefault(k,Counter())[v]+=1
+            elif k and k not in nov:nov.append(k)
+            elif not k and v is not None:unl[(v,ex)]+=1
+        lab={k:c.most_common(1)[0][0] for k,c in cnt.items()}
+        rows=[(k,v,True) for k,v in lab.items()]+[(k,None,False) for k in nov if k not in lab]
+        for (v,ex),n in unl.most_common():
+            if v not in lab.values() and n>=1:rows.append((None,v,ex))
+        res=ocr_resolve(rows,r);tot=sum(res.values()) if res else 0
+        dbg.append({'f':'combined','lab':lab,'nov':nov,'unl':[(v,n) for (v,ex),n in unl.most_common(8)],'sum':round(tot,2)})
         if res and abs(tot-100)<=1.2:best=res
     DEBUG['ocr_'+aid]=dbg[:20];shutil.rmtree(d,ignore_errors=True)
     return best
