@@ -139,11 +139,9 @@ def ocr_resolve(rows,r):
         seen.add(v);u2.append((v,ex))
     unl=u2
     missing=[k for k in PRIO if k not in lab and k not in nov]
-    if len(unl)>3 or len(unl)>len(missing):return None
-    approx=[i for i,(v,ex) in enumerate(unl) if not ex]
-    if len(approx)>1 or len(nov)>4:return None
+    if len(nov)>4:return None
     full=unl
-    for sub in [c for n in range(len(full),-1,-1) for c in itertools.combinations(full,n)]:
+    for sub in [c for n in range(min(len(full),len(missing),3),-1,-1) for c in itertools.combinations(full,n)]:
       unl=list(sub);approx=[i for i,(v,ex) in enumerate(unl) if not ex]
       if len(approx)>1:continue
       for perm in itertools.permutations(missing,len(unl)):
